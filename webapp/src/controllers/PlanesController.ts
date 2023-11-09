@@ -1,5 +1,6 @@
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
+import { LocalStorage } from './LocalStorage'
 
 export class PlanesController {
   private readonly planes: Plane[] = []
@@ -14,7 +15,19 @@ export class PlanesController {
     return this.planes
   }
 
-  getAvailablePlanes (): Plane[] {
+  getAvailablePlanes (playtime: number): Plane[] {
+    const activeOffers = LocalStorage.getMarketOffers()
+
+    if (activeOffers.length === 0 || playtime % 1440 === 0) {
+      const newOffers = this.generatePlaneOptions()
+      LocalStorage.setMarketOffers(newOffers)
+      return newOffers
+    } else {
+      return activeOffers
+    }
+  }
+
+  private generatePlaneOptions (): Plane[] {
     const getRandomCharacters = (length: number): string => {
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
       let result = ''
