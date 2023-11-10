@@ -26,6 +26,7 @@ const ListPreview = <U,>({ Component, items, header, Icon, subheader }: ListPrev
             {items.map((item, index) => (
               <Component key={`list-preview-${index}`} item={item} />
             ))}
+            {items.length === 0 && <h4 className='text-center text-grey-dark mt-2'>{`No items in the ${header}`}</h4>}
         </Card.Body>
       </Card>
     </Col>

@@ -1,12 +1,13 @@
 import { Autobind } from '../decorators/Autobind'
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
+import { Timeframes } from './Clock'
 import { LocalStorage } from './LocalStorage'
 
-export class PlanesController {
+export class MarketController {
   private readonly planes: Plane[]
   private marketPlanes: Plane[]
-  private static instance: PlanesController
+  private static instance: MarketController
   private readonly AirlineController = AirlineController.getInstance()
   private readonly listeners: Record<string, (assets: Plane[]) => void> = {}
 
@@ -31,11 +32,12 @@ export class PlanesController {
   getAvailablePlanes (playtime: number): Plane[] {
     const lastRefresh = LocalStorage.getLastMarketRefresh()
 
-    if (lastRefresh === 0 || playtime - lastRefresh >= 1440) {
+    if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.WEEK) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
       LocalStorage.setLastMarketRefresh(playtime)
       this.callListeners([...newOffers])
+      this.marketPlanes = newOffers
       return newOffers
     } else {
       return this.marketPlanes
@@ -108,11 +110,11 @@ export class PlanesController {
     return options
   }
 
-  public static getInstance (): PlanesController {
-    if (PlanesController.instance === undefined) {
-      PlanesController.instance = new PlanesController()
+  public static getInstance (): MarketController {
+    if (MarketController.instance === undefined) {
+      MarketController.instance = new MarketController()
     }
 
-    return PlanesController.instance
+    return MarketController.instance
   }
 }

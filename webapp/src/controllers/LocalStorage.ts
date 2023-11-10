@@ -1,3 +1,4 @@
+import { Contract, convertToContractTuple } from '../models/Contract'
 import { Plane, convertToPlaneTuple } from '../models/Plane'
 import { type HangarAsset } from './HangarController'
 
@@ -10,7 +11,9 @@ enum Keys {
   HANGAR_PLANES = 'hangarPlanes',
   CASH = 'cash',
   REPUTATION = 'reputation',
-  AIRLINE_NAME = 'airlineName'
+  AIRLINE_NAME = 'airlineName',
+  CONTRACT_OFFERS = 'contractOffers',
+  LAST_CONTRACT_REFRESH = 'lastContractRefresh'
 }
 
 export const LocalStorage = {
@@ -90,5 +93,23 @@ export const LocalStorage = {
   },
   setAirlineName (airlineName: string): void {
     localStorage.setItem(Keys.AIRLINE_NAME, airlineName)
+  },
+  getContractsOffers (): Contract[] {
+    const offers = localStorage.getItem(Keys.CONTRACT_OFFERS)
+    let offersItems = (offers !== null) ? JSON.parse(offers) : []
+
+    offersItems = offersItems.map((offer: Contract) => new Contract(...convertToContractTuple(offer)))
+
+    return offersItems
+  },
+  setContractsOffers (offers: Contract[]): void {
+    localStorage.setItem(Keys.CONTRACT_OFFERS, JSON.stringify(offers))
+  },
+  getLastContractsRefresh (): number {
+    const lastContractRefresh = localStorage.getItem(Keys.LAST_CONTRACT_REFRESH)
+    return (lastContractRefresh !== null) ? parseInt(lastContractRefresh) : 0
+  },
+  setLastContractsRefresh (lastContractRefresh: number): void {
+    localStorage.setItem(Keys.LAST_CONTRACT_REFRESH, lastContractRefresh.toString())
   }
 }

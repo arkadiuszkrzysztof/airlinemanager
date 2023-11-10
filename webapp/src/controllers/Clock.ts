@@ -1,5 +1,13 @@
 import { LocalStorage } from './LocalStorage'
 
+export enum Timeframes {
+  HOUR = 60,
+  DAY = 1440,
+  WEEK = 10080,
+  MONTH = 43200,
+  YEAR = 525600
+}
+
 export class Clock {
   private static instance: Clock
   private readonly listeners: Record<string, (playtime: number) => void> = {}
@@ -52,13 +60,22 @@ export class Clock {
 
   get currentDayOfWeek (): string {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    return days[Math.floor(this._playtime / 1440) % 7]
+    return days[Math.floor(this._playtime / Timeframes.DAY) % days.length]
   }
 
   get timeToNextDay (): string {
-    const hours = Math.floor((1440 - this._playtime % 1440) / 60)
-    const minutes = (1440 - this._playtime % 1440) % 60
+    const { HOUR, DAY } = Timeframes
+    const hours = Math.floor((DAY - this._playtime % DAY) / HOUR)
+    const minutes = (DAY - this._playtime % DAY) % HOUR
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+    return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`
+  }
+
+  get timeToNextWeek (): string {
+    const days = Math.floor((10080 - (this._playtime % 10080)) / 1440)
+    const hours = Math.floor((10080 - (this._playtime % 10080)) / 60) % 24
+    const minutes = (10080 - (this._playtime % 10080)) % 60
+
+    return `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`
   }
 }

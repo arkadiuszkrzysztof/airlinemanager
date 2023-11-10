@@ -1,28 +1,32 @@
 import { Clock } from './Clock'
 import { AirlineController } from './AirlineController'
 import { HangarController } from './HangarController'
-import { PlanesController } from './PlanesController'
+import { MarketController } from './MarketController'
+import { ContractsController } from './ContractsController'
 
 export class GameController {
   private readonly airlineController: AirlineController
-  private readonly planesController: PlanesController
+  private readonly marketController: MarketController
   private readonly hangarController: HangarController
+  private readonly contractsController: ContractsController
   private readonly clock: Clock
 
   private static instance: GameController
 
   private constructor () {
     this.airlineController = AirlineController.getInstance()
-    this.planesController = PlanesController.getInstance()
+    this.marketController = MarketController.getInstance()
     this.hangarController = HangarController.getInstance()
+    this.contractsController = ContractsController.getInstance()
     this.clock = Clock.getInstance()
   }
 
   public static getInstance (): {
     Game: GameController
     Airline: AirlineController
-    Planes: PlanesController
+    Market: MarketController
     Hangar: HangarController
+    Contracts: ContractsController
     Clock: Clock
   } {
     if (GameController.instance === undefined) {
@@ -32,8 +36,9 @@ export class GameController {
     return {
       Game: this.instance,
       Airline: this.instance.airlineController,
-      Planes: this.instance.planesController,
+      Market: this.instance.marketController,
       Hangar: this.instance.hangarController,
+      Contracts: this.instance.contractsController,
       Clock: this.instance.clock
     }
   }

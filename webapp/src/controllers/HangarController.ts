@@ -1,6 +1,6 @@
 import { type Plane } from '../models/Plane'
 import { LocalStorage } from './LocalStorage'
-import { PlanesController } from './PlanesController'
+import { MarketController } from './MarketController'
 
 export interface HangarAsset { plane: Plane, ownership: 'owned' | 'leased' }
 
@@ -25,7 +25,7 @@ export class HangarController {
     this.assets.push(asset)
     LocalStorage.setHangarPlanes(this.assets)
     this.callListeners([...this.assets])
-    PlanesController.getInstance().getPlaneOffMarket(asset.plane)
+    MarketController.getInstance().getPlaneOffMarket(asset.plane)
   }
 
   getAllAssets (): HangarAsset[] {

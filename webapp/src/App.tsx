@@ -4,22 +4,27 @@ import PlaneListItem from './components/PlaneListItem'
 import { Container, Row, Col, Badge } from 'react-bootstrap'
 import { type Plane } from './models/Plane'
 
-import { AirplaneFill, CalendarWeek, CartCheck, Coin, GraphUpArrow, HouseDoor } from 'react-bootstrap-icons'
+import { AirplaneFill, CalendarWeek, CartCheck, Coin, FileEarmarkText, GraphUpArrow, HouseDoor } from 'react-bootstrap-icons'
 import ListPreview from './components/widgets/ListPreview'
 import { type HangarAsset } from './controllers/HangarController'
 import HangarListItem from './components/HangarListItem'
 import { GameController } from './controllers/GameController'
+import { type Contract } from './models/Contract'
+import ContractListItem from './components/ContractListItem'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
   const [clock, setClock] = React.useState(Controllers.Clock.playtime)
   const [assets, setAssets] = React.useState<HangarAsset[]>(Controllers.Hangar.getAllAssets())
-  const [market, setMarket] = React.useState<Plane[]>(Controllers.Planes.getAvailablePlanes(clock))
+  const [market, setMarket] = React.useState<Plane[]>(Controllers.Market.getAvailablePlanes(clock))
+  const [contracts, setContracts] = React.useState(Controllers.Contracts.getAvailableContracts(clock))
 
   Controllers.Clock.registerListener('headerClockLabel', setClock)
-  Controllers.Clock.registerListener('marketListPreview', Controllers.Planes.getAvailablePlanes)
+  Controllers.Clock.registerListener('marketListPreview', Controllers.Market.getAvailablePlanes)
+  Controllers.Clock.registerListener('contractsListPreview', Controllers.Contracts.getAvailableContracts)
   Controllers.Hangar.registerListener('hangarListPreview', setAssets)
-  Controllers.Planes.registerListener('marketListPreview', setMarket)
+  Controllers.Market.registerListener('marketListPreview', setMarket)
+  Controllers.Contracts.registerListener('contractsListPreview', setContracts)
 
   return (
     <Container fluid>
@@ -57,9 +62,16 @@ const App: React.FC = () => {
         <ListPreview<Plane>
           Icon={CartCheck}
           header='Market'
-          subheader={`Refresh in ${Controllers.Clock.timeToNextDay}`}
+          subheader={`Refresh in ${Controllers.Clock.timeToNextWeek}`}
           Component={PlaneListItem}
           items={market}
+        />
+        <ListPreview<Contract>
+          Icon={FileEarmarkText}
+          header='Contracts'
+          subheader={`Refresh in ${Controllers.Clock.timeToNextDay}`}
+          Component={ContractListItem}
+          items={contracts}
         />
         <ListPreview<HangarAsset>
           Icon={HouseDoor}
