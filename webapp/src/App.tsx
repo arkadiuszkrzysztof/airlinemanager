@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import PlaneListItem from './components/PlaneListItem'
 
 import { Container, Row, Col, Badge } from 'react-bootstrap'
@@ -12,17 +12,14 @@ import { GameController } from './controllers/GameController'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
-  const [assets, setAssets] = React.useState<HangarAsset[]>([])
   const [clock, setClock] = React.useState(Controllers.Clock.playtime)
+  const [assets, setAssets] = React.useState<HangarAsset[]>(Controllers.Hangar.getAllAssets())
+  const [market, setMarket] = React.useState<Plane[]>(Controllers.Planes.getAvailablePlanes(clock))
 
   Controllers.Clock.registerListener('headerClockLabel', setClock)
-
-  useEffect(() => {
-    setAssets([
-      { plane: Controllers.Planes.getAllPlanes()[4], ownership: 'leased' },
-      { plane: Controllers.Planes.getAllPlanes()[0], ownership: 'owned' }
-    ])
-  }, [])
+  Controllers.Clock.registerListener('marketListPreview', Controllers.Planes.getAvailablePlanes)
+  Controllers.Hangar.registerListener('hangarListPreview', setAssets)
+  Controllers.Planes.registerListener('marketListPreview', setMarket)
 
   return (
     <Container fluid>
@@ -62,7 +59,7 @@ const App: React.FC = () => {
           header='Market'
           subheader={`Refresh in ${Controllers.Clock.timeToNextDay}`}
           Component={PlaneListItem}
-          items={Controllers.Planes.getAvailablePlanes(clock)}
+          items={market}
         />
         <ListPreview<HangarAsset>
           Icon={HouseDoor}

@@ -1,3 +1,8 @@
+import { type Plane } from '../models/Plane'
+import { GameController } from './GameController'
+import { HangarController } from './HangarController'
+import { LocalStorage } from './LocalStorage'
+
 enum Tier { Bronze = 'Bronze', Silver = 'Silver', Gold = 'Gold', Platinum = 'Platinum' }
 type TierRecord = Record<string, { minReputation: number, constraints: { MTOW: number | null } }>
 
@@ -9,9 +14,9 @@ export class AirlineController {
   private _cash: number
 
   private constructor () {
-    this._name = '### YOUR NAME HERE ###'
-    this._reputation = 2.55
-    this._cash = 250000000
+    this._name = LocalStorage.getAirlineName()
+    this._reputation = LocalStorage.getReputation()
+    this._cash = LocalStorage.getCash()
   }
 
   public static getInstance (): AirlineController {
@@ -40,18 +45,22 @@ export class AirlineController {
 
   public gainReputation (amount: number): void {
     this._reputation += amount
+    LocalStorage.setReputation(this._reputation)
   }
 
   public loseReputation (amount: number): void {
     this._reputation -= amount
+    LocalStorage.setReputation(this._reputation)
   }
 
   public gainCash (amount: number): void {
     this._cash += amount
+    LocalStorage.setCash(this._cash)
   }
 
   public spendCash (amount: number): void {
     this._cash -= amount
+    LocalStorage.setCash(this._cash)
   }
 
   get reputation (): string {
@@ -64,5 +73,25 @@ export class AirlineController {
 
   get name (): string {
     return this._name
+  }
+
+  public buyPlane (plane: Plane): void {
+    if (this._cash < plane.pricing.purchase) {
+      GameController.displayMessage('Not enough cash!')
+      return
+    }
+    const hangarController = HangarController.getInstance()
+    this.spendCash(plane.pricing.purchase)
+    hangarController.addAsset({ plane, ownership: 'owned' })
+  }
+
+  public leasePlane (plane: Plane): void {
+    if (this._cash < plane.pricing.downpayment) {
+      GameController.displayMessage('Not enough cash!')
+      return
+    }
+    const hangarController = HangarController.getInstance()
+    this.spendCash(plane.pricing.downpayment)
+    hangarController.addAsset({ plane, ownership: 'leased' })
   }
 }

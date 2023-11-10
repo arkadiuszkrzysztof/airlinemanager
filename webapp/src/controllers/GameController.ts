@@ -37,4 +37,8 @@ export class GameController {
       Clock: this.instance.clock
     }
   }
+
+  public static displayMessage (message: string): void {
+    console.log('MESSAGE: ', message)
+  }
 }

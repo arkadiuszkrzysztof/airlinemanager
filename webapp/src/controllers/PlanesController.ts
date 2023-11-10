@@ -1,30 +1,51 @@
+import { Autobind } from '../decorators/Autobind'
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
 import { LocalStorage } from './LocalStorage'
 
 export class PlanesController {
-  private readonly planes: Plane[] = []
+  private readonly planes: Plane[]
+  private marketPlanes: Plane[]
   private static instance: PlanesController
   private readonly AirlineController = AirlineController.getInstance()
+  private readonly listeners: Record<string, (assets: Plane[]) => void> = {}
 
   private constructor () {
     this.planes = PlanesData.map(planeData => new Plane(...planeData))
+    this.marketPlanes = LocalStorage.getMarketOffers()
+  }
+
+  public registerListener (name: string, listener: (assets: Plane[]) => void): void {
+    this.listeners[name] = listener
+  }
+
+  private callListeners (assets: Plane[]): void {
+    Object.values(this.listeners).forEach(listener => { listener(assets) })
   }
 
   getAllPlanes (): Plane[] {
     return this.planes
   }
 
+  @Autobind
   getAvailablePlanes (playtime: number): Plane[] {
-    const activeOffers = LocalStorage.getMarketOffers()
+    const lastRefresh = LocalStorage.getLastMarketRefresh()
 
-    if (activeOffers.length === 0 || playtime % 1440 === 0) {
+    if (lastRefresh === 0 || playtime - lastRefresh >= 1440) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
+      LocalStorage.setLastMarketRefresh(playtime)
+      this.callListeners([...newOffers])
       return newOffers
     } else {
-      return activeOffers
+      return this.marketPlanes
     }
+  }
+
+  public getPlaneOffMarket (plane: Plane): void {
+    this.marketPlanes = this.marketPlanes.filter(p => p.registration !== plane.registration)
+    LocalStorage.setMarketOffers(this.marketPlanes)
+    this.callListeners([...this.marketPlanes])
   }
 
   private generatePlaneOptions (): Plane[] {

@@ -1,4 +1,4 @@
-export const PlanesData: Array<[
+export type PlaneTuple = [
   familyName: string,
   subtypeName: string,
   maxSeating: { economy: number, business: number, first: number },
@@ -10,7 +10,25 @@ export const PlanesData: Array<[
   pricing: { purchase: number, lease: number, downpayment: number, maintenance: number },
   registration: string,
   manufacturedWeek: number
-]> = [
+]
+
+export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
+  return [
+    plane.familyName,
+    plane.subtypeName,
+    plane.maxSeating,
+    plane.MTOW,
+    plane.maxRange,
+    plane.maxFuel,
+    plane.cruiseSpeed,
+    plane.fuelConsumption,
+    plane.pricing,
+    plane.registration,
+    plane.manufacturedWeek
+  ]
+}
+
+export const PlanesData: PlaneTuple[] = [
   ['Airbus', 'A320', { economy: 164, business: 0, first: 0 }, 78000, 6100, 27000, 830, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   ['Airbus', 'A330', { economy: 277, business: 0, first: 0 }, 242000, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   ['Airbus', 'A340', { economy: 295, business: 0, first: 0 }, 276500, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
