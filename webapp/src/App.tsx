@@ -1,7 +1,7 @@
 import React from 'react'
-import PlaneListItem from './components/PlaneListItem'
+import MarketListItem from './components/MarketListItem'
 
-import { Container, Row, Col, Badge } from 'react-bootstrap'
+import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { type Plane } from './models/Plane'
 
 import { AirplaneFill, CalendarWeek, CartCheck, Coin, FileEarmarkText, GraphUpArrow, HouseDoor } from 'react-bootstrap-icons'
@@ -33,7 +33,7 @@ const App: React.FC = () => {
           <AirplaneFill size={12} className='text-primary me-2'/>
           <span className='text-primary'>Airline Simulator</span>
         </Col>
-        <Col xs={6} xl={4} className='d-flex align-items-center'>
+        <Col xs={4} xl={3} className='d-flex align-items-center'>
           <Badge
             bg={`badge-${Object.keys(Controllers.Airline.getTier())[0].toLocaleLowerCase()}`}
             className='fs-6 me-2'
@@ -51,7 +51,9 @@ const App: React.FC = () => {
           Cash:&nbsp;<span className='fw-bold text-primary'>{Controllers.Airline.cash}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
-          <CalendarWeek size={20} className='text-primary me-2' data-toggle="tooltip" data-placement="bottom" title={Controllers.Clock.totalPlaytime} />
+        <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total playtime:</strong><br />{Controllers.Clock.totalPlaytime}</Tooltip>}>
+          <CalendarWeek size={20} className='text-primary me-2' role='button' />
+        </OverlayTrigger>
           <Badge bg='dark' className='mx-2'>
             {Controllers.Clock.currentDayOfWeek}
           </Badge>
@@ -63,7 +65,7 @@ const App: React.FC = () => {
           Icon={CartCheck}
           header='Market'
           subheader={`Refresh in ${Controllers.Clock.timeToNextWeek}`}
-          Component={PlaneListItem}
+          Component={MarketListItem}
           items={market}
         />
         <ListPreview<Contract>
@@ -77,7 +79,9 @@ const App: React.FC = () => {
           Icon={HouseDoor}
           header='Hangar'
           Component={HangarListItem}
-          items={assets} />
+          items={assets}
+          fullWidth={true}
+        />
       </Row>
     </Container>
   )

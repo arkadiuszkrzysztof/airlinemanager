@@ -4,8 +4,8 @@ export enum Timeframes {
   HOUR = 60,
   DAY = 1440,
   WEEK = 10080,
-  MONTH = 43200,
-  YEAR = 525600
+  MONTH = 40320,
+  YEAR = 483840
 }
 
 export enum DaysOfWeek {

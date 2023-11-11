@@ -51,8 +51,8 @@ export class MarketController {
   }
 
   private generatePlaneOptions (): Plane[] {
-    const getRandomCharacters = (length: number): string => {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    const getRandomCharacters = (length: number, includeNumbers: boolean = false): string => {
+      const characters = includeNumbers ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
       let result = ''
       for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() * characters.length))
@@ -102,7 +102,7 @@ export class MarketController {
         prototype.cruiseSpeed,
         prototype.fuelConsumption,
         calculatePricing(prototype, manufacturedWeek),
-        `${getRandomCharacters(2)}-${getRandomCharacters(4)}`,
+        `${getRandomCharacters(2)}-${getRandomCharacters(4, true)}`,
         manufacturedWeek
       ))
     }

@@ -7,7 +7,7 @@ interface Props {
   item: Plane
 }
 
-const PlaneListItem: React.FC<Props> = ({ item: plane }) => {
+const MarketListItem: React.FC<Props> = ({ item: plane }) => {
   const Controllers = GameController.getInstance()
 
   return (
@@ -40,4 +40,4 @@ const PlaneListItem: React.FC<Props> = ({ item: plane }) => {
   )
 }
 
-export default PlaneListItem
+export default MarketListItem

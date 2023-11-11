@@ -18,6 +18,46 @@ $theme-colors: (
   "grey-dark": #a6a6a6,
 );
 
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1450px,
+  xxxl: 1700px
+);
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1450px,
+  xxxl: 1600px
+);
+
+$display-font-sizes: (
+  1: 5rem,
+  2: 4.5rem,
+  3: 4rem,
+  4: 3.5rem,
+  5: 3rem,
+  6: 2.5rem,
+  7: 1rem
+);
+
+$accordion-button-padding-y: 0.5rem;
+$accordion-button-focus-border-color:  rgba(0, 0, 0, 0);
+$accordion-button-focus-box-shadow: none;
+$accordion-button-active-bg: rgba(0, 0, 0, 0);
+
+.tooltip-inner {
+  min-width: 250px;
+  width: 100%;
+  max-width: 100%; 
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -34,7 +74,7 @@ $theme-colors: (
 
 html {
   font-family: sans-serif;
-  min-width: 1200px;
+  min-width: 768px;
 }
 body {
   margin: 0;
