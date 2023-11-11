@@ -35,7 +35,7 @@ export class MarketController {
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.WEEK) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
-      LocalStorage.setLastMarketRefresh(playtime)
+      LocalStorage.setLastMarketRefresh(playtime - playtime % Timeframes.WEEK)
       this.callListeners([...newOffers])
       this.marketPlanes = newOffers
       return newOffers

@@ -17,6 +17,7 @@ const HangarListItem: React.FC<Props> = ({ item }) => {
           </Badge>
         </div>
         <p>{item.plane.introduce()}</p>
+        <p>{item.plane.registration}</p>
       </Col>
       <Col xs={4} className='d-flex flex-column justify-content-center'>
         Nothing to see here...

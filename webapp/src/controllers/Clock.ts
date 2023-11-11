@@ -8,6 +8,16 @@ export enum Timeframes {
   YEAR = 525600
 }
 
+export enum DaysOfWeek {
+  MONDAY = 'Monday',
+  TUESDAY = 'Tuesday',
+  WEDNESDAY = 'Wednesday',
+  THURSDAY = 'Thursday',
+  FRIDAY = 'Friday',
+  SATURDAY = 'Saturday',
+  SUNDAY = 'Sunday'
+}
+
 export class Clock {
   private static instance: Clock
   private readonly listeners: Record<string, (playtime: number) => void> = {}
@@ -59,8 +69,8 @@ export class Clock {
   }
 
   get currentDayOfWeek (): string {
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    return days[Math.floor(this._playtime / Timeframes.DAY) % days.length]
+    const day = Math.floor(this._playtime / Timeframes.DAY) % Object.keys(DaysOfWeek).length
+    return Object.values(DaysOfWeek)[day]
   }
 
   get timeToNextDay (): string {
@@ -77,5 +87,17 @@ export class Clock {
     const minutes = (10080 - (this._playtime % 10080)) % 60
 
     return `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`
+  }
+
+  get totalPlaytime (): string {
+    const { HOUR, DAY, WEEK, MONTH, YEAR } = Timeframes
+    const years = Math.floor(this._playtime / YEAR)
+    const months = Math.floor((this._playtime % YEAR) / MONTH)
+    const weeks = Math.floor((this._playtime % MONTH) / WEEK)
+    const days = Math.floor((this._playtime % WEEK) / DAY)
+    const hours = Math.floor((this._playtime % DAY) / HOUR)
+    const minutes = this._playtime % HOUR
+
+    return `${years}y ${months}m ${weeks}w ${days}d ${hours}h ${minutes}m`
   }
 }

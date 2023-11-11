@@ -51,7 +51,7 @@ const App: React.FC = () => {
           Cash:&nbsp;<span className='fw-bold text-primary'>{Controllers.Airline.cash}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
-          <CalendarWeek size={20} className='text-primary me-2' />
+          <CalendarWeek size={20} className='text-primary me-2' data-toggle="tooltip" data-placement="bottom" title={Controllers.Clock.totalPlaytime} />
           <Badge bg='dark' className='mx-2'>
             {Controllers.Clock.currentDayOfWeek}
           </Badge>

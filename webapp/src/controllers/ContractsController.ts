@@ -1,7 +1,7 @@
 import { Autobind } from '../decorators/Autobind'
 import { Airport, AirportsData, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
-import { Timeframes } from './Clock'
+import { Timeframes, DaysOfWeek } from './Clock'
 import { LocalStorage } from './LocalStorage'
 
 export class ContractsController {
@@ -33,13 +33,26 @@ export class ContractsController {
   }
 
   private generateContracts (): Contract[] {
-    const contracts = []
+    const contracts: Contract[] = []
+    const connections: string[] = []
 
-    for (let i = 0; i < Math.random() * 5; i++) {
+    for (let i = contracts.length; i < Math.random() * 5 + 2;) {
       const airport1 = this.airports[Math.floor(Math.random() * this.airports.length)]
       const airport2 = this.airports[Math.floor(Math.random() * this.airports.length)]
+
+      const connection = `${airport1.IATACode}${airport2.IATACode}`
+
+      if (airport1 === airport2 || connections.includes(connection)) {
+        continue
+      }
+
       const distance = calculateAirportsDistance(airport1, airport2)
-      contracts.push(new Contract(airport1, airport2, distance))
+      const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
+      const demandRatio = (airport1.passengers + airport2.passengers) / 100000000
+      const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 50), first: Math.floor(demandRatio * 10) }
+
+      connections.push(connection)
+      contracts.push(new Contract(airport1, airport2, distance, dayOfWeek, demand))
     }
 
     return contracts
@@ -52,7 +65,7 @@ export class ContractsController {
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.DAY) {
       const newContracts = this.generateContracts()
       LocalStorage.setContractsOffers(newContracts)
-      LocalStorage.setLastContractsRefresh(playtime)
+      LocalStorage.setLastContractsRefresh(playtime - playtime % Timeframes.DAY)
       this.callListener(newContracts)
       this.contracts = newContracts
       return newContracts

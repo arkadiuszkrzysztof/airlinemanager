@@ -5,17 +5,17 @@ export type AirportTuple = [
   countryCode: string,
   longestRunway: number,
   passengers: number,
-  feees: { landing: number, parking: number, passenger: number }
+  feees: { landing: number, passenger: number }
 ]
 
 export const AirportsData: Record<string, AirportTuple[]> = {
   EU: [
-    ['KRK', 'Krakow', 'Poland', 'PL', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }],
-    ['WAW', 'Warsaw', 'Poland', 'PL', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }],
-    ['GDN', 'Gdansk', 'Poland', 'PL', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }],
-    ['LHR', 'London', 'United Kingdom', 'UK', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }],
-    ['AMS', 'Amsterdam', 'Netherlands', 'NL', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }],
-    ['CDG', 'Paris', 'France', 'FR', 3200, 10000000, { landing: 1000, parking: 100, passenger: 10 }]
+    ['KRK', 'Krakow', 'Poland', 'PL', 2550, 7400000, { landing: 40, passenger: 30 }],
+    ['WAW', 'Warsaw', 'Poland', 'PL', 3690, 14400000, { landing: 40, passenger: 30 }],
+    ['GDN', 'Gdansk', 'Poland', 'PL', 2800, 4600000, { landing: 40, passenger: 30 }],
+    ['LHR', 'London', 'United Kingdom', 'UK', 3902, 61600000, { landing: 50, passenger: 170 }],
+    ['AMS', 'Amsterdam', 'Netherlands', 'NL', 3800, 52500000, { landing: 50, passenger: 170 }],
+    ['CDG', 'Paris', 'France', 'FR', 4200, 57500000, { landing: 50, passenger: 170 }]
   ]
 }
 
@@ -47,7 +47,6 @@ export class Airport {
     public readonly passengers: number,
     public readonly fees: {
       landing: number
-      parking: number
       passenger: number
     }
   ) {}

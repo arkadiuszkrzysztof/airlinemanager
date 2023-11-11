@@ -33,11 +33,11 @@ export class AirlineController {
     if (this._reputation >= 75) {
       currentTier = { [Tier.Platinum]: { minReputation: 75, constraints: { MTOW: null } } }
     } else if (this._reputation >= 50) {
-      currentTier = { [Tier.Gold]: { minReputation: 50, constraints: { MTOW: 500000 } } }
+      currentTier = { [Tier.Gold]: { minReputation: 50, constraints: { MTOW: 500 } } }
     } else if (this._reputation >= 25) {
-      currentTier = { [Tier.Silver]: { minReputation: 25, constraints: { MTOW: 300000 } } }
+      currentTier = { [Tier.Silver]: { minReputation: 25, constraints: { MTOW: 300 } } }
     } else {
-      currentTier = { [Tier.Bronze]: { minReputation: 0, constraints: { MTOW: 50000 } } }
+      currentTier = { [Tier.Bronze]: { minReputation: 0, constraints: { MTOW: 50 } } }
     }
 
     return currentTier
