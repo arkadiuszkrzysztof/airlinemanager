@@ -94,7 +94,7 @@ export class MarketController {
 
       options.push(new Plane(
         prototype.familyName,
-        prototype.subtypeName,
+        prototype.typeName,
         prototype.maxSeating,
         prototype.MTOW,
         prototype.maxRange,

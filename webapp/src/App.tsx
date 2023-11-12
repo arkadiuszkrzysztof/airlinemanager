@@ -31,7 +31,7 @@ const App: React.FC = () => {
       <Row className='justify-content-center p-2 bg-secondary'>
         <Col xs={2} className='d-flex align-items-center'>
           <AirplaneFill size={12} className='text-primary me-2'/>
-          <span className='text-primary'>Airline Simulator</span>
+          <span className='text-primary'>Airline Simulator <small className='text-grey-light'>ALPHA</small></span>
         </Col>
         <Col xs={4} xl={3} className='d-flex align-items-center'>
           <Badge
@@ -44,11 +44,11 @@ const App: React.FC = () => {
         </Col>
         <Col xs={1} className='d-flex align-items-center'>
           <GraphUpArrow size={20} className='text-primary me-2' />
-          <span className='fw-bold text-primary'>{Controllers.Airline.reputation}</span>
+          <span className='fw-bold text-dark'>{Controllers.Airline.reputation}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
           <Coin size={20} className='text-primary me-2' />
-          Cash:&nbsp;<span className='fw-bold text-primary'>{Controllers.Airline.cash}</span>
+          <span className='fw-bold text-dark'>{Controllers.Airline.cash}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
         <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total playtime:</strong><br />{Controllers.Clock.totalPlaytime}</Tooltip>}>
@@ -57,7 +57,7 @@ const App: React.FC = () => {
           <Badge bg='dark' className='mx-2'>
             {Controllers.Clock.currentDayOfWeek}
           </Badge>
-          <span className='fw-bold text-primary'>{Controllers.Clock.playtimeFormatted}</span>
+          <span className='fw-bold text-dark'>{Controllers.Clock.playtimeFormatted}</span>
         </Col>
       </Row>
       <Row className='justify-content-center'>

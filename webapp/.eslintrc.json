@@ -17,5 +17,10 @@
         "react"
     ],
     "rules": {
-    }
+    },
+    "ignorePatterns": [
+        "node_modules/",
+        "build/",
+        "*.config.js"
+    ]
 }

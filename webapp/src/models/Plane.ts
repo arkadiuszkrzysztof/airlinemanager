@@ -1,6 +1,6 @@
 export type PlaneTuple = [
   familyName: string,
-  subtypeName: string,
+  typeName: string,
   maxSeating: { economy: number, business: number, first: number },
   MTOW: number,
   maxRange: number,
@@ -15,7 +15,7 @@ export type PlaneTuple = [
 export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
   return [
     plane.familyName,
-    plane.subtypeName,
+    plane.typeName,
     plane.maxSeating,
     plane.MTOW,
     plane.maxRange,
@@ -54,7 +54,7 @@ export const PlanesData: PlaneTuple[] = [
 export class Plane {
   constructor (
     public readonly familyName: string,
-    public readonly subtypeName: string,
+    public readonly typeName: string,
     public readonly maxSeating: {
       economy: number
       business: number
@@ -74,14 +74,6 @@ export class Plane {
     public readonly registration: string,
     public readonly manufacturedWeek: number
   ) {}
-
-  introduce (): string {
-    return (`Plane: ${this.familyName} ${this.subtypeName}`)
-  }
-
-  getIdentification (): string {
-    return (`${this.familyName}-${this.subtypeName}`)
-  }
 
   getPricing (): {
     purchase: string

@@ -105,4 +105,32 @@ body {
   height: 100%;
 }
 
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.rotate-270 {
+  transform: rotate(270deg);
+}
+
+.pulse-animation {
+  animation: fadeInOut 2s linear 1 forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @import '~bootstrap/scss/bootstrap.scss';

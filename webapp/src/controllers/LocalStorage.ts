@@ -1,6 +1,7 @@
 import { Contract, convertToContractTuple } from '../models/Contract'
 import { Plane, convertToPlaneTuple } from '../models/Plane'
 import { type HangarAsset } from './HangarController'
+import { type Schedule } from './ScheduleController'
 
 enum Keys {
   PLAYTIME = 'playtime',
@@ -13,7 +14,8 @@ enum Keys {
   REPUTATION = 'reputation',
   AIRLINE_NAME = 'airlineName',
   CONTRACT_OFFERS = 'contractOffers',
-  LAST_CONTRACT_REFRESH = 'lastContractRefresh'
+  LAST_CONTRACT_REFRESH = 'lastContractRefresh',
+  ACTIVE_SCHEDULES = 'activeSchedules'
 }
 
 export const LocalStorage = {
@@ -111,5 +113,12 @@ export const LocalStorage = {
   },
   setLastContractsRefresh (lastContractRefresh: number): void {
     localStorage.setItem(Keys.LAST_CONTRACT_REFRESH, lastContractRefresh.toString())
+  },
+  getActiveSchedules (): Schedule[] {
+    const activeSchedules = localStorage.getItem(Keys.ACTIVE_SCHEDULES)
+    return (activeSchedules !== null) ? JSON.parse(activeSchedules) : []
+  },
+  setActiveSchedules (activeSchedules: Schedule[]): void {
+    localStorage.setItem(Keys.ACTIVE_SCHEDULES, JSON.stringify(activeSchedules))
   }
 }

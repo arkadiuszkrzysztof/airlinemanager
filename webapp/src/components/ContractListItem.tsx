@@ -76,7 +76,7 @@ const TooltipPlaneDetails: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
 
   return (
     <>
-      <strong>{`${plane.familyName} ${plane.subtypeName}`}</strong>
+      <strong>{`${plane.familyName} ${plane.typeName}`}</strong>
       <Row>
         <Col xs={7} className='text-start'>Registration</Col>
         <Col xs={5} className='text-end'>{plane.registration}</Col>
@@ -125,13 +125,15 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
         <Col className='flex-grow-0'>
           <Badge bg='light fs-6'>{`${contract.destination.IATACode} (${contract.destination.location})`}</Badge>
         </Col>
+        <Col>
+          <span className='text-primary'>Departures on <strong>{`${contract.dayOfWeek}s`}</strong> at <strong>{contract.departureTime}</strong></span>
+        </Col>
       </Row>
       <Row>
         <Col className='my-1'>
-          <strong>Distance: </strong>{`${contract.distance} km`}{' '}
-          <strong>Occurence: </strong>{contract.dayOfWeek}{' '}
-          <strong>Demand: </strong>{`${contract.demand.economy}@E ${contract.demand.business}@B ${contract.demand.first}@F`}{' '}
-          <strong>Duration: </strong>{`${contract.duration / Timeframes.MONTH} months`}
+          Flight distance: <strong>{`${contract.distance} km`}</strong>{' '}
+          Demand: <strong>{`${contract.demand.economy}@E ${contract.demand.business}@B ${contract.demand.first}@F`}</strong>{' '}
+          Contract duration: <strong>{`${contract.contractDuration / Timeframes.MONTH} months`}</strong>
         </Col>
       </Row>
       <Accordion>
@@ -154,14 +156,15 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
               <Col xs={2}>Turnaround</Col>
             </Row>
             {contractOptions.map((option: ContractOption) => (
-              <Row key={option.asset.plane.registration} className='small'>
+              <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'}`}>
                 <Col xs={2}>
                   <OverlayTrigger
                       placement="bottom"
                       overlay={<Tooltip style={{ position: 'fixed' }}><TooltipPlaneDetails asset={option.asset} /></Tooltip>}
                   >
                     <span role='button' className='d-flex flex-row align-items-center'>
-                      {option.asset.plane.subtypeName}
+                      {option.available && <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>&#10003;</span>}
+                      {option.asset.plane.typeName}
                       <small className={`ps-1 fs-7 fw-bold text-${option.asset.ownership === 'owned' ? 'dark' : 'light'}`}>{option.asset.ownership.toUpperCase()}</small>
                     </span>
                   </OverlayTrigger>

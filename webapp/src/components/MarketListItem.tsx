@@ -13,7 +13,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={6}>
-        <div>{plane.introduce()}</div>
+        <div>{`${plane.familyName} ${plane.typeName}`}</div>
         <div>Age: {Math.round(Math.abs(plane.manufacturedWeek) / 52)}</div>
         <div>Registration: {plane.registration}</div>
         <div>Range: {plane.maxRange}</div>

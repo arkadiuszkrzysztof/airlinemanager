@@ -57,6 +57,32 @@ export class Clock {
     this.listeners[name] = listener
   }
 
+  public static addToTime (time: string, delta: number): string {
+    const [hours, minutes] = time.split(':')
+    const newMinutes = parseInt(minutes) + delta
+    const newHours = (parseInt(hours) + Math.floor(newMinutes / 60)) % 24
+
+    return `${(newHours < 0 ? newHours + 24 : newHours).toString().padStart(2, '0')}:${(newMinutes < 0 ? newMinutes % 60 + 60 : newMinutes % 60).toString().padStart(2, '0')}`
+  }
+
+  public static isCurrentTimeBetween (start: string, end: string): boolean {
+    console.log(this.instance.playtimeFormatted)
+    if (end < start) {
+      if ((start <= this.instance.playtimeFormatted && end <= this.instance.playtimeFormatted) ||
+        (start >= this.instance.playtimeFormatted && end >= this.instance.playtimeFormatted)) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      if (start <= this.instance.playtimeFormatted && end >= this.instance.playtimeFormatted) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
   get playtime (): number {
     return this._playtime
   }

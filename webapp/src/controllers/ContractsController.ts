@@ -4,6 +4,7 @@ import { Contract } from '../models/Contract'
 import { Timeframes, DaysOfWeek } from './Clock'
 import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './LocalStorage'
+import { ScheduleController } from './ScheduleController'
 
 export interface ContractOptionCosts {
   fuel: number
@@ -73,12 +74,13 @@ export class ContractsController {
 
       const distance = calculateAirportsDistance(airport1, airport2)
       const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
+      const departureTime = `${Math.floor(Math.random() * 18 + 5).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
       const demandRatio = (airport1.passengers + airport2.passengers) / 100000000
       const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 50), first: Math.floor(demandRatio * 10) }
-      const duration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
+      const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
 
       connections.push(connection)
-      contracts.push(new Contract(airport1, airport2, distance, dayOfWeek, duration, demand))
+      contracts.push(new Contract(airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand))
     }
 
     return contracts
@@ -146,6 +148,27 @@ export class ContractsController {
     return duration * 2 * 60 + turnaround
   }
 
+  private checkAvailability (contract: Contract, option: ContractOption): boolean {
+    let available = true
+
+    const schedule = ScheduleController.getInstance().draftSchedule(contract, option)
+    const activeSchedules = ScheduleController.getInstance()
+      .getActiveSchedulesForAsset(option.asset)
+      .filter(schedule => schedule.day === contract.dayOfWeek)
+
+    activeSchedules.forEach(activeSchedule => {
+      if (schedule.start <= activeSchedule.end && schedule.start >= activeSchedule.start) {
+        available = false
+      }
+
+      if (schedule.end <= activeSchedule.end && schedule.end >= activeSchedule.start) {
+        available = false
+      }
+    })
+
+    return available
+  }
+
   public getContractOptions (contract: Contract): ContractOption[] {
     const hangarController = HangarController.getInstance()
     const options: ContractOption[] = []
@@ -154,7 +177,7 @@ export class ContractsController {
       const cost = this.calculateCost(contract, asset)
       const revenue = this.calculateRevenue(contract, asset)
 
-      options.push({
+      const option = {
         asset,
         cost,
         revenue,
@@ -162,7 +185,12 @@ export class ContractsController {
         utilization: this.calculateUtilization(contract, asset),
         turnaround: this.calculateTurnaround(contract, asset),
         available: true
-      })
+      }
+
+      const available = this.checkAvailability(contract, option)
+      option.available = available
+
+      options.push(option)
     })
 
     return options.sort((a, b) => b.profit - a.profit)
