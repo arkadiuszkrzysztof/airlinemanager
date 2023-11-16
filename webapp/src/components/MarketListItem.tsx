@@ -14,7 +14,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={6}>
         <div>{`${plane.familyName} ${plane.typeName}`}</div>
-        <div>Age: {Math.round(Math.abs(plane.manufacturedWeek) / 52)}</div>
+        <div>Age: {plane.getAge()}</div>
         <div>Registration: {plane.registration}</div>
         <div>Range: {plane.maxRange}</div>
         <div>Capacity: {plane.maxSeating.economy + plane.maxSeating.business + plane.maxSeating.first}</div>
@@ -23,6 +23,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
         <Button
           variant="outline-primary"
           onClick={ () => { Controllers.Airline.buyPlane(plane) }}
+          disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
         >
           Buy for {plane.getPricing().purchase}
         </Button>
@@ -30,9 +31,12 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           variant="outline-primary"
           className='mt-2'
           onClick={ () => { Controllers.Airline.leasePlane(plane) }}
+          disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
         >
           <small>Lease for {plane.getPricing().lease} / FH<br />
-          + {plane.getPricing().downpayment} down payment</small>
+          + {plane.getPricing().leaseDownpayment} down payment<br />
+          Lease duration: {plane.getLeaseDuration()}<br />
+          Lease cancelation fee: {plane.getPricing().leaseCancellationFee}</small>
         </Button>
         <div className='mt-2 mb-0 fs-6 text-center'><small>Maintenance: {plane.getPricing().maintenance} / FH</small></div>
       </Col>

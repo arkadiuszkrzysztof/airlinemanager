@@ -6,21 +6,10 @@ import { type ContractOptionCosts, type ContractOption, type ContractOptionReven
 import { type HangarAsset } from '../controllers/HangarController'
 import { ArrowLeftRight } from 'react-bootstrap-icons'
 import { Timeframes } from '../controllers/Clock'
+import { formatCashValue, formatTurnaround, formatUtilization } from '../controllers/helpers/Helpers'
 
 interface Props {
   item: Contract
-}
-
-const formatTurnaround = (turnaround: number): string => {
-  return `${Math.floor(turnaround / 60)}h ${Math.floor(turnaround % 60)}m`
-}
-
-const formatCashValue = (value: number): string => {
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-}
-
-const formatUtilization = (utilization: number): string => {
-  return `${utilization}%`
 }
 
 const TooltipCostBreakdown: React.FC<{ costs: ContractOptionCosts }> = ({ costs }) => {
@@ -160,9 +149,9 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                 <Col xs={2}>
                   <OverlayTrigger
                       placement="bottom"
-                      overlay={<Tooltip style={{ position: 'fixed' }}><TooltipPlaneDetails asset={option.asset} /></Tooltip>}
+                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipPlaneDetails asset={option.asset} /></Tooltip>}
                   >
-                    <span role='button' className='d-flex flex-row align-items-center'>
+                    <span className='d-flex flex-row align-items-center cursor-help'>
                       {option.available && <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>&#10003;</span>}
                       {option.asset.plane.typeName}
                       <small className={`ps-1 fs-7 fw-bold text-${option.asset.ownership === 'owned' ? 'dark' : 'light'}`}>{option.asset.ownership.toUpperCase()}</small>
@@ -172,17 +161,17 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                 <Col xs={2} className='text-end'>
                   <OverlayTrigger
                     placement="bottom"
-                    overlay={<Tooltip style={{ position: 'fixed' }}><TooltipCostBreakdown costs={option.cost} /></Tooltip>}
+                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipCostBreakdown costs={option.cost} /></Tooltip>}
                   >
-                    <span role='button'>{formatCashValue(option.cost.total)}</span>
+                    <span className='cursor-help'>{formatCashValue(option.cost.total)}</span>
                   </OverlayTrigger>
                 </Col>
                 <Col xs={2} className='text-end'>
                   <OverlayTrigger
                     placement="bottom"
-                    overlay={<Tooltip style={{ position: 'fixed' }}><TooltipRevenueBreakdown revenues={option.revenue} /></Tooltip>}
+                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipRevenueBreakdown revenues={option.revenue} /></Tooltip>}
                   >
-                    <span role='button'>{formatCashValue(option.revenue.total)}</span>
+                    <span className='cursor-help'>{formatCashValue(option.revenue.total)}</span>
                   </OverlayTrigger>
                 </Col>
                 <Col xs={2} className='text-end'>

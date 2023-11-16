@@ -1,8 +1,9 @@
 import { Autobind } from '../decorators/Autobind'
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
-import { Timeframes } from './Clock'
+import { Clock, Timeframes } from './Clock'
 import { LocalStorage } from './LocalStorage'
+import { getRandomCharacters } from './helpers/Helpers'
 
 export class MarketController {
   private readonly planes: Plane[]
@@ -51,15 +52,6 @@ export class MarketController {
   }
 
   private generatePlaneOptions (): Plane[] {
-    const getRandomCharacters = (length: number, includeNumbers: boolean = false): string => {
-      const characters = includeNumbers ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      let result = ''
-      for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length))
-      }
-      return result
-    }
-
     const getDepreciation = (price: number, age: number): number => {
       for (let i = 1; i <= age; i++) {
         price *= (1 - (40 - i) / 500)
@@ -67,19 +59,21 @@ export class MarketController {
       return price
     }
 
-    const calculatePricing = ({ pricing }: Plane, manufacturedWeek: number): { purchase: number, lease: number, downpayment: number, maintenance: number } => {
-      const age = Math.round(Math.abs(manufacturedWeek) / 52)
+    const calculatePricing = ({ pricing }: Plane, manufactureTime: number): { purchase: number, lease: number, leaseDuration: number, leaseCancelationFee: number, leaseDownpayment: number, maintenance: number } => {
+      const age = Math.round((Clock.getInstance().playtime - manufactureTime) / Timeframes.YEAR)
 
       return {
         purchase: getDepreciation(pricing.purchase, age),
         lease: pricing.lease * (1 - age * 2 / 100),
-        downpayment: pricing.downpayment * (1 - age * 2 / 100),
+        leaseDuration: Timeframes.MONTH * Math.floor(Math.random() * 60 + 36),
+        leaseCancelationFee: pricing.leaseCancelationFee * (1 - age * 2 / 100),
+        leaseDownpayment: pricing.leaseDownpayment * (1 - age * 2 / 100),
         maintenance: age > 5 ? pricing.maintenance * (1 + age * 2 / 100) : pricing.maintenance
       }
     }
 
     const tier = this.AirlineController.getTier()
-    const constraints = Object.values(tier)[0].constraints
+    const constraints = tier.record.constraints
 
     const prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
 
@@ -88,7 +82,7 @@ export class MarketController {
 
     for (let i = 0; i < numberOfOptions; i++) {
       const randomIndex = Math.floor(Math.random() * prototypes.length)
-      const manufacturedWeek = Math.floor(Math.random() * 52 * 20) * (-1)
+      const manufactureTime = Clock.getInstance().playtime - Math.floor(Math.random() * Timeframes.YEAR * 20)
 
       const prototype = prototypes[randomIndex]
 
@@ -101,9 +95,9 @@ export class MarketController {
         prototype.maxFuel,
         prototype.cruiseSpeed,
         prototype.fuelConsumption,
-        calculatePricing(prototype, manufacturedWeek),
+        calculatePricing(prototype, manufactureTime),
         `${getRandomCharacters(2)}-${getRandomCharacters(4, true)}`,
-        manufacturedWeek
+        manufactureTime
       ))
     }
 

@@ -22,6 +22,7 @@ export class Clock {
   private static instance: Clock
   private readonly listeners: Record<string, (playtime: number) => void> = {}
   private _playtime: number
+  private clockTicker: NodeJS.Timeout
 
   private constructor () {
     const playtime = LocalStorage.getPlaytime()
@@ -31,7 +32,7 @@ export class Clock {
 
     this._playtime = playtime + Math.min(offlineTime, Math.max(lastSave - currentTime, 0))
 
-    setInterval(() => { this.updateClock() }, 1000)
+    this.clockTicker = setInterval(() => { this.updateClock() }, 1000)
   }
 
   private callListeners (playtime: number): void {
@@ -43,6 +44,14 @@ export class Clock {
     LocalStorage.setPlaytime(this._playtime)
     LocalStorage.setLastSave(Math.floor(Date.now() / 1000))
     this.callListeners(this._playtime)
+  }
+
+  public pauseGame (): void {
+    clearInterval(this.clockTicker)
+  }
+
+  public resumeGame (): void {
+    this.clockTicker = setInterval(() => { this.updateClock() }, 1000)
   }
 
   public static getInstance (): Clock {
@@ -65,22 +74,45 @@ export class Clock {
     return `${(newHours < 0 ? newHours + 24 : newHours).toString().padStart(2, '0')}:${(newMinutes < 0 ? newMinutes % 60 + 60 : newMinutes % 60).toString().padStart(2, '0')}`
   }
 
-  public static isCurrentTimeBetween (start: string, end: string): boolean {
-    console.log(this.instance.playtimeFormatted)
+  public static getTimeThisDayStart (): number {
+    return Math.floor(this.instance.playtime / Timeframes.DAY) * Timeframes.DAY
+  }
+
+  public static getTimeAt (time: string, tomorrow: boolean = false): number {
+    const [hours, minutes] = time.split(':')
+
+    return parseInt(hours) * 60 + parseInt(minutes) + this.getTimeThisDayStart() + (tomorrow ? Timeframes.DAY : 0)
+  }
+
+  public static isTimeBetween (time: string, start: string, end: string): boolean {
     if (end < start) {
-      if ((start <= this.instance.playtimeFormatted && end <= this.instance.playtimeFormatted) ||
-        (start >= this.instance.playtimeFormatted && end >= this.instance.playtimeFormatted)) {
+      if ((start <= time && end <= time) ||
+        (start >= time && end >= time)) {
         return true
       } else {
         return false
       }
     } else {
-      if (start <= this.instance.playtimeFormatted && end >= this.instance.playtimeFormatted) {
+      if (start <= time && end >= time) {
         return true
       } else {
         return false
       }
     }
+  }
+
+  public static isCurrentTimeBetween (start: string, end: string): boolean {
+    const time = this.instance.playtimeFormatted
+    return this.isTimeBetween(time, start, end)
+  }
+
+  public static sumUpTimes (times: string[]): string {
+    const minutes = times.reduce((sum, time) => {
+      const [hours, minutes] = time.split(':')
+      return sum + parseInt(hours) * 60 + parseInt(minutes)
+    }, 0)
+
+    return `${Math.floor(minutes / 60).toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}`
   }
 
   get playtime (): number {
@@ -96,6 +128,16 @@ export class Clock {
 
   get currentDayOfWeek (): string {
     const day = Math.floor(this._playtime / Timeframes.DAY) % Object.keys(DaysOfWeek).length
+    return Object.values(DaysOfWeek)[day]
+  }
+
+  get previousDayOfWeek (): string {
+    const day = (Math.floor(this._playtime / Timeframes.DAY) - 1) % Object.keys(DaysOfWeek).length
+    return Object.values(DaysOfWeek)[day]
+  }
+
+  get nextDayOfWeek (): string {
+    const day = (Math.floor(this._playtime / Timeframes.DAY) + 1) % Object.keys(DaysOfWeek).length
     return Object.values(DaysOfWeek)[day]
   }
 

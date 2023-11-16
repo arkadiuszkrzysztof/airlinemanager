@@ -1,10 +1,11 @@
 import { Autobind } from '../decorators/Autobind'
 import { Airport, AirportsData, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
-import { Timeframes, DaysOfWeek } from './Clock'
+import { Timeframes, DaysOfWeek, Clock } from './Clock'
 import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './LocalStorage'
 import { ScheduleController } from './ScheduleController'
+import { getRandomCharacters } from './helpers/Helpers'
 
 export interface ContractOptionCosts {
   fuel: number
@@ -46,7 +47,7 @@ export class ContractsController {
     this.listeners[name] = listener
   }
 
-  private callListener (contracts: Contract[]): void {
+  private callListeners (contracts: Contract[]): void {
     Object.values(this.listeners).forEach(listener => { listener(contracts) })
   }
 
@@ -72,6 +73,7 @@ export class ContractsController {
         continue
       }
 
+      const id = `${airport1.IATACode}${airport2.IATACode}-${getRandomCharacters(4, true)}`
       const distance = calculateAirportsDistance(airport1, airport2)
       const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
       const departureTime = `${Math.floor(Math.random() * 18 + 5).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
@@ -80,7 +82,7 @@ export class ContractsController {
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
 
       connections.push(connection)
-      contracts.push(new Contract(airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand))
+      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand))
     }
 
     return contracts
@@ -157,11 +159,10 @@ export class ContractsController {
       .filter(schedule => schedule.day === contract.dayOfWeek)
 
     activeSchedules.forEach(activeSchedule => {
-      if (schedule.start <= activeSchedule.end && schedule.start >= activeSchedule.start) {
-        available = false
-      }
-
-      if (schedule.end <= activeSchedule.end && schedule.end >= activeSchedule.start) {
+      if (Clock.isTimeBetween(schedule.start, activeSchedule.start, activeSchedule.end) ||
+        Clock.isTimeBetween(schedule.end, activeSchedule.start, activeSchedule.end) ||
+        Clock.isTimeBetween(activeSchedule.start, schedule.start, schedule.end) ||
+        Clock.isTimeBetween(activeSchedule.end, schedule.start, schedule.end)) {
         available = false
       }
     })
@@ -196,6 +197,13 @@ export class ContractsController {
     return options.sort((a, b) => b.profit - a.profit)
   }
 
+  public getContractOffMarket (contract: Contract): void {
+    this.contracts = this.contracts.filter(c =>
+      `${c.hub.IATACode}${c.destination.IATACode}` !== `${contract.hub.IATACode}${contract.destination.IATACode}`)
+    LocalStorage.setContractsOffers(this.contracts)
+    this.callListeners([...this.contracts])
+  }
+
   @Autobind
   public getAvailableContracts (playtime: number): Contract[] {
     const lastRefresh = LocalStorage.getLastContractsRefresh()
@@ -204,7 +212,7 @@ export class ContractsController {
       const newContracts = this.generateContracts().sort((a, b) => b.distance - a.distance)
       LocalStorage.setContractsOffers(newContracts)
       LocalStorage.setLastContractsRefresh(playtime - playtime % Timeframes.DAY)
-      this.callListener(newContracts)
+      this.callListeners(newContracts)
       this.contracts = newContracts
       return newContracts
     } else {

@@ -2,6 +2,7 @@ import { type DaysOfWeek } from '../controllers/Clock'
 import { type Airport } from './Airport'
 
 export type ContractTuple = [
+  id: string,
   hub: Airport,
   destination: Airport,
   distance: number,
@@ -17,6 +18,7 @@ export type ContractTuple = [
 
 export const convertToContractTuple = (contract: Contract): ContractTuple => {
   return [
+    contract.id,
     contract.hub,
     contract.destination,
     contract.distance,
@@ -28,6 +30,7 @@ export const convertToContractTuple = (contract: Contract): ContractTuple => {
 }
 
 export class Contract {
+  public readonly id: string
   public readonly hub: Airport
   public readonly destination: Airport
   public readonly distance: number
@@ -40,7 +43,8 @@ export class Contract {
     first: number
   }
 
-  constructor (hub: Airport, destination: Airport, distance: number, dayOfWeek: DaysOfWeek, departureTime: string, contractDuration: number, demand: { economy: number, business: number, first: number }) {
+  constructor (id: string, hub: Airport, destination: Airport, distance: number, dayOfWeek: DaysOfWeek, departureTime: string, contractDuration: number, demand: { economy: number, business: number, first: number }) {
+    this.id = id
     this.hub = hub
     this.destination = destination
     this.distance = distance

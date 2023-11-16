@@ -32,6 +32,10 @@ export class HangarController {
     return this.assets
   }
 
+  getAssetsCount (): number {
+    return this.assets.length
+  }
+
   public static getInstance (): HangarController {
     if (HangarController.instance === undefined) {
       HangarController.instance = new HangarController()

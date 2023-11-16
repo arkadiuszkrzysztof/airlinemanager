@@ -52,7 +52,21 @@ $accordion-button-focus-border-color:  rgba(0, 0, 0, 0);
 $accordion-button-focus-box-shadow: none;
 $accordion-button-active-bg: rgba(0, 0, 0, 0);
 
-.tooltip-inner {
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-help {
+  cursor: help;
+}
+
+.tooltip-large .tooltip-inner {
+  min-width: 400px;
+  width: 100%;
+  max-width: 100%; 
+}
+
+.tooltip-medium .tooltip-inner {
   min-width: 250px;
   width: 100%;
   max-width: 100%; 
