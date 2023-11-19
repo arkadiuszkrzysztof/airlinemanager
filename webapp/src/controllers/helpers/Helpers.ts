@@ -7,6 +7,13 @@ export const getRandomCharacters = (length: number, includeNumbers: boolean = fa
   return result
 }
 
+export const getDepreciation = (price: number, age: number): number => {
+  for (let i = 1; i <= age; i++) {
+    price *= (1 - (40 - i) / 500)
+  }
+  return price
+}
+
 export const formatTurnaround = (turnaround: number): string => {
   return `${Math.floor(turnaround / 60)}h ${Math.floor(turnaround % 60)}m`
 }

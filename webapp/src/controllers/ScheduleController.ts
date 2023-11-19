@@ -20,7 +20,7 @@ export interface ScheduleEvent {
 
 export class ScheduleController {
   private static instance: ScheduleController
-  private readonly activeSchedules: Schedule[]
+  private activeSchedules: Schedule[]
   private scheduleEvents: ScheduleEvent[]
 
   private constructor () {
@@ -37,6 +37,11 @@ export class ScheduleController {
 
   public getActiveSchedulesForAsset (asset: HangarAsset): Schedule[] {
     return this.activeSchedules.filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
+  }
+
+  public removeActiveSchedulesForAsset (asset: HangarAsset): void {
+    this.activeSchedules = this.activeSchedules.filter(schedule => schedule.option.asset.plane.registration !== asset.plane.registration)
+    LocalStorage.setActiveSchedules(this.activeSchedules)
   }
 
   public getTodaySchedules (): Schedule[] {
@@ -69,10 +74,13 @@ export class ScheduleController {
   public acceptContract (contract: Contract, option: ContractOption): void {
     const schedule = this.draftSchedule(contract, option)
 
+    const wasAccepted = schedule.contract.accepted
+    schedule.contract.accept()
+
     this.activeSchedules.push(schedule)
     LocalStorage.setActiveSchedules(this.activeSchedules)
 
-    ContractsController.getInstance().getContractOffMarket(contract)
+    ContractsController.getInstance().getContractOffMarket(contract, wasAccepted)
   }
 
   @Autobind

@@ -1,11 +1,12 @@
 import { type Plane } from '../models/Plane'
+import { ContractsController } from './ContractsController'
 import { LocalStorage } from './LocalStorage'
 import { MarketController } from './MarketController'
 
 export interface HangarAsset { plane: Plane, ownership: 'owned' | 'leased' }
 
 export class HangarController {
-  private readonly assets: HangarAsset[]
+  private assets: HangarAsset[]
   private static instance: HangarController
   private readonly listeners: Record<string, (assets: HangarAsset[]) => void> = {}
 
@@ -26,6 +27,14 @@ export class HangarController {
     LocalStorage.setHangarPlanes(this.assets)
     this.callListeners([...this.assets])
     MarketController.getInstance().getPlaneOffMarket(asset.plane)
+  }
+
+  public removeAsset (asset: HangarAsset): void {
+    ContractsController.getInstance().getContractsOffPlane(asset)
+
+    this.assets = this.assets.filter(a => a.plane.registration !== asset.plane.registration)
+    LocalStorage.setHangarPlanes(this.assets)
+    this.callListeners([...this.assets])
   }
 
   getAllAssets (): HangarAsset[] {

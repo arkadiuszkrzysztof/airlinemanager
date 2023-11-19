@@ -1,4 +1,4 @@
-import { Clock } from './Clock'
+import { Clock, DaysOfWeek, Timeframes } from './Clock'
 import { LocalStorage } from './LocalStorage'
 
 describe('clock manipulation', () => {
@@ -88,5 +88,46 @@ describe('timerange manipulation', () => {
   test('current time is after midnight and not between two times that wrap around midnight', () => {
     jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('03:15')
     expect(Clock.isCurrentTimeBetween('23:55', '02:00')).toBe(false)
+  })
+})
+
+describe('duration helper', () => {
+  beforeEach(() => {
+    jest.spyOn(LocalStorage, 'getPlaytime').mockReturnValueOnce(0)
+    jest.spyOn(LocalStorage, 'getOfflineTime').mockReturnValue(0)
+    jest.spyOn(LocalStorage, 'getLastSave').mockReturnValue(0)
+    Clock.getInstance()
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('get start time for tomorrow', () => {
+    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+
+    expect(Clock.getTimeClosestDayStart(DaysOfWeek.THURSDAY)).toBe(Timeframes.DAY * 4)
+  })
+
+  test('get start time in three days', () => {
+    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+
+    expect(Clock.getTimeClosestDayStart(DaysOfWeek.SATURDAY)).toBe(Timeframes.DAY * 6)
+  })
+
+  test('get start time in six days', () => {
+    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+
+    expect(Clock.getTimeClosestDayStart(DaysOfWeek.TUESDAY)).toBe(Timeframes.DAY * 9)
+  })
+
+  test('get start time in a week', () => {
+    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+
+    expect(Clock.getTimeClosestDayStart(DaysOfWeek.WEDNESDAY)).toBe(Timeframes.DAY * 10)
   })
 })

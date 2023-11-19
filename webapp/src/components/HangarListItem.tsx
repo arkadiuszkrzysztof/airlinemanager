@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col, Badge } from 'react-bootstrap'
+import { Row, Col, Badge, Button } from 'react-bootstrap'
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
 import { Clock, DaysOfWeek } from '../controllers/Clock'
@@ -48,17 +48,29 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={12}>
-        <div className='d-flex align-items-center'>
-          {`${asset.plane.familyName} ${asset.plane.typeName} [${asset.plane.registration}]`}
-          <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-2'>
-            {asset.ownership.toUpperCase()}
-          </Badge>
-          Total profit:
-          <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-dark' : 'text-danger'}`}>
-            {formatCashValue(weeklyProfit())}
-          </span>
-          per week
-        </div>
+        <Row>
+          <Col xs={9} className='d-flex align-items-center'>
+            {`${asset.plane.familyName} ${asset.plane.typeName} [${asset.plane.registration}]`}
+            <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-2'>
+              {asset.ownership.toUpperCase()}
+            </Badge>
+            Total profit:
+            <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-dark' : 'text-danger'}`}>
+              {formatCashValue(weeklyProfit())}
+            </span>
+            per week
+          </Col>
+          <Col xs={3} className='d-flex align-items-center justify-content-end'>
+            {asset.ownership === 'owned'
+              ? <Button variant='outline-primary' size='sm' className='me-2' onClick={() => { Controllers.Airline.sellPlane(asset) }}>
+                Sell for {formatCashValue(asset.plane.getSellPrice())}
+              </Button>
+              : <Button variant='outline-danger' size='sm' className='me-2' onClick={() => { Controllers.Airline.cancelLease(asset) }}>
+                Cancel lease with {formatCashValue(asset.plane.pricing.leaseCancelationFee)} penalty
+              </Button>
+            }
+          </Col>
+        </Row>
       </Col>
       <Col xs={12}>
         <Row className='align-items-start pt-2'>

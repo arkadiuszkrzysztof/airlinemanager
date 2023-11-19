@@ -1,6 +1,6 @@
 import { type Plane } from '../models/Plane'
 import { GameController } from './GameController'
-import { HangarController } from './HangarController'
+import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './LocalStorage'
 
 export enum Tier { Bronze = 'Bronze', Silver = 'Silver', Gold = 'Gold', Platinum = 'Platinum' }
@@ -168,6 +168,11 @@ export class AirlineController {
     hangarController.addAsset({ plane, ownership: 'owned' })
   }
 
+  public sellPlane (asset: HangarAsset): void {
+    this.gainCash(asset.plane.getSellPrice())
+    HangarController.getInstance().removeAsset(asset)
+  }
+
   public leasePlane (plane: Plane): void {
     if (this._cash < plane.pricing.leaseDownpayment) {
       GameController.displayMessage('Not enough cash!')
@@ -176,5 +181,14 @@ export class AirlineController {
     const hangarController = HangarController.getInstance()
     this.spendCash(plane.pricing.leaseDownpayment)
     hangarController.addAsset({ plane, ownership: 'leased' })
+  }
+
+  public cancelLease (asset: HangarAsset): void {
+    if (this._cash < asset.plane.pricing.leaseCancelationFee) {
+      GameController.displayMessage('Not enough cash!')
+      return
+    }
+    this.spendCash(asset.plane.pricing.leaseCancelationFee)
+    HangarController.getInstance().removeAsset(asset)
   }
 }

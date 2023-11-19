@@ -3,7 +3,7 @@ import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
 import { Clock, Timeframes } from './Clock'
 import { LocalStorage } from './LocalStorage'
-import { getRandomCharacters } from './helpers/Helpers'
+import { getDepreciation, getRandomCharacters } from './helpers/Helpers'
 
 export class MarketController {
   private readonly planes: Plane[]
@@ -52,13 +52,6 @@ export class MarketController {
   }
 
   private generatePlaneOptions (): Plane[] {
-    const getDepreciation = (price: number, age: number): number => {
-      for (let i = 1; i <= age; i++) {
-        price *= (1 - (40 - i) / 500)
-      }
-      return price
-    }
-
     const calculatePricing = ({ pricing }: Plane, manufactureTime: number): { purchase: number, lease: number, leaseDuration: number, leaseCancelationFee: number, leaseDownpayment: number, maintenance: number } => {
       const age = Math.round((Clock.getInstance().playtime - manufactureTime) / Timeframes.YEAR)
 
@@ -77,7 +70,7 @@ export class MarketController {
 
     const prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
 
-    const numberOfOptions = Math.ceil(prototypes.length / 3)
+    const numberOfOptions = Math.ceil(prototypes.length)
     const options: Plane[] = []
 
     for (let i = 0; i < numberOfOptions; i++) {

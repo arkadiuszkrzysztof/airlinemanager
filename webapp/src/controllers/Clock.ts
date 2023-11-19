@@ -78,6 +78,16 @@ export class Clock {
     return Math.floor(this.instance.playtime / Timeframes.DAY) * Timeframes.DAY
   }
 
+  public static getTimeClosestDayStart (day: DaysOfWeek): number {
+    const thisDayStart = this.getTimeThisDayStart()
+    const thisDayIndex = Object.values(DaysOfWeek).indexOf(this.instance.currentDayOfWeek as DaysOfWeek)
+
+    const closestDayIndex = Object.values(DaysOfWeek).indexOf(day)
+    const closestDayStart = thisDayStart + (closestDayIndex <= thisDayIndex ? closestDayIndex + 7 - thisDayIndex : closestDayIndex - thisDayIndex) * Timeframes.DAY
+
+    return closestDayStart
+  }
+
   public static getTimeAt (time: string, tomorrow: boolean = false): number {
     const [hours, minutes] = time.split(':')
 

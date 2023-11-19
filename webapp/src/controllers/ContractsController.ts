@@ -37,10 +37,12 @@ export class ContractsController {
 
   private readonly airports: Airport[]
   private contracts: Contract[]
+  private inactiveContracts: Contract[]
 
   private constructor () {
     this.airports = AirportsData.EU.map(airportData => new Airport(...airportData))
     this.contracts = LocalStorage.getContractsOffers()
+    this.inactiveContracts = LocalStorage.getInactiveContracts()
   }
 
   public registerListener (name: string, listener: (contracts: Contract[]) => void): void {
@@ -82,7 +84,7 @@ export class ContractsController {
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
 
       connections.push(connection)
-      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand))
+      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand, false))
     }
 
     return contracts
@@ -197,11 +199,26 @@ export class ContractsController {
     return options.sort((a, b) => b.profit - a.profit)
   }
 
-  public getContractOffMarket (contract: Contract): void {
-    this.contracts = this.contracts.filter(c =>
-      `${c.hub.IATACode}${c.destination.IATACode}` !== `${contract.hub.IATACode}${contract.destination.IATACode}`)
-    LocalStorage.setContractsOffers(this.contracts)
-    this.callListeners([...this.contracts])
+  public getContractOffMarket (contract: Contract, wasAccepted: boolean): void {
+    if (wasAccepted) {
+      this.inactiveContracts = this.inactiveContracts.filter(c => c.id !== contract.id)
+      LocalStorage.setInactiveContracts(this.inactiveContracts)
+    } else {
+      this.contracts = this.contracts.filter(c => c.id !== contract.id)
+      LocalStorage.setContractsOffers(this.contracts)
+    }
+    this.callListeners([...this.inactiveContracts.concat(...this.contracts)])
+  }
+
+  public getContractsOffPlane (asset: HangarAsset): void {
+    const contracts = ScheduleController.getInstance().getActiveSchedulesForAsset(asset).map(schedule => schedule.contract)
+
+    this.inactiveContracts = this.inactiveContracts.concat(contracts)
+    LocalStorage.setInactiveContracts(this.inactiveContracts)
+
+    ScheduleController.getInstance().removeActiveSchedulesForAsset(asset)
+
+    this.callListeners([...this.inactiveContracts.concat(...this.contracts)])
   }
 
   @Autobind
@@ -212,11 +229,11 @@ export class ContractsController {
       const newContracts = this.generateContracts().sort((a, b) => b.distance - a.distance)
       LocalStorage.setContractsOffers(newContracts)
       LocalStorage.setLastContractsRefresh(playtime - playtime % Timeframes.DAY)
-      this.callListeners(newContracts)
+      this.callListeners(this.inactiveContracts.concat(...newContracts))
       this.contracts = newContracts
-      return newContracts
+      return this.inactiveContracts.concat(...newContracts)
     } else {
-      return this.contracts
+      return this.inactiveContracts.concat(...this.contracts)
     }
   }
 }

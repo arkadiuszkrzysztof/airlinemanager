@@ -16,7 +16,8 @@ enum Keys {
   CONTRACT_OFFERS = 'contractOffers',
   LAST_CONTRACT_REFRESH = 'lastContractRefresh',
   ACTIVE_SCHEDULES = 'activeSchedules',
-  SCHEDULE_EVENTS = 'scheduleEvents'
+  SCHEDULE_EVENTS = 'scheduleEvents',
+  INACTIVE_CONTRACTS = 'inactiveContracts'
 }
 
 export const LocalStorage = {
@@ -107,6 +108,17 @@ export const LocalStorage = {
   },
   setContractsOffers (offers: Contract[]): void {
     localStorage.setItem(Keys.CONTRACT_OFFERS, JSON.stringify(offers))
+  },
+  getInactiveContracts (): Contract[] {
+    const inactiveContracts = localStorage.getItem(Keys.INACTIVE_CONTRACTS)
+    let inactiveContractsItems = (inactiveContracts !== null) ? JSON.parse(inactiveContracts) : []
+
+    inactiveContractsItems = inactiveContractsItems.map((contract: Contract) => new Contract(...convertToContractTuple(contract)))
+
+    return inactiveContractsItems
+  },
+  setInactiveContracts (inactiveContracts: Contract[]): void {
+    localStorage.setItem(Keys.INACTIVE_CONTRACTS, JSON.stringify(inactiveContracts))
   },
   getLastContractsRefresh (): number {
     const lastContractRefresh = localStorage.getItem(Keys.LAST_CONTRACT_REFRESH)

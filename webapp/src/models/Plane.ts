@@ -1,4 +1,5 @@
 import { Clock, Timeframes } from '../controllers/Clock'
+import { getDepreciation } from '../controllers/helpers/Helpers'
 import { type Airport } from './Airport'
 
 export type PlaneTuple = [
@@ -83,7 +84,7 @@ export class Plane {
     public hub?: Airport
   ) {}
 
-  getPricing (): {
+  getPricingFormatted (): {
     purchase: string
     lease: string
     leaseDuration: string
@@ -119,5 +120,11 @@ export class Plane {
 
   getLeaseDuration (): string {
     return this.formatPlaytimeInYearsAndMonths(this.pricing.leaseDuration)
+  }
+
+  getSellPrice (): number {
+    const age = Math.round((Clock.getInstance().playtime - this.manufactureTime) / Timeframes.YEAR)
+
+    return getDepreciation(this.pricing.purchase, age)
   }
 }

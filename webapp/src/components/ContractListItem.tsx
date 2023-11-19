@@ -4,7 +4,7 @@ import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge } from 'react-boots
 import { GameController } from '../controllers/GameController'
 import { type ContractOptionCosts, type ContractOption, type ContractOptionRevenues } from '../controllers/ContractsController'
 import { type HangarAsset } from '../controllers/HangarController'
-import { ArrowLeftRight } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill } from 'react-bootstrap-icons'
 import { Timeframes } from '../controllers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../controllers/helpers/Helpers'
 
@@ -103,7 +103,15 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
   const contractOptions = Controllers.Contracts.getContractOptions(contract)
 
   return (
-    <Row className='bg-grey-light rounded mt-2 p-2'>
+    <Row className={`bg-${contract.accepted ? 'danger bg-opacity-10' : 'grey-light'} rounded mt-2 p-2`}>
+      {contract.accepted &&
+        <Row className='mb-4'>
+          <Col xs={12} className='d-flex align-items-center justify-content-center'>
+            <ExclamationSquareFill size={20} className='text-danger me-2' />
+            <span className='text-danger fw-bold'>Inactive contract - assign new plane!</span>
+          </Col>
+        </Row>
+      }
       <Row>
         <Col className='flex-grow-0'>
           <Badge bg='dark fs-6'>{`${contract.hub.IATACode} (${contract.hub.location})`}</Badge>
@@ -114,15 +122,20 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
         <Col className='flex-grow-0'>
           <Badge bg='light fs-6'>{`${contract.destination.IATACode} (${contract.destination.location})`}</Badge>
         </Col>
-        <Col>
-          <span className='text-primary'>Departures on <strong>{`${contract.dayOfWeek}s`}</strong> at <strong>{contract.departureTime}</strong></span>
+        <Col className='d-flex align-items-center'>
+          <AirplaneFill size={20} className='text-grey-dark me-2 rotate-60' />
+          <span><strong>{`${contract.dayOfWeek}s`}</strong>{' at '}<strong>{contract.departureTime}</strong></span>
         </Col>
       </Row>
       <Row>
-        <Col className='my-1'>
-          Flight distance: <strong>{`${contract.distance} km`}</strong>{' '}
-          Demand: <strong>{`${contract.demand.economy}@E ${contract.demand.business}@B ${contract.demand.first}@F`}</strong>{' '}
-          Contract duration: <strong>{`${contract.contractDuration / Timeframes.MONTH} months`}</strong>
+        <Col className='d-flex my-2 align-items-center'>
+          <PinMapFill size={20} className='text-grey-dark me-2' />
+          <strong>{`${contract.distance} km`}</strong>
+          <PersonFill size={20} className='text-grey-dark ms-4 me-2' />
+          <strong>{contract.demand.economy + contract.demand.business + contract.demand.first}</strong>
+          <span className='text-grey-dark small ms-2'>{`Economy: ${contract.demand.economy} ● Business: ${contract.demand.business} ● First: ${contract.demand.first}`}</span>
+          <CalendarWeekFill size={20} className='text-grey-dark ms-4 me-2' />
+          <strong>{`${contract.contractDuration / Timeframes.MONTH} months`}</strong>
         </Col>
       </Row>
       <Accordion>
@@ -152,7 +165,11 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                       overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipPlaneDetails asset={option.asset} /></Tooltip>}
                   >
                     <span className='d-flex flex-row align-items-center cursor-help'>
-                      {option.available && <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>&#10003;</span>}
+                      {option.available &&
+                        <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
+                          <CheckSquare size={12} />
+                        </span>
+                      }
                       {option.asset.plane.typeName}
                       <small className={`ps-1 fs-7 fw-bold text-${option.asset.ownership === 'owned' ? 'dark' : 'light'}`}>{option.asset.ownership.toUpperCase()}</small>
                     </span>

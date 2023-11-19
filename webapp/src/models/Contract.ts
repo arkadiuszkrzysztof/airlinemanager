@@ -1,4 +1,4 @@
-import { type DaysOfWeek } from '../controllers/Clock'
+import { Clock, type DaysOfWeek } from '../controllers/Clock'
 import { type Airport } from './Airport'
 
 export type ContractTuple = [
@@ -13,7 +13,10 @@ export type ContractTuple = [
     economy: number
     business: number
     first: number
-  }
+  },
+  accepted: boolean,
+  startTime: number,
+  expirationTime: number
 ]
 
 export const convertToContractTuple = (contract: Contract): ContractTuple => {
@@ -25,32 +28,31 @@ export const convertToContractTuple = (contract: Contract): ContractTuple => {
     contract.dayOfWeek,
     contract.departureTime,
     contract.contractDuration,
-    contract.demand
+    contract.demand,
+    contract.accepted,
+    contract.startTime,
+    contract.expirationTime
   ]
 }
 
 export class Contract {
-  public readonly id: string
-  public readonly hub: Airport
-  public readonly destination: Airport
-  public readonly distance: number
-  public readonly dayOfWeek: DaysOfWeek
-  public readonly departureTime: string
-  public readonly contractDuration: number
-  public readonly demand: {
-    economy: number
-    business: number
-    first: number
-  }
+  constructor (
+    public readonly id: string,
+    public readonly hub: Airport,
+    public readonly destination: Airport,
+    public readonly distance: number,
+    public readonly dayOfWeek: DaysOfWeek,
+    public readonly departureTime: string,
+    public readonly contractDuration: number,
+    public readonly demand: { economy: number, business: number, first: number },
+    public accepted: boolean = false,
+    public startTime: number = 0,
+    public expirationTime: number = 0
+  ) {}
 
-  constructor (id: string, hub: Airport, destination: Airport, distance: number, dayOfWeek: DaysOfWeek, departureTime: string, contractDuration: number, demand: { economy: number, business: number, first: number }) {
-    this.id = id
-    this.hub = hub
-    this.destination = destination
-    this.distance = distance
-    this.dayOfWeek = dayOfWeek
-    this.departureTime = departureTime
-    this.contractDuration = contractDuration
-    this.demand = demand
+  public accept (): void {
+    this.accepted = true
+    this.startTime = Clock.getTimeClosestDayStart(this.dayOfWeek)
+    this.expirationTime = this.startTime + this.contractDuration
   }
 }
