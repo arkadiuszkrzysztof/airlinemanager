@@ -52,6 +52,16 @@ $accordion-button-focus-border-color:  rgba(0, 0, 0, 0);
 $accordion-button-focus-box-shadow: none;
 $accordion-button-active-bg: rgba(0, 0, 0, 0);
 
+.hover-bg-info:hover {
+  background-color: map-get($theme-colors, "info");
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-bg-grey-light:hover {
+  background-color: map-get($theme-colors, "grey-light");
+  transition: all 0.2s ease-in-out;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -145,6 +155,7 @@ body {
 
 .pulse-animation {
   animation: fadeInOut 2s linear 1 forwards;
+  animation-iteration-count: infinite;
 }
 
 @keyframes fadeInOut {

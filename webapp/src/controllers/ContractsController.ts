@@ -28,6 +28,7 @@ export interface ContractOption {
   profit: number
   utilization: number
   turnaround: number
+  flightTime: number
   available: boolean
 }
 
@@ -187,6 +188,7 @@ export class ContractsController {
         profit: revenue.total - cost.total,
         utilization: this.calculateUtilization(contract, asset),
         turnaround: this.calculateTurnaround(contract, asset),
+        flightTime: Math.floor(contract.distance / asset.plane.cruiseSpeed),
         available: true
       }
 

@@ -27,12 +27,12 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           {plane.registration}
         </div>
         <div className='d-flex align-items-center'>
-          <CalendarWeekFill size={20} className='text-grey-dark me-2' />
-          {`${plane.getAge()} old`}
-        </div>
-        <div className='d-flex align-items-center'>
           <PinMapFill size={20} className='text-grey-dark me-2' />
           {`${plane.maxRange} km`}
+        </div>
+        <div className='d-flex align-items-center'>
+          <CalendarWeekFill size={20} className='text-grey-dark me-2' />
+          <span><strong>{plane.getAge()}</strong> old</span>
         </div>
         <div className='d-flex align-items-center'>
           <Cash size={20} className='text-grey-dark me-2' />

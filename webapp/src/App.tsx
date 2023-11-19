@@ -132,7 +132,7 @@ const App: React.FC = () => {
           header='Market'
           subheader={`Refresh in ${Controllers.Clock.timeToNextWeek}`}
           Component={MarketListItem}
-          items={market}
+          items={market.sort((a, b) => a.pricing.purchase - b.pricing.purchase)}
         />
         <ListPreview<Contract>
           Icon={FileEarmarkText}

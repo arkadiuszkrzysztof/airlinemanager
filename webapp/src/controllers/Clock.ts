@@ -74,12 +74,8 @@ export class Clock {
     return `${(newHours < 0 ? newHours + 24 : newHours).toString().padStart(2, '0')}:${(newMinutes < 0 ? newMinutes % 60 + 60 : newMinutes % 60).toString().padStart(2, '0')}`
   }
 
-  public static getTimeThisDayStart (): number {
-    return Math.floor(this.instance.playtime / Timeframes.DAY) * Timeframes.DAY
-  }
-
   public static getTimeClosestDayStart (day: DaysOfWeek): number {
-    const thisDayStart = this.getTimeThisDayStart()
+    const thisDayStart = this.instance.timeThisDayStart
     const thisDayIndex = Object.values(DaysOfWeek).indexOf(this.instance.currentDayOfWeek as DaysOfWeek)
 
     const closestDayIndex = Object.values(DaysOfWeek).indexOf(day)
@@ -91,7 +87,35 @@ export class Clock {
   public static getTimeAt (time: string, tomorrow: boolean = false): number {
     const [hours, minutes] = time.split(':')
 
-    return parseInt(hours) * 60 + parseInt(minutes) + this.getTimeThisDayStart() + (tomorrow ? Timeframes.DAY : 0)
+    return parseInt(hours) * 60 + parseInt(minutes) + this.instance.timeThisDayStart + (tomorrow ? Timeframes.DAY : 0)
+  }
+
+  public static getFormattedTimeUntil (time: number): string {
+    const { HOUR, DAY, MONTH, YEAR } = Timeframes
+
+    const years = Math.floor((time - this.instance.playtime) / YEAR)
+    const months = Math.floor((time - this.instance.playtime) / MONTH) % 12
+    const days = Math.floor((time - this.instance.playtime) / DAY) % 7
+    const hours = Math.floor((time - this.instance.playtime) / HOUR) % 24
+    const minutes = (time - this.instance.playtime) % HOUR
+
+    if (years > 0) {
+      return years + (years !== 1 ? ' years ' : ' year ') + months + (months !== 1 ? ' months' : ' month')
+    } else if (months > 0) {
+      return months + (months !== 1 ? ' months ' : ' month ') + days + (days !== 1 ? ' days' : ' day')
+    } else if (days > 0) {
+      return days + (days !== 1 ? ' days ' : ' day ') + hours + (hours !== 1 ? ' hours' : ' hour')
+    } else {
+      return hours + (hours !== 1 ? ' hours ' : ' hour ') + minutes + (minutes !== 1 ? ' minutes' : ' minute')
+    }
+  }
+
+  public static getFormattedHourlyTime (time: number): string {
+    const { HOUR } = Timeframes
+    const hours = Math.floor(time / HOUR)
+    const minutes = time % HOUR
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
 
   public static isTimeBetween (time: string, start: string, end: string): boolean {
@@ -149,6 +173,10 @@ export class Clock {
   get nextDayOfWeek (): string {
     const day = (Math.floor(this._playtime / Timeframes.DAY) + 1) % Object.keys(DaysOfWeek).length
     return Object.values(DaysOfWeek)[day]
+  }
+
+  get timeThisDayStart (): number {
+    return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
   }
 
   get timeToNextDay (): string {

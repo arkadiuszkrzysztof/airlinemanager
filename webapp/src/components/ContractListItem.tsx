@@ -2,100 +2,16 @@ import React from 'react'
 import { type Contract } from '../models/Contract'
 import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge } from 'react-bootstrap'
 import { GameController } from '../controllers/GameController'
-import { type ContractOptionCosts, type ContractOption, type ContractOptionRevenues } from '../controllers/ContractsController'
-import { type HangarAsset } from '../controllers/HangarController'
+import { type ContractOption } from '../controllers/ContractsController'
 import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill } from 'react-bootstrap-icons'
 import { Timeframes } from '../controllers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../controllers/helpers/Helpers'
+import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
+import CostBreakdownTooltip from './tooltips/CostBreakdownTooltip'
+import RevenueBreakdownTooltip from './tooltips/RevenueBreakdownTooltip'
 
 interface Props {
   item: Contract
-}
-
-const TooltipCostBreakdown: React.FC<{ costs: ContractOptionCosts }> = ({ costs }) => {
-  return (
-    <>
-      <strong>Costs breakdown:</strong><br />
-      <Row>
-        <Col xs={7} className='text-start'>Fuel</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(costs.fuel)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Maintenance</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(costs.maintenance)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Leasing</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(costs.leasing)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Landing fee</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(costs.landing)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Passenger fee</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(costs.passenger)}</Col>
-      </Row>
-    </>
-  )
-}
-
-const TooltipRevenueBreakdown: React.FC<{ revenues: ContractOptionRevenues }> = ({ revenues }) => {
-  return (
-    <>
-      <strong>Revenues breakdown:</strong><br />
-      <Row>
-        <Col xs={7} className='text-start'>Economy Class</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(revenues.economy)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Business Class</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(revenues.business)}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>First Class</Col>
-        <Col xs={5} className='text-end'>{formatCashValue(revenues.first)}</Col>
-      </Row>
-    </>
-  )
-}
-
-const TooltipPlaneDetails: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
-  const { plane, ownership } = asset
-
-  return (
-    <>
-      <strong>{`${plane.familyName} ${plane.typeName}`}</strong>
-      <Row>
-        <Col xs={7} className='text-start'>Registration</Col>
-        <Col xs={5} className='text-end'>{plane.registration}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Ownership</Col>
-        <Col xs={5} className='text-end'>{ownership}</Col>
-        </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Max range</Col>
-        <Col xs={5} className='text-end'>{plane.maxRange} km</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>Plane capacity:</Col>
-        <Col xs={5} className='text-end'></Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>- Economy Class</Col>
-        <Col xs={5} className='text-end'>{plane.maxSeating.economy}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>- Business Class</Col>
-        <Col xs={5} className='text-end'>{plane.maxSeating.business}</Col>
-      </Row>
-      <Row>
-        <Col xs={7} className='text-start'>- First Class</Col>
-        <Col xs={5} className='text-end'>{plane.maxSeating.first}</Col>
-      </Row>
-    </>
-  )
 }
 
 const ContractListItem: React.FC<Props> = ({ item: contract }) => {
@@ -158,11 +74,11 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
               <Col xs={2}>Turnaround</Col>
             </Row>
             {contractOptions.map((option: ContractOption) => (
-              <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'}`}>
+              <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'} hover-bg-grey-light`}>
                 <Col xs={2}>
                   <OverlayTrigger
                       placement="bottom"
-                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipPlaneDetails asset={option.asset} /></Tooltip>}
+                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
                   >
                     <span className='d-flex flex-row align-items-center cursor-help'>
                       {option.available &&
@@ -178,7 +94,7 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                 <Col xs={2} className='text-end'>
                   <OverlayTrigger
                     placement="bottom"
-                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipCostBreakdown costs={option.cost} /></Tooltip>}
+                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={option.cost} /></Tooltip>}
                   >
                     <span className='cursor-help'>{formatCashValue(option.cost.total)}</span>
                   </OverlayTrigger>
@@ -186,7 +102,7 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                 <Col xs={2} className='text-end'>
                   <OverlayTrigger
                     placement="bottom"
-                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TooltipRevenueBreakdown revenues={option.revenue} /></Tooltip>}
+                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={option.revenue} /></Tooltip>}
                   >
                     <span className='cursor-help'>{formatCashValue(option.revenue.total)}</span>
                   </OverlayTrigger>

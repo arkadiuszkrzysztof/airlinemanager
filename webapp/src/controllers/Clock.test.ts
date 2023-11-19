@@ -105,28 +105,28 @@ describe('duration helper', () => {
 
   test('get start time for tomorrow', () => {
     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
     expect(Clock.getTimeClosestDayStart(DaysOfWeek.THURSDAY)).toBe(Timeframes.DAY * 4)
   })
 
   test('get start time in three days', () => {
     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
     expect(Clock.getTimeClosestDayStart(DaysOfWeek.SATURDAY)).toBe(Timeframes.DAY * 6)
   })
 
   test('get start time in six days', () => {
     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
     expect(Clock.getTimeClosestDayStart(DaysOfWeek.TUESDAY)).toBe(Timeframes.DAY * 9)
   })
 
   test('get start time in a week', () => {
     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock, 'getTimeThisDayStart').mockReturnValue(Timeframes.DAY * 3)
+    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
     expect(Clock.getTimeClosestDayStart(DaysOfWeek.WEDNESDAY)).toBe(Timeframes.DAY * 10)
   })

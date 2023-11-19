@@ -1,4 +1,5 @@
 import { type Plane } from '../models/Plane'
+import { Clock } from './Clock'
 import { GameController } from './GameController'
 import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './LocalStorage'
@@ -163,9 +164,10 @@ export class AirlineController {
       GameController.displayMessage('Not enough cash!')
       return
     }
-    const hangarController = HangarController.getInstance()
+
     this.spendCash(plane.pricing.purchase)
-    hangarController.addAsset({ plane, ownership: 'owned' })
+    plane.acquisitionTime = Clock.getInstance().timeThisDayStart
+    HangarController.getInstance().addAsset({ plane, ownership: 'owned' })
   }
 
   public sellPlane (asset: HangarAsset): void {
@@ -178,9 +180,11 @@ export class AirlineController {
       GameController.displayMessage('Not enough cash!')
       return
     }
-    const hangarController = HangarController.getInstance()
+
     this.spendCash(plane.pricing.leaseDownpayment)
-    hangarController.addAsset({ plane, ownership: 'leased' })
+    plane.acquisitionTime = Clock.getInstance().timeThisDayStart
+    plane.leaseExpirationTime = plane.acquisitionTime + plane.pricing.leaseDuration
+    HangarController.getInstance().addAsset({ plane, ownership: 'leased' })
   }
 
   public cancelLease (asset: HangarAsset): void {

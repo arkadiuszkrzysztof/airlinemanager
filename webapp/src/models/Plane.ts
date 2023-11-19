@@ -14,7 +14,9 @@ export type PlaneTuple = [
   pricing: { purchase: number, lease: number, leaseDuration: number, leaseCancelationFee: number, leaseDownpayment: number, maintenance: number },
   registration: string,
   manufactureTime: number,
-  hub?: Airport
+  hub?: Airport,
+  acquisitionTime?: number,
+  leaseExpirationTime?: number
 ]
 
 export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
@@ -30,7 +32,9 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
     plane.pricing,
     plane.registration,
     plane.manufactureTime,
-    plane.hub
+    plane.hub,
+    plane.acquisitionTime,
+    plane.leaseExpirationTime
   ]
 }
 
@@ -81,7 +85,9 @@ export class Plane {
     },
     public readonly registration: string,
     public readonly manufactureTime: number,
-    public hub?: Airport
+    public hub?: Airport,
+    public acquisitionTime?: number,
+    public leaseExpirationTime?: number
   ) {}
 
   getPricingFormatted (): {

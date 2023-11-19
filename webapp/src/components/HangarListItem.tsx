@@ -1,11 +1,13 @@
 import React from 'react'
-import { Row, Col, Badge, Button } from 'react-bootstrap'
+import { Row, Col, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
 import { Clock, DaysOfWeek } from '../controllers/Clock'
 import { type Schedule } from '../controllers/ScheduleController'
-import { AirplaneFill, ArrowLeftRight, Reception0, Reception1, Reception2, Reception3, Reception4 } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight, Cash, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
 import { formatCashValue } from '../controllers/helpers/Helpers'
+import ScheduleDetailsTooltip from './tooltips/ScheduleDetailsTooltip'
+import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
 
 interface Props {
   item: HangarAsset
@@ -40,7 +42,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   const weeklyProfit = (): number => {
     const totalProfit = Controllers.Schedule
       .getActiveSchedulesForAsset(asset)
-      .reduce((profit, schedule) => profit + schedule.option.revenue.total, 0)
+      .reduce((profit, schedule) => profit + schedule.option.profit, 0)
 
     return totalProfit
   }
@@ -48,25 +50,35 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={12}>
-        <Row>
-          <Col xs={9} className='d-flex align-items-center'>
-            {`${asset.plane.familyName} ${asset.plane.typeName} [${asset.plane.registration}]`}
-            <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-2'>
+        <Row className='justify-content-between'>
+          <Col xs={'auto'} className='d-flex align-items-center'>
+            <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={asset} /></Tooltip>}
+            >
+              <span className='fs-5 fw-bold text-primary cursor-help'>{`${asset.plane.familyName} ${asset.plane.typeName}`}</span>
+            </OverlayTrigger>
+            <TagFill size={20} className='text-grey-dark ms-4 me-2' />
+            <span className='text-grey-dark'>{asset.plane.registration}</span>
+            <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-4'>
               {asset.ownership.toUpperCase()}
             </Badge>
-            Total profit:
+            <Cash size={20} className='text-grey-dark me-2' />
             <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-dark' : 'text-danger'}`}>
               {formatCashValue(weeklyProfit())}
             </span>
             per week
           </Col>
-          <Col xs={3} className='d-flex align-items-center justify-content-end'>
+          <Col xs={'auto'} className='d-flex align-items-center justify-content-end'>
+            {asset.ownership === 'leased' && asset.plane.leaseExpirationTime !== undefined &&
+              <span className='fw-bold text-grey-dark me-2'>Lease ends in {Clock.getFormattedTimeUntil(asset.plane.leaseExpirationTime)}</span>
+            }
             {asset.ownership === 'owned'
               ? <Button variant='outline-primary' size='sm' className='me-2' onClick={() => { Controllers.Airline.sellPlane(asset) }}>
                 Sell for {formatCashValue(asset.plane.getSellPrice())}
               </Button>
               : <Button variant='outline-danger' size='sm' className='me-2' onClick={() => { Controllers.Airline.cancelLease(asset) }}>
-                Cancel lease with {formatCashValue(asset.plane.pricing.leaseCancelationFee)} penalty
+                Cancel early with {formatCashValue(asset.plane.pricing.leaseCancelationFee)} penalty
               </Button>
             }
           </Col>
@@ -93,17 +105,26 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                 .filter((schedule) => schedule.day === day)
                 .sort((a, b) => (a.start < b.start ? -1 : 1))
                 .map((schedule) =>
-                <Row key={Math.random()} className='text-center'>
-                  <p>
-                    {`${schedule.start} - ${schedule.end}`}<br />
-                    {schedule.contract.hub.IATACode}
-                    {flightStatus(schedule).inTheAir
-                      ? flightStatus(schedule).flightLeg === 'there'
-                        ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
-                        : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
-                      : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
-                    {schedule.contract.destination.IATACode}
-                  </p>
+                <Row key={schedule.contract.id} className='text-center'>
+                  <OverlayTrigger
+                      placement="bottom"
+                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><ScheduleDetailsTooltip schedule={schedule} /></Tooltip>}
+                  >
+                    <div className='hover-bg-info rounded cursor-help mb-2'>
+                      <div>
+                        {`${schedule.start} - ${schedule.end}`}
+                      </div>
+                      <div className='d-flex align-items-center justify-content-center'>
+                        {schedule.contract.hub.IATACode}
+                        {flightStatus(schedule).inTheAir
+                          ? flightStatus(schedule).flightLeg === 'there'
+                            ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
+                            : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
+                          : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
+                        {schedule.contract.destination.IATACode}
+                      </div>
+                    </div>
+                  </OverlayTrigger>
                 </Row>
                 )}
             </Col>
