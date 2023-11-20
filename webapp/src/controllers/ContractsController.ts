@@ -27,8 +27,9 @@ export interface ContractOption {
   revenue: ContractOptionRevenues
   profit: number
   utilization: number
-  turnaround: number
   flightTime: number
+  boardingTime: number
+  totalTime: number
   available: boolean
 }
 
@@ -66,7 +67,7 @@ export class ContractsController {
     const contracts: Contract[] = []
     const connections: string[] = []
 
-    for (; contracts.length < Math.random() * 5 + 2;) {
+    for (; contracts.length < Math.random() * 10 + 5;) {
       const airport1 = this.airports[Math.floor(Math.random() * this.airports.length)]
       const airport2 = this.airports[Math.floor(Math.random() * this.airports.length)]
 
@@ -80,8 +81,8 @@ export class ContractsController {
       const distance = calculateAirportsDistance(airport1, airport2)
       const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
       const departureTime = `${Math.floor(Math.random() * 18 + 5).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
-      const demandRatio = (airport1.passengers + airport2.passengers) / 100000000
-      const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 50), first: Math.floor(demandRatio * 10) }
+      const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
+      const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
 
       connections.push(connection)
@@ -122,9 +123,9 @@ export class ContractsController {
 
     const duration = contract.distance / asset.plane.cruiseSpeed
 
-    const economyTicketsRevenue = econonyPassengers * 200 * duration * 2 + econonyPassengers * 100 * 2
-    const businessTicketsRevenue = businessPassengers * 600 * duration * 2 + businessPassengers * 200 * 2
-    const firsTicketRevenue = firstPassengers * 1200 * duration * 2 + firstPassengers * 400 * 2
+    const economyTicketsRevenue = econonyPassengers * 75 * duration * 2 + econonyPassengers * 15 * 2
+    const businessTicketsRevenue = businessPassengers * 150 * duration * 2 + businessPassengers * 20 * 2
+    const firsTicketRevenue = firstPassengers * 300 * duration * 2 + firstPassengers * 30 * 2
 
     return {
       economy: economyTicketsRevenue,
@@ -145,15 +146,17 @@ export class ContractsController {
     return Math.floor(contractPlaneCapacity / totalPlaneCapacity * 100)
   }
 
-  private calculateTurnaround (contract: Contract, asset: HangarAsset): number {
-    const duration = contract.distance / asset.plane.cruiseSpeed
+  private calculateTurnaround (contract: Contract, asset: HangarAsset): { flightTime: number, boardingTime: number, totalTime: number } {
+    const flightTime = Math.floor(contract.distance / asset.plane.cruiseSpeed * 60)
     const totalSeats = asset.plane.maxSeating.economy + asset.plane.maxSeating.business + asset.plane.maxSeating.first
-    const turnaround = totalSeats < 100 ? totalSeats * 0.75 : totalSeats < 200 ? totalSeats * 0.65 : totalSeats * 0.55
+    const boardingTime = Math.floor((totalSeats < 100 ? totalSeats * 0.75 : totalSeats < 200 ? totalSeats * 0.65 : totalSeats * 0.55) / 2)
 
-    return duration * 2 * 60 + turnaround
+    return { flightTime, boardingTime, totalTime: (flightTime + boardingTime) * 2 }
   }
 
   private checkAvailability (contract: Contract, option: ContractOption): boolean {
+    if (option.asset.plane.hub !== undefined && contract.hub.IATACode !== option.asset.plane.hub.IATACode) return false
+
     let available = true
 
     const schedule = ScheduleController.getInstance().draftSchedule(contract, option)
@@ -180,6 +183,7 @@ export class ContractsController {
     hangarController.getAllAssets().forEach((asset) => {
       const cost = this.calculateCost(contract, asset)
       const revenue = this.calculateRevenue(contract, asset)
+      const { flightTime, boardingTime, totalTime } = this.calculateTurnaround(contract, asset)
 
       const option = {
         asset,
@@ -187,8 +191,9 @@ export class ContractsController {
         revenue,
         profit: revenue.total - cost.total,
         utilization: this.calculateUtilization(contract, asset),
-        turnaround: this.calculateTurnaround(contract, asset),
-        flightTime: Math.floor(contract.distance / asset.plane.cruiseSpeed),
+        flightTime,
+        boardingTime,
+        totalTime,
         available: true
       }
 

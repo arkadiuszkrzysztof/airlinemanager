@@ -13,6 +13,14 @@ const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) 
         <Col xs={6} className='text-end'>{schedule.contract.departureTime}</Col>
       </Row>
       <Row>
+        <Col xs={6} className='text-start'>Return time</Col>
+        <Col xs={6} className='text-end'>{Clock.addToTime(schedule.contract.departureTime, schedule.option.flightTime + schedule.option.boardingTime)}</Col>
+      </Row>
+      <Row>
+        <Col xs={6} className='text-start'>Plane in use</Col>
+        <Col xs={6} className='text-end'>{`${schedule.start} - ${schedule.end}`}</Col>
+      </Row>
+      <Row>
         <Col xs={6} className='text-start'>Hub</Col>
         <Col xs={6} className='text-end'>{`${schedule.contract.hub.location} (${schedule.contract.hub.countryCode})`}</Col>
       </Row>

@@ -113,7 +113,7 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                   </span>
                 </Col>
                 <Col xs={2} className='text-end'>{formatUtilization(option.utilization)}</Col>
-                <Col xs={2} className='text-end'>{formatTurnaround(option.turnaround)}</Col>
+                <Col xs={2} className='text-end'>{formatTurnaround(option.totalTime)}</Col>
               </Row>
             ))}
           </Accordion.Body>

@@ -45,6 +45,11 @@ export class HangarController {
     return this.assets.length
   }
 
+  saveAssets (): void {
+    LocalStorage.setHangarPlanes(this.assets)
+    this.callListeners([...this.assets])
+  }
+
   public static getInstance (): HangarController {
     if (HangarController.instance === undefined) {
       HangarController.instance = new HangarController()

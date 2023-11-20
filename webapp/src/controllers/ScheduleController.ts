@@ -2,7 +2,7 @@ import { Autobind } from '../decorators/Autobind'
 import { type Contract } from '../models/Contract'
 import { Clock, Timeframes, type DaysOfWeek } from './Clock'
 import { ContractsController, type ContractOption } from './ContractsController'
-import { type HangarAsset } from './HangarController'
+import { HangarController, type HangarAsset } from './HangarController'
 import { LocalStorage } from './LocalStorage'
 
 export interface Schedule {
@@ -51,14 +51,21 @@ export class ScheduleController {
   public getTotalUseTime (asset: HangarAsset, day: DaysOfWeek): string {
     const totalTime = this.getActiveSchedulesForAsset(asset)
       .filter((schedule) => schedule.day === day)
-      .reduce((sum, schedule) => sum + schedule.option.turnaround, 0)
+      .reduce((sum, schedule) => sum + schedule.option.totalTime, 0)
 
     return `${Math.floor(totalTime / 60).toString().padStart(2, '0')}:${(totalTime % 60).toString().padStart(2, '0')}`
   }
 
+  public getAverageUtilization (asset: HangarAsset, day: DaysOfWeek): number {
+    const activeSchedules = this.getActiveSchedulesForAsset(asset).filter((schedule) => schedule.day === day)
+    const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
+
+    return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
+  }
+
   public draftSchedule (contract: Contract, option: ContractOption): Schedule {
-    const start = Clock.addToTime(contract.departureTime, -Math.floor(option.turnaround / 2))
-    const end = Clock.addToTime(start, Math.floor(option.turnaround))
+    const start = Clock.addToTime(contract.departureTime, -option.boardingTime)
+    const end = Clock.addToTime(start, Math.floor(option.totalTime))
 
     const schedule = {
       day: contract.dayOfWeek,
@@ -76,6 +83,8 @@ export class ScheduleController {
 
     const wasAccepted = schedule.contract.accepted
     schedule.contract.accept()
+    schedule.option.asset.plane.setHub(schedule.contract.hub)
+    HangarController.getInstance().saveAssets()
 
     this.activeSchedules.push(schedule)
     LocalStorage.setActiveSchedules(this.activeSchedules)

@@ -1,16 +1,31 @@
-import React from 'react'
-import { Row, Col, Badge, Button, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import React, { type ReactElement, useContext } from 'react'
+import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, AccordionContext, useAccordionButton, Card } from 'react-bootstrap'
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
-import { Clock, DaysOfWeek } from '../controllers/Clock'
+import { Clock, DaysOfWeek, Timeframes } from '../controllers/Clock'
 import { type Schedule } from '../controllers/ScheduleController'
-import { AirplaneFill, ArrowLeftRight, Cash, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
-import { formatCashValue } from '../controllers/helpers/Helpers'
+import { AirplaneFill, ArrowLeftRight, CaretDownFill, Cash, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
+import { formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
 import ScheduleDetailsTooltip from './tooltips/ScheduleDetailsTooltip'
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
 
 interface Props {
   item: HangarAsset
+}
+
+const ContextAwareToggle: React.FC<{ children?: ReactElement, eventKey: string, callback?: (eventKey: string) => void }> = ({ children, eventKey, callback }) => {
+  const { activeEventKey } = useContext(AccordionContext)
+
+  const decoratedOnClick = useAccordionButton(
+    eventKey,
+    () => { if (callback !== undefined) callback(eventKey) }
+  )
+
+  const isCurrentEventKey = activeEventKey === eventKey
+
+  return (
+    <CaretDownFill onClick={decoratedOnClick} role="button" size={40} className={`text-secondary rotate-${isCurrentEventKey ? '180' : '0'}`} />
+  )
 }
 
 const HangarListItem: React.FC<Props> = ({ item: asset }) => {
@@ -20,7 +35,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     let inTheAir = false
     let flightLeg: 'there' | 'back' = 'there'
 
-    const halftime = Clock.addToTime(schedule.start, Math.floor(schedule.option.turnaround / 2))
+    const halftime = Clock.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
 
     if (
       (schedule.day === Controllers.Clock.currentDayOfWeek &&
@@ -47,13 +62,48 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     return totalProfit
   }
 
+  const getTimeUseIndicator = (asset: HangarAsset, day: DaysOfWeek): ReactElement => {
+    const totalTime = Controllers.Schedule.getTotalUseTime(asset, day)
+
+    if (totalTime >= '12:00') {
+      return <Reception4 size={12} className='me-2 text-secondary' />
+    } else if (totalTime >= '8:00') {
+      return <Reception3 size={12} className='me-2 text-info' />
+    } else if (totalTime >= '04:00') {
+      return <Reception2 size={12} className='me-2 text-info' />
+    } else if (totalTime > '00:00') {
+      return <Reception1 size={12} className='me-2 text-danger' />
+    } else {
+      return <Reception0 size={12} className='me-2 text-danger' />
+    }
+  }
+
+  const getUtilizationIndicator = (asset: HangarAsset, day: DaysOfWeek): ReactElement => {
+    const averageUtilization = Controllers.Schedule.getAverageUtilization(asset, day)
+
+    if (averageUtilization >= 85) {
+      return <Reception4 size={12} className='text-secondary' />
+    } else if (averageUtilization >= 70) {
+      return <Reception3 size={12} className='text-info' />
+    } else if (averageUtilization >= 50) {
+      return <Reception2 size={12} className='text-info' />
+    } else if (averageUtilization > 20) {
+      return <Reception1 size={12} className='text-danger' />
+    } else {
+      return <Reception0 size={12} className='text-danger' />
+    }
+  }
+
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={12}>
         <Row className='justify-content-between'>
           <Col xs={'auto'} className='d-flex align-items-center'>
+            {asset.plane.hub !== undefined &&
+              <Badge bg='dark' className='me-2 fs-5'>{asset.plane.hub.IATACode}</Badge>
+            }
             <OverlayTrigger
-                placement="bottom"
+                placement="top"
                 overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={asset} /></Tooltip>}
             >
               <span className='fs-5 fw-bold text-primary cursor-help'>{`${asset.plane.familyName} ${asset.plane.typeName}`}</span>
@@ -85,51 +135,114 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
         </Row>
       </Col>
       <Col xs={12}>
-        <Row className='align-items-start pt-2'>
-          {Object.values(DaysOfWeek).map((day) =>
-            <Col key={day} xs={4} md={3} xxl={true} className={`d-flex flex-column justify-content-center rounded bg-${Controllers.Clock.currentDayOfWeek === day ? 'body' : 'grey-light'}`}>
-              <p className='text-center fw-bold text-dark'>
-                {Controllers.Schedule.getTotalUseTime(asset, day) >= '12:00'
-                  ? <Reception4 size={12} className='me-2 text-secondary' />
-                  : Controllers.Schedule.getTotalUseTime(asset, day) >= '8:00'
-                    ? <Reception3 size={12} className='me-2 text-info' />
-                    : Controllers.Schedule.getTotalUseTime(asset, day) >= '04:00'
-                      ? <Reception2 size={12} className='me-2 text-info' />
-                      : Controllers.Schedule.getTotalUseTime(asset, day) > '00:00'
-                        ? <Reception1 size={12} className='me-2 text-danger' />
-                        : <Reception0 size={12} className='me-2 text-danger' />}
-                {day}
-              </p>
-              {Controllers.Schedule
-                .getActiveSchedulesForAsset(asset)
-                .filter((schedule) => schedule.day === day)
-                .sort((a, b) => (a.start < b.start ? -1 : 1))
-                .map((schedule) =>
-                <Row key={schedule.contract.id} className='text-center'>
-                  <OverlayTrigger
-                      placement="bottom"
-                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><ScheduleDetailsTooltip schedule={schedule} /></Tooltip>}
-                  >
-                    <div className='hover-bg-info rounded cursor-help mb-2'>
-                      <div>
-                        {`${schedule.start} - ${schedule.end}`}
-                      </div>
-                      <div className='d-flex align-items-center justify-content-center'>
-                        {schedule.contract.hub.IATACode}
-                        {flightStatus(schedule).inTheAir
-                          ? flightStatus(schedule).flightLeg === 'there'
-                            ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
-                            : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
-                          : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
-                        {schedule.contract.destination.IATACode}
-                      </div>
-                    </div>
-                  </OverlayTrigger>
-                </Row>
-                )}
-            </Col>
-          )}
-        </Row>
+        <Accordion className='mt-2'>
+          <Card>
+            <Row className='mx-2 mt-2'>
+              <Col xs={'auto'}>
+                <div className='timetable-hour mw-50'></div>
+              </Col>
+              {Object.values(DaysOfWeek).map((day) =>
+                <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+                  <div className='text-center fw-bold text-dark'>
+                    {day}
+                  </div>
+                  <div className='text-center text-grey-dark'>
+                    <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Controllers.Schedule.getTotalUseTime(asset, day)}</Tooltip>}>
+                      <span className='cursor-help'>
+                        <ClockFill size={12} className='me-2' />
+                        {getTimeUseIndicator(asset, day)}
+                      </span>
+                    </OverlayTrigger>
+                    <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Average seat utilization:</strong><br />{formatUtilization(Controllers.Schedule.getAverageUtilization(asset, day))}</Tooltip>}>
+                      <span className='cursor-help'>
+                        <PersonFill size={12} className='me-2' />
+                        {getUtilizationIndicator(asset, day)}
+                      </span>
+                    </OverlayTrigger>
+                  </div>
+                </Col>
+              )}
+              <Col xs={'auto'} className='flex-grow-0'>
+                <div className='timetable-hour mw-50'>
+                  <ContextAwareToggle eventKey="0" />
+                </div>
+              </Col>
+            </Row>
+            <Accordion.Collapse eventKey="0">
+            <Row className='mx-2 mb-2' style={{ height: '300px' }}>
+              <Col xs={'auto'} className='text-center text-grey-dark fw-bold'>
+                <div className='timetable-grid mw-50'></div>
+                <div className='timetable-hour mw-50'><small>00:00</small></div>
+                <div className='timetable-hour mw-50'><small>04:00</small></div>
+                <div className='timetable-hour mw-50'><small>08:00</small></div>
+                <div className='timetable-hour mw-50'><small>12:00</small></div>
+                <div className='timetable-hour mw-50'><small>16:00</small></div>
+                <div className='timetable-hour mw-50'><small>20:00</small></div>
+                <div className='timetable-hour mw-50'><small>00:00</small></div>
+              </Col>
+              {Object.values(DaysOfWeek).map((day) =>
+                <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+                  <div className='timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top timetable-grid'></div>
+                  <div className='border-top border-bottom timetable-grid'></div>
+                  <div className='timetable-grid'></div>
+
+                  {Controllers.Schedule
+                    .getActiveSchedulesForAsset(asset)
+                    .filter((schedule) => schedule.day === day)
+                    .sort((a, b) => (a.start < b.start ? -1 : 1))
+                    .map((schedule) =>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><ScheduleDetailsTooltip schedule={schedule} /></Tooltip>}
+                        key={schedule.contract.id}
+                      >
+                        <div
+                          className='d-flex align-items-center justify-content-center bg-info bg-opacity-75 hover-bg-info rounded cursor-help'
+                          style={{
+                            position: 'absolute',
+                            top: `${Clock.getTimeAt(schedule.start) % Timeframes.DAY / 6 + 20}px`,
+                            width: 'calc(100% - 24px)',
+                            height: `${(schedule.option.totalTime) / 6}px`
+                          }}
+                        >
+                          {schedule.contract.hub.IATACode}
+                          {flightStatus(schedule).inTheAir
+                            ? flightStatus(schedule).flightLeg === 'there'
+                              ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
+                              : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
+                            : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
+                          {schedule.contract.destination.IATACode}
+                        </div>
+                      </OverlayTrigger>
+                    )
+                  }
+                </Col>
+              )}
+              <Col xs={'auto'} className='text-center text-grey-dark fw-bold'>
+                <div className='timetable-grid mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+                <div className='timetable-hour mw-50'></div>
+              </Col>
+            </Row>
+        </Accordion.Collapse>
+      </Card>
+      </Accordion>
       </Col>
     </Row>
   )

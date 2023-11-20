@@ -9,6 +9,10 @@ const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
     <>
       <strong>{`${plane.familyName} ${plane.typeName}`}</strong>
       <Row>
+        <Col xs={7} className='text-start'>Hub</Col>
+        <Col xs={5} className='text-end'>{plane.hub !== undefined ? `${plane.hub.location} (${plane.hub.countryCode})` : 'None'}</Col>
+      </Row>
+      <Row>
         <Col xs={7} className='text-start'>Registration</Col>
         <Col xs={5} className='text-end'>{plane.registration}</Col>
       </Row>
