@@ -14,7 +14,7 @@ interface ListPreviewProps<U> {
 const ListPreview = <U,>({ Component, items, header, Icon, subheader, fullWidth = false }: ListPreviewProps<U>): ReactElement => {
   // const Component = component
   return (
-    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 12 : 6} xxxl={fullWidth ? 10 : 5}>
+    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>

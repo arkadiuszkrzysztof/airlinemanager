@@ -1,8 +1,8 @@
 import { Autobind } from '../decorators/Autobind'
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
-import { Clock, Timeframes } from './Clock'
-import { LocalStorage } from './LocalStorage'
+import { Clock, Timeframes } from './helpers/Clock'
+import { LocalStorage } from './helpers/LocalStorage'
 import { getDepreciation, getRandomCharacters } from './helpers/Helpers'
 
 export class MarketController {
@@ -36,8 +36,9 @@ export class MarketController {
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.WEEK) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
+      console.log('REFRESH ', playtime - (playtime % Timeframes.WEEK))
       LocalStorage.setLastMarketRefresh(playtime - playtime % Timeframes.WEEK)
-      this.callListeners([...newOffers])
+      this.callListeners(newOffers)
       this.marketPlanes = newOffers
       return newOffers
     } else {
@@ -52,14 +53,14 @@ export class MarketController {
   }
 
   private generatePlaneOptions (): Plane[] {
-    const calculatePricing = ({ pricing }: Plane, manufactureTime: number): { purchase: number, lease: number, leaseDuration: number, leaseCancelationFee: number, leaseDownpayment: number, maintenance: number } => {
+    const calculatePricing = ({ pricing }: Plane, manufactureTime: number): { purchase: number, lease: number, leaseDuration: number, leaseCancellationFee: number, leaseDownpayment: number, maintenance: number } => {
       const age = Math.round((Clock.getInstance().playtime - manufactureTime) / Timeframes.YEAR)
 
       return {
         purchase: getDepreciation(pricing.purchase, age),
         lease: pricing.lease * (1 - age * 2 / 100),
         leaseDuration: Timeframes.MONTH * Math.floor(Math.random() * 60 + 36),
-        leaseCancelationFee: pricing.leaseCancelationFee * (1 - age * 2 / 100),
+        leaseCancellationFee: pricing.leaseCancellationFee * (1 - age * 2 / 100),
         leaseDownpayment: pricing.leaseDownpayment * (1 - age * 2 / 100),
         maintenance: age > 5 ? pricing.maintenance * (1 + age * 2 / 100) : pricing.maintenance
       }

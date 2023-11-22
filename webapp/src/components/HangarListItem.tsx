@@ -2,7 +2,7 @@ import React, { type ReactElement, useContext } from 'react'
 import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, AccordionContext, useAccordionButton, Card } from 'react-bootstrap'
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
-import { Clock, DaysOfWeek, Timeframes } from '../controllers/Clock'
+import { Clock, DaysOfWeek, Timeframes } from '../controllers/helpers/Clock'
 import { type Schedule } from '../controllers/ScheduleController'
 import { AirplaneFill, ArrowLeftRight, CaretDownFill, Cash, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
 import { formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
@@ -128,7 +128,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                 Sell for {formatCashValue(asset.plane.getSellPrice())}
               </Button>
               : <Button variant='outline-danger' size='sm' className='me-2' onClick={() => { Controllers.Airline.cancelLease(asset) }}>
-                Cancel early with {formatCashValue(asset.plane.pricing.leaseCancelationFee)} penalty
+                Cancel early with {formatCashValue(asset.plane.pricing.leaseCancellationFee)} penalty
               </Button>
             }
           </Col>

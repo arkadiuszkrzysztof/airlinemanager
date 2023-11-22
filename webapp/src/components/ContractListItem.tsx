@@ -4,7 +4,7 @@ import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge } from 'react-boots
 import { GameController } from '../controllers/GameController'
 import { type ContractOption } from '../controllers/ContractsController'
 import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill } from 'react-bootstrap-icons'
-import { Timeframes } from '../controllers/Clock'
+import { Timeframes } from '../controllers/helpers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../controllers/helpers/Helpers'
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
 import CostBreakdownTooltip from './tooltips/CostBreakdownTooltip'

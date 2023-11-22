@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import MarketListItem from './components/MarketListItem'
 
 import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
@@ -11,81 +11,37 @@ import HangarListItem from './components/HangarListItem'
 import { GameController } from './controllers/GameController'
 import { type Contract } from './models/Contract'
 import ContractListItem from './components/ContractListItem'
-import { formatPercentageValue } from './controllers/helpers/Helpers'
+import TierDetailsTooltip from './components/tooltips/TierDetailsTooltip'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
-  const [clock, setClock] = React.useState(Controllers.Clock.playtime)
-  const [assets, setAssets] = React.useState<HangarAsset[]>(Controllers.Hangar.getAllAssets())
-  const [market, setMarket] = React.useState<Plane[]>(Controllers.Market.getAvailablePlanes(clock))
-  const [contracts, setContracts] = React.useState(Controllers.Contracts.getAvailableContracts(clock))
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [clock, setClock] = React.useState<number>()
+  const [assets, setAssets] = React.useState<HangarAsset[]>([])
+  const [market, setMarket] = React.useState<Plane[]>([])
+  const [contracts, setContracts] = React.useState<Contract[]>([])
 
-  Controllers.Clock.registerListener('headerClockLabel', setClock)
+  useEffect(() => {
+    setClock(Controllers.Clock.playtime)
+    setAssets(Controllers.Hangar.getAllAssets())
+    setMarket(Controllers.Market.getAvailablePlanes(Controllers.Clock.playtime))
+    setContracts(Controllers.Contracts.getAvailableContracts(Controllers.Clock.playtime))
+  }, [])
+
+  const clockWrapper = (playtime: number): void => {
+    if (playtime % 5 === 0) {
+      setClock(Controllers.Clock.playtime)
+    }
+  }
+
+  Controllers.Clock.registerListener('headerClockLabel', clockWrapper)
   Controllers.Clock.registerListener('marketListPreview', Controllers.Market.getAvailablePlanes)
   Controllers.Clock.registerListener('contractsListPreview', Controllers.Contracts.getAvailableContracts)
-  Controllers.Clock.registerListener('eventsLog', Controllers.Schedule.executeEvents)
+  Controllers.Clock.registerListener('eventsLog', Controllers.Schedule.registerAndExecuteEvents)
 
   Controllers.Hangar.registerListener('hangarListPreview', setAssets)
   Controllers.Market.registerListener('marketListPreview', setMarket)
   Controllers.Contracts.registerListener('contractsListPreview', setContracts)
-
-  const TooltipReputation: React.FC = () => {
-    const tier = Controllers.Airline.getTier()
-    const nextTier = Controllers.Airline.getNextTier()
-
-    return (
-      <>
-        <strong>Tier summary:</strong><br />
-        <Row>
-          <Col xs={6} className='text-start'></Col>
-          <Col xs={3} className='text-end'>{tier.name}</Col>
-          <Col xs={3} className='text-end'>{nextTier !== undefined ? nextTier.name : ''}</Col>
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Maximum Take-Off Weight</Col>
-          <Col xs={3} className='text-end'>{`${tier.record.constraints.MTOW} t`}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-primary fw-bold'>{`${nextTier.record.constraints.MTOW} t`}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Max planes in hangar</Col>
-          <Col xs={3} className='text-end'>{tier.record.constraints.maxPlanes}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-primary fw-bold'>{nextTier.record.constraints.maxPlanes}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Reputation gain speed</Col>
-          <Col xs={3} className='text-end'>{formatPercentageValue(tier.record.constraints.reputationGain)}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-danger fw-bold'>{formatPercentageValue(nextTier.record.constraints.reputationGain)}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Hub discount</Col>
-          <Col xs={3} className='text-end'>{formatPercentageValue(tier.record.perks.hubDiscount)}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-primary fw-bold'>{formatPercentageValue(nextTier.record.perks.hubDiscount)}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Destination discount</Col>
-          <Col xs={3} className='text-end'>{formatPercentageValue(tier.record.perks.destinationDiscount)}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-primary fw-bold'>{formatPercentageValue(nextTier.record.perks.destinationDiscount)}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-        <Row>
-          <Col xs={6} className='text-start'>Market discount</Col>
-          <Col xs={3} className='text-end'>{formatPercentageValue(tier.record.perks.marketDiscount)}</Col>
-          {nextTier !== undefined
-            ? <Col xs={3} className='text-end text-primary fw-bold'>{formatPercentageValue(nextTier.record.perks.marketDiscount)}</Col>
-            : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
-        </Row>
-      </>
-    )
-  }
 
   return (
     <Container fluid>
@@ -97,7 +53,7 @@ const App: React.FC = () => {
         <Col xs={4} xl={3} className='d-flex align-items-center'>
           <OverlayTrigger
             placement="bottom"
-            overlay={<Tooltip className='tooltip-large' style={{ position: 'fixed' }}><TooltipReputation /></Tooltip>}
+            overlay={<Tooltip className='tooltip-large' style={{ position: 'fixed' }}><TierDetailsTooltip /></Tooltip>}
           >
             <Badge
               bg={`badge-${Controllers.Airline.getTier().name.toLocaleLowerCase()}`}

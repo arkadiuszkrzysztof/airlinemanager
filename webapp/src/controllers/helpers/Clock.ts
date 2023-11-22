@@ -32,7 +32,7 @@ export class Clock {
 
     this._playtime = playtime + Math.min(offlineTime, Math.max(lastSave - currentTime, 0))
 
-    this.clockTicker = setInterval(() => { this.updateClock() }, 1000)
+    this.clockTicker = setInterval(() => { this.updateClock() }, 200)
   }
 
   private callListeners (playtime: number): void {
@@ -177,6 +177,10 @@ export class Clock {
 
   get timeThisDayStart (): number {
     return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
+  }
+
+  get timeThisMonthStart (): number {
+    return Math.floor(this._playtime / Timeframes.MONTH) * Timeframes.MONTH
   }
 
   get timeToNextDay (): string {

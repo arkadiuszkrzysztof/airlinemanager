@@ -1,4 +1,4 @@
-import { Clock, type DaysOfWeek } from '../controllers/Clock'
+import { Clock, type DaysOfWeek } from '../controllers/helpers/Clock'
 import { type Airport } from './Airport'
 
 export type ContractTuple = [

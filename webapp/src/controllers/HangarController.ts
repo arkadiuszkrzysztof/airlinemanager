@@ -1,6 +1,6 @@
 import { type Plane } from '../models/Plane'
 import { ContractsController } from './ContractsController'
-import { LocalStorage } from './LocalStorage'
+import { LocalStorage } from './helpers/LocalStorage'
 import { MarketController } from './MarketController'
 
 export interface HangarAsset { plane: Plane, ownership: 'owned' | 'leased' }

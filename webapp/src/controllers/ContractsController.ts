@@ -1,9 +1,9 @@
 import { Autobind } from '../decorators/Autobind'
 import { Airport, AirportsData, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
-import { Timeframes, DaysOfWeek, Clock } from './Clock'
+import { Timeframes, DaysOfWeek, Clock } from './helpers/Clock'
 import { type HangarAsset, HangarController } from './HangarController'
-import { LocalStorage } from './LocalStorage'
+import { LocalStorage } from './helpers/LocalStorage'
 import { ScheduleController } from './ScheduleController'
 import { getRandomCharacters } from './helpers/Helpers'
 
@@ -30,6 +30,7 @@ export interface ContractOption {
   flightTime: number
   boardingTime: number
   totalTime: number
+  numberOfPassengers: number
   available: boolean
 }
 
@@ -100,9 +101,9 @@ export class ContractsController {
     const contractPlaneCapacity = econonyPassengers + businessPassengers + firstPassengers
 
     const duration = contract.distance / asset.plane.cruiseSpeed
-    const fuelCost = asset.plane.fuelConsumption * duration
-    const maintenanceCost = asset.plane.pricing.maintenance * duration
-    const leasingCost = asset.ownership === 'leased' ? asset.plane.pricing.lease * duration : 0
+    const fuelCost = Math.floor(asset.plane.fuelConsumption * duration)
+    const maintenanceCost = Math.floor(asset.plane.pricing.maintenance * duration)
+    const leasingCost = asset.ownership === 'leased' ? Math.floor(asset.plane.pricing.lease * duration) : 0
     const passengerFee = (contract.hub.fees.passenger + contract.destination.fees.passenger) * contractPlaneCapacity
     const landingFee = (contract.hub.fees.landing + contract.destination.fees.landing) * asset.plane.MTOW
 
@@ -116,16 +117,12 @@ export class ContractsController {
     }
   }
 
-  private calculateRevenue (contract: Contract, asset: HangarAsset): ContractOptionRevenues {
-    const econonyPassengers = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
-    const businessPassengers = Math.min(contract.demand.business, asset.plane.maxSeating.business)
-    const firstPassengers = Math.min(contract.demand.first, asset.plane.maxSeating.first)
-
+  private calculateRevenue (contract: Contract, asset: HangarAsset, passengers: { economy: number, business: number, first: number }): ContractOptionRevenues {
     const duration = contract.distance / asset.plane.cruiseSpeed
 
-    const economyTicketsRevenue = econonyPassengers * 75 * duration * 2 + econonyPassengers * 15 * 2
-    const businessTicketsRevenue = businessPassengers * 150 * duration * 2 + businessPassengers * 20 * 2
-    const firsTicketRevenue = firstPassengers * 300 * duration * 2 + firstPassengers * 30 * 2
+    const economyTicketsRevenue = Math.floor(passengers.economy * 75 * duration * 2) + passengers.economy * 15 * 2
+    const businessTicketsRevenue = Math.floor(passengers.business * 150 * duration * 2) + passengers.business * 20 * 2
+    const firsTicketRevenue = Math.floor(passengers.first * 300 * duration * 2) + passengers.first * 30 * 2
 
     return {
       economy: economyTicketsRevenue,
@@ -135,13 +132,9 @@ export class ContractsController {
     }
   }
 
-  private calculateUtilization (contract: Contract, asset: HangarAsset): number {
-    const econonyPassengers = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
-    const businessPassengers = Math.min(contract.demand.business, asset.plane.maxSeating.business)
-    const firstPassengers = Math.min(contract.demand.first, asset.plane.maxSeating.first)
-
+  private calculateUtilization (contract: Contract, asset: HangarAsset, passengers: { economy: number, business: number, first: number }): number {
     const totalPlaneCapacity = asset.plane.maxSeating.economy + asset.plane.maxSeating.business + asset.plane.maxSeating.first
-    const contractPlaneCapacity = econonyPassengers + businessPassengers + firstPassengers
+    const contractPlaneCapacity = passengers.economy + passengers.business + passengers.first
 
     return Math.floor(contractPlaneCapacity / totalPlaneCapacity * 100)
   }
@@ -181,8 +174,12 @@ export class ContractsController {
     const options: ContractOption[] = []
 
     hangarController.getAllAssets().forEach((asset) => {
+      const economy = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
+      const business = Math.min(contract.demand.business, asset.plane.maxSeating.business)
+      const first = Math.min(contract.demand.first, asset.plane.maxSeating.first)
+
       const cost = this.calculateCost(contract, asset)
-      const revenue = this.calculateRevenue(contract, asset)
+      const revenue = this.calculateRevenue(contract, asset, { economy, business, first })
       const { flightTime, boardingTime, totalTime } = this.calculateTurnaround(contract, asset)
 
       const option = {
@@ -190,10 +187,11 @@ export class ContractsController {
         cost,
         revenue,
         profit: revenue.total - cost.total,
-        utilization: this.calculateUtilization(contract, asset),
+        utilization: this.calculateUtilization(contract, asset, { economy, business, first }),
         flightTime,
         boardingTime,
         totalTime,
+        numberOfPassengers: economy + business + first,
         available: true
       }
 
@@ -235,7 +233,7 @@ export class ContractsController {
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.DAY) {
       const newContracts = this.generateContracts().sort((a, b) => b.distance - a.distance)
       LocalStorage.setContractsOffers(newContracts)
-      LocalStorage.setLastContractsRefresh(playtime - playtime % Timeframes.DAY)
+      LocalStorage.setLastContractsRefresh(playtime - (playtime % Timeframes.DAY))
       this.callListeners(this.inactiveContracts.concat(...newContracts))
       this.contracts = newContracts
       return this.inactiveContracts.concat(...newContracts)

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { formatCashValue, formatUtilization } from '../../controllers/helpers/Helpers'
-import { Clock } from '../../controllers/Clock'
+import { Clock } from '../../controllers/helpers/Clock'
 import { type Schedule } from '../../controllers/ScheduleController'
 
 const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) => {

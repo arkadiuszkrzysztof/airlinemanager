@@ -1,9 +1,10 @@
 import { Autobind } from '../decorators/Autobind'
 import { type Contract } from '../models/Contract'
-import { Clock, Timeframes, type DaysOfWeek } from './Clock'
+import { Clock, Timeframes, type DaysOfWeek } from './helpers/Clock'
 import { ContractsController, type ContractOption } from './ContractsController'
 import { HangarController, type HangarAsset } from './HangarController'
-import { LocalStorage } from './LocalStorage'
+import { LocalStorage } from './helpers/LocalStorage'
+import { AirlineController, EventOrigin } from './AirlineController'
 
 export interface Schedule {
   day: DaysOfWeek
@@ -81,7 +82,7 @@ export class ScheduleController {
   public acceptContract (contract: Contract, option: ContractOption): void {
     const schedule = this.draftSchedule(contract, option)
 
-    const wasAccepted = schedule.contract.accepted
+    const wasPreviouslyAccepted = schedule.contract.accepted
     schedule.contract.accept()
     schedule.option.asset.plane.setHub(schedule.contract.hub)
     HangarController.getInstance().saveAssets()
@@ -89,12 +90,26 @@ export class ScheduleController {
     this.activeSchedules.push(schedule)
     LocalStorage.setActiveSchedules(this.activeSchedules)
 
-    ContractsController.getInstance().getContractOffMarket(contract, wasAccepted)
+    ContractsController.getInstance().getContractOffMarket(contract, wasPreviouslyAccepted)
+
+    AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${schedule.contract.dayOfWeek}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
+  }
+
+  public expireContract (schedule: Schedule): void {
+    this.activeSchedules = this.activeSchedules.filter(s => s.contract.id !== schedule.contract.id)
+    LocalStorage.setActiveSchedules(this.activeSchedules)
+
+    if (this.getActiveSchedulesForAsset(schedule.option.asset).length === 0) {
+      schedule.option.asset.plane.setHub(undefined)
+      HangarController.getInstance().saveAssets()
+    }
   }
 
   @Autobind
-  public executeEvents (time: number): void {
-    if (time % Timeframes.DAY === 0) {
+  public registerAndExecuteEvents (playtime: number): void {
+    const lastRegistration = LocalStorage.getLastScheduleEventsRegistration()
+
+    if (lastRegistration === 0 || playtime - lastRegistration >= Timeframes.DAY) {
       ScheduleController.getInstance().getTodaySchedules().forEach(schedule => {
         this.scheduleEvents.push({
           executionTime: Clock.getTimeAt(schedule.end, schedule.end < schedule.start),
@@ -103,16 +118,24 @@ export class ScheduleController {
         console.log(`Event scheduled: Flight ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode}`)
       })
 
+      LocalStorage.setLastScheduleEventsRegistration(playtime - playtime % Timeframes.DAY)
       LocalStorage.setScheduleEvents(this.scheduleEvents)
     }
 
     if (this.scheduleEvents.length === 0) return
 
-    this.scheduleEvents.filter(event => event.executionTime <= time).forEach(event => {
+    this.scheduleEvents.filter(event => event.executionTime <= playtime).forEach(event => {
+      AirlineController.getInstance().settleFlight(event.schedule)
       console.log(`Event: Flight ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} completed`)
       this.scheduleEvents = this.scheduleEvents.filter(e => e.schedule.contract.id !== event.schedule.contract.id)
 
       LocalStorage.setScheduleEvents(this.scheduleEvents)
+
+      if (event.schedule.contract.expirationTime <= playtime) {
+        this.expireContract(event.schedule)
+
+        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} contract for plane ${event.schedule.option.asset.plane.registration} on ${event.schedule.contract.dayOfWeek}s expired`)
+      }
     })
   }
 }

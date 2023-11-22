@@ -1,7 +1,8 @@
-import { Contract, convertToContractTuple } from '../models/Contract'
-import { Plane, convertToPlaneTuple } from '../models/Plane'
-import { type HangarAsset } from './HangarController'
-import { type ScheduleEvent, type Schedule } from './ScheduleController'
+import { Contract, convertToContractTuple } from '../../models/Contract'
+import { Plane, convertToPlaneTuple } from '../../models/Plane'
+import { type EventOrigin, type PNLRecord } from '../AirlineController'
+import { type HangarAsset } from '../HangarController'
+import { type ScheduleEvent, type Schedule } from '../ScheduleController'
 
 enum Keys {
   PLAYTIME = 'playtime',
@@ -16,8 +17,11 @@ enum Keys {
   CONTRACT_OFFERS = 'contractOffers',
   LAST_CONTRACT_REFRESH = 'lastContractRefresh',
   ACTIVE_SCHEDULES = 'activeSchedules',
+  INACTIVE_CONTRACTS = 'inactiveContracts',
   SCHEDULE_EVENTS = 'scheduleEvents',
-  INACTIVE_CONTRACTS = 'inactiveContracts'
+  LAST_SCHEDULE_EVENTS_REGISTRATION = 'lastScheduleEventsRegistration',
+  PNL_RECORDS = 'pnlRecords',
+  EVENT_LOG = 'eventLog'
 }
 
 export const LocalStorage = {
@@ -140,5 +144,26 @@ export const LocalStorage = {
   },
   setScheduleEvents (scheduleEvents: ScheduleEvent[]): void {
     localStorage.setItem(Keys.SCHEDULE_EVENTS, JSON.stringify(scheduleEvents))
+  },
+  getLastScheduleEventsRegistration (): number {
+    const lastScheduleEventsRegistration = localStorage.getItem(Keys.LAST_SCHEDULE_EVENTS_REGISTRATION)
+    return (lastScheduleEventsRegistration !== null) ? parseInt(lastScheduleEventsRegistration) : 0
+  },
+  setLastScheduleEventsRegistration (lastScheduleEventsRegistration: number): void {
+    localStorage.setItem(Keys.LAST_SCHEDULE_EVENTS_REGISTRATION, lastScheduleEventsRegistration.toString())
+  },
+  getPNL (): Record<number, PNLRecord> {
+    const pnlRecords = localStorage.getItem(Keys.PNL_RECORDS)
+    return (pnlRecords !== null) ? JSON.parse(pnlRecords) : {}
+  },
+  setPNL (pnlRecords: Record<number, PNLRecord>): void {
+    localStorage.setItem(Keys.PNL_RECORDS, JSON.stringify(pnlRecords))
+  },
+  getEventLog (): Array<{ playtime: number, origin: EventOrigin, message: string }> {
+    const eventLog = localStorage.getItem(Keys.EVENT_LOG)
+    return (eventLog !== null) ? JSON.parse(eventLog) : []
+  },
+  setEventLog (eventLog: Array<{ playtime: number, origin: EventOrigin, message: string }>): void {
+    localStorage.setItem(Keys.EVENT_LOG, JSON.stringify(eventLog))
   }
 }

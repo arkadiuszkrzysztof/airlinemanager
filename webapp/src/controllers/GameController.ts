@@ -1,4 +1,4 @@
-import { Clock } from './Clock'
+import { Clock } from './helpers/Clock'
 import { AirlineController } from './AirlineController'
 import { HangarController } from './HangarController'
 import { MarketController } from './MarketController'
@@ -46,9 +46,5 @@ export class GameController {
       Schedule: this.instance.scheduleController,
       Clock: this.instance.clock
     }
-  }
-
-  public static displayMessage (message: string): void {
-    console.log('MESSAGE: ', message)
   }
 }
