@@ -3,7 +3,7 @@ import { type Contract } from '../models/Contract'
 import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge } from 'react-bootstrap'
 import { GameController } from '../controllers/GameController'
 import { type ContractOption } from '../controllers/ContractsController'
-import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
 import { Timeframes } from '../controllers/helpers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../controllers/helpers/Helpers'
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
@@ -41,6 +41,8 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
         <Col className='d-flex align-items-center'>
           <AirplaneFill size={20} className='text-grey-dark me-2 rotate-60' />
           <span><strong>{`${contract.dayOfWeek}s`}</strong>{' at '}<strong>{contract.departureTime}</strong></span>
+          <StarFill size={16} className='text-badge-gold ms-4 me-2' />
+          <span className='fw-bold'>{` +${contract.reputation.toFixed(2)}%`}</span>
         </Col>
       </Row>
       <Row>

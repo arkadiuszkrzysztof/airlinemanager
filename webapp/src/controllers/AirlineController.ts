@@ -4,21 +4,7 @@ import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { type Schedule } from './ScheduleController'
 import { formatCashValue } from './helpers/Helpers'
-
-export enum Tier { Bronze = 'Bronze', Silver = 'Silver', Gold = 'Gold', Platinum = 'Platinum' }
-interface TierRecord {
-  minReputation: number
-  constraints: {
-    MTOW: number
-    maxPlanes: number
-    reputationGain: number
-  }
-  perks: {
-    hubDiscount: number
-    destinationDiscount: number
-    marketDiscount: number
-  }
-}
+import { Tier, type TierRecord, Tiers } from './helpers/Tiers'
 
 export interface PNLRecord {
   statistics: {
@@ -44,68 +30,14 @@ export interface PNLRecord {
   }
 }
 
-const Tiers: Record<Tier, TierRecord> = {
-  [Tier.Platinum]: {
-    minReputation: 75,
-    constraints: {
-      MTOW: 750,
-      maxPlanes: 25,
-      reputationGain: 0.2
-    },
-    perks: {
-      hubDiscount: 0.4,
-      destinationDiscount: 0.2,
-      marketDiscount: 0.2
-    }
-  },
-  [Tier.Gold]: {
-    minReputation: 50,
-    constraints: {
-      MTOW: 500,
-      maxPlanes: 15,
-      reputationGain: 0.4
-    },
-    perks: {
-      hubDiscount: 0.3,
-      destinationDiscount: 0.1,
-      marketDiscount: 0.1
-    }
-  },
-  [Tier.Silver]: {
-    minReputation: 25,
-    constraints: {
-      MTOW: 300,
-      maxPlanes: 10,
-      reputationGain: 0.7
-    },
-    perks: {
-      hubDiscount: 0.2,
-      destinationDiscount: 0.1,
-      marketDiscount: 0.05
-    }
-  },
-  [Tier.Bronze]: {
-    minReputation: 0,
-    constraints: {
-      MTOW: 50,
-      maxPlanes: 3,
-      reputationGain: 1
-    },
-    perks: {
-      hubDiscount: 0.1,
-      destinationDiscount: 0.05,
-      marketDiscount: 0
-    }
-  }
-}
-
 export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Contract', SCHEDULE = 'Schedule', HANGAR = 'Hangar' }
 
+export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection' }
 export class AirlineController {
   private static instance: AirlineController
 
   private readonly _name: string
-  private _reputation: number
+  private _reputation: Array<{ originId: string, type: ReputationType, reputation: number }>
   private _cash: number
   private readonly _pnl: Record<number, PNLRecord>
   private readonly _eventLog: Array<{ playtime: number, origin: EventOrigin, message: string }>
@@ -129,14 +61,14 @@ export class AirlineController {
   public getTier (): { name: Tier, record: TierRecord } {
     let currentTier: { name: Tier, record: TierRecord }
 
-    if (this._reputation >= 75) {
-      currentTier = { name: Tier.Platinum, record: Tiers[Tier.Platinum] }
-    } else if (this._reputation >= 50) {
-      currentTier = { name: Tier.Gold, record: Tiers[Tier.Gold] }
-    } else if (this._reputation >= 25) {
-      currentTier = { name: Tier.Silver, record: Tiers[Tier.Silver] }
+    if (this.reputation.totalCapped >= 75) {
+      currentTier = { name: Tier.PLATINUM, record: Tiers[Tier.PLATINUM] }
+    } else if (this.reputation.totalCapped >= 50) {
+      currentTier = { name: Tier.GOLD, record: Tiers[Tier.GOLD] }
+    } else if (this.reputation.totalCapped >= 25) {
+      currentTier = { name: Tier.SILVER, record: Tiers[Tier.SILVER] }
     } else {
-      currentTier = { name: Tier.Bronze, record: Tiers[Tier.Bronze] }
+      currentTier = { name: Tier.BRONZE, record: Tiers[Tier.BRONZE] }
     }
 
     return currentTier
@@ -145,26 +77,26 @@ export class AirlineController {
   public getNextTier (): { name: Tier, record: TierRecord } | undefined {
     let nextTier: { name: Tier, record: TierRecord } | undefined
 
-    if (this._reputation >= 75) {
+    if (this.reputation.totalCapped >= 75) {
       nextTier = undefined
-    } else if (this._reputation >= 50) {
-      nextTier = { name: Tier.Platinum, record: Tiers[Tier.Platinum] }
-    } else if (this._reputation >= 25) {
-      nextTier = { name: Tier.Gold, record: Tiers[Tier.Gold] }
+    } else if (this.reputation.totalCapped >= 50) {
+      nextTier = { name: Tier.PLATINUM, record: Tiers[Tier.PLATINUM] }
+    } else if (this.reputation.totalCapped >= 25) {
+      nextTier = { name: Tier.GOLD, record: Tiers[Tier.GOLD] }
     } else {
-      nextTier = { name: Tier.Silver, record: Tiers[Tier.Silver] }
+      nextTier = { name: Tier.SILVER, record: Tiers[Tier.SILVER] }
     }
 
     return nextTier
   }
 
-  public gainReputation (amount: number): void {
-    this._reputation += amount
+  public gainReputation (originId: string, type: ReputationType, reputation: number): void {
+    this._reputation.push({ originId, type, reputation })
     LocalStorage.setReputation(this._reputation)
   }
 
-  public loseReputation (amount: number): void {
-    this._reputation -= amount
+  public loseReputation (originId: string): void {
+    this._reputation = this._reputation.filter(r => r.originId !== originId)
     LocalStorage.setReputation(this._reputation)
   }
 
@@ -178,11 +110,23 @@ export class AirlineController {
     LocalStorage.setCash(this._cash)
   }
 
-  get reputation (): string {
-    return (this._reputation / 100).toLocaleString('en-US', { style: 'percent', minimumFractionDigits: 2 })
+  get reputation (): { fleet: number, connection: number, totalCapped: number } {
+    const fleet = this._reputation.filter(r => r.type === ReputationType.FLEET).reduce((sum, r) => sum + r.reputation, 0)
+    const connection = this._reputation.filter(r => r.type === ReputationType.CONNECTION).reduce((sum, r) => sum + r.reputation, 0)
+    const totalCapped = Math.min(fleet, 50) + Math.min(connection, 50)
+
+    return { fleet, connection, totalCapped }
   }
 
-  get cash (): string {
+  get reputationFormatted (): string {
+    return (this.reputation.totalCapped / 100).toLocaleString('en-US', { style: 'percent', minimumFractionDigits: 2 })
+  }
+
+  get cash (): number {
+    return this._cash
+  }
+
+  get cashFormatted (): string {
     return this._cash.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
   }
 
@@ -251,7 +195,9 @@ export class AirlineController {
 
     LocalStorage.setPNL(this._pnl)
 
-    this.logEvent(EventOrigin.MARKET, `Leased ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${plane.getLeaseDuration()} with ${formatCashValue(plane.pricing.leaseDownpayment)} downpayment`)
+    this.gainReputation(plane.registration, ReputationType.FLEET, plane.reputation)
+
+    this.logEvent(EventOrigin.MARKET, `Leased ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${plane.leaseDuration} with ${formatCashValue(plane.pricing.leaseDownpayment)} downpayment`)
 
     this.spendCash(plane.pricing.leaseDownpayment)
   }
@@ -263,6 +209,8 @@ export class AirlineController {
     thisMonthPNL.expenses.cancellationFee += plane.pricing.leaseCancellationFee
 
     LocalStorage.setPNL(this._pnl)
+
+    this.loseReputation(plane.registration)
 
     this.logEvent(EventOrigin.MARKET, `Cancelled lease for ${plane.familyName} ${plane.typeName} (${plane.registration}) with ${formatCashValue(plane.pricing.leaseCancellationFee)} early cancellation fee`)
 
@@ -277,6 +225,8 @@ export class AirlineController {
 
     LocalStorage.setPNL(this._pnl)
 
+    this.gainReputation(plane.registration, ReputationType.FLEET, plane.reputation)
+
     this.logEvent(EventOrigin.MARKET, `Purchased ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${formatCashValue(plane.pricing.purchase)}`)
 
     this.spendCash(plane.pricing.purchase)
@@ -286,13 +236,15 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfPlanes -= 1
-    thisMonthPNL.revenue.selling += plane.getSellPrice()
+    thisMonthPNL.revenue.selling += plane.sellPrice
 
     LocalStorage.setPNL(this._pnl)
 
-    this.logEvent(EventOrigin.MARKET, `Sold ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${formatCashValue(plane.getSellPrice())}`)
+    this.loseReputation(plane.registration)
 
-    this.gainCash(plane.getSellPrice())
+    this.logEvent(EventOrigin.MARKET, `Sold ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${formatCashValue(plane.sellPrice)}`)
+
+    this.gainCash(plane.sellPrice)
   }
 
   public settleFlight (schedule: Schedule): void {

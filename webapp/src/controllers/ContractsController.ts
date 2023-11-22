@@ -85,9 +85,10 @@ export class ContractsController {
       const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
       const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
+      const reputation = Math.floor((distance * 2 / 10000) * 100) / 100
 
       connections.push(connection)
-      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand, false))
+      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand, false, 0, 0, reputation))
     }
 
     return contracts

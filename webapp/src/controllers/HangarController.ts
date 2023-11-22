@@ -41,6 +41,14 @@ export class HangarController {
     return this.assets
   }
 
+  getOwnedAssets (): HangarAsset[] {
+    return this.assets.filter(asset => asset.ownership === 'owned')
+  }
+
+  getLeasedAssets (): HangarAsset[] {
+    return this.assets.filter(asset => asset.ownership === 'leased')
+  }
+
   getAssetsCount (): number {
     return this.assets.length
   }

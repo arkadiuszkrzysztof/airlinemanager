@@ -149,6 +149,12 @@ export class Clock {
     return `${Math.floor(minutes / 60).toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}`
   }
 
+  public static formatPlaytimeInYearsAndMonths (playtime: number): string {
+    const years = Math.floor(playtime / Timeframes.YEAR)
+    const months = Math.floor((playtime % Timeframes.YEAR) / Timeframes.MONTH)
+    return (years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}` : `${months} ${months === 1 ? 'month' : 'months'}`)
+  }
+
   get playtime (): number {
     return this._playtime
   }

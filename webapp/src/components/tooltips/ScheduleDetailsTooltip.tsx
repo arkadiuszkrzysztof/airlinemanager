@@ -45,6 +45,10 @@ const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) 
         <Col xs={6} className='text-end'>{formatUtilization(schedule.option.utilization)}</Col>
       </Row>
       <Row>
+        <Col xs={7} className='text-start'>Reputation</Col>
+        <Col xs={5} className='text-end'>{`+${schedule.contract.reputation.toFixed(2)}%`}</Col>
+      </Row>
+      <Row>
         <Col xs={6} className='text-start'>Expires in</Col>
         <Col xs={6} className='text-end'>{Clock.getFormattedTimeUntil(schedule.contract.expirationTime)}</Col>
       </Row>

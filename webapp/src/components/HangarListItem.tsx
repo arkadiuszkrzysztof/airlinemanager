@@ -125,7 +125,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
             }
             {asset.ownership === 'owned'
               ? <Button variant='outline-primary' size='sm' className='me-2' onClick={() => { Controllers.Airline.sellPlane(asset) }}>
-                Sell for {formatCashValue(asset.plane.getSellPrice())}
+                Sell for {formatCashValue(asset.plane.sellPrice)}
               </Button>
               : <Button variant='outline-danger' size='sm' className='me-2' onClick={() => { Controllers.Airline.cancelLease(asset) }}>
                 Cancel early with {formatCashValue(asset.plane.pricing.leaseCancellationFee)} penalty

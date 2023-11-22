@@ -2,7 +2,7 @@ import React from 'react'
 import { type Plane } from '../models/Plane'
 import { Row, Col, Button } from 'react-bootstrap'
 import { GameController } from '../controllers/GameController'
-import { CalendarWeekFill, Cash, PersonFill, PinMapFill, TagFill } from 'react-bootstrap-icons'
+import { CalendarWeekFill, Cash, PersonFill, PinMapFill, StarFill, TagFill } from 'react-bootstrap-icons'
 
 interface Props {
   item: Plane
@@ -14,7 +14,11 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={6}>
-        <div><span className='fs-4 fw-bold text-primary'>{`${plane.familyName} ${plane.typeName}`}</span></div>
+        <div className='d-flex align-items-center'>
+          <span className='fs-4 fw-bold text-primary'>{`${plane.familyName} ${plane.typeName}`}</span>
+          <StarFill size={16} className='text-badge-gold mx-2' />
+          <span className='fw-bold'>{` +${plane.reputation.toFixed(2)}%`}</span>
+        </div>
         <div className='d-flex flex-row justify-items-center align-items-center'>
           <Col xs={'auto'}><PersonFill size={40} className='text-grey-dark me-2' /></Col>
           <Col xs={'auto'}>
@@ -32,11 +36,11 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
         </div>
         <div className='d-flex align-items-center'>
           <CalendarWeekFill size={20} className='text-grey-dark me-2' />
-          <span><strong>{plane.getAge()}</strong> old</span>
+          <span><strong>{plane.age}</strong> old</span>
         </div>
         <div className='d-flex align-items-center'>
           <Cash size={20} className='text-grey-dark me-2' />
-          <span>Maintenance: <strong>{plane.getPricingFormatted().maintenance} / flight hour</strong></span>
+          <span>Maintenance: <strong>{plane.pricingFormatted.maintenance} / flight hour</strong></span>
         </div>
       </Col>
       <Col xs={6} className='d-flex flex-column justify-content-center'>
@@ -45,7 +49,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           onClick={ () => { Controllers.Airline.buyPlane(plane) }}
           disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
         >
-          <span className='fw-bold'>Buy for {plane.getPricingFormatted().purchase}</span>
+          <span className='fw-bold'>Buy for {plane.pricingFormatted.purchase}</span>
         </Button>
         <Button
           variant="info"
@@ -53,10 +57,10 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           onClick={ () => { Controllers.Airline.leasePlane(plane) }}
           disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
         >
-          <span className='fw-bold'>Lease for {plane.getPricingFormatted().lease} / flight hour</span><br />
-          <small>+ {plane.getPricingFormatted().leaseDownpayment} down payment<br />
-          Duration: {plane.getLeaseDuration()}<br />
-          Early cancelation fee: {plane.getPricingFormatted().leaseCancellationFee}</small>
+          <span className='fw-bold'>Lease for {plane.pricingFormatted.lease} / flight hour</span><br />
+          <small>+ {plane.pricingFormatted.leaseDownpayment} down payment<br />
+          Duration: {plane.leaseDuration}<br />
+          Early cancelation fee: {plane.pricingFormatted.leaseCancellationFee}</small>
         </Button>
       </Col>
     </Row>

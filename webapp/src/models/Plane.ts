@@ -14,6 +14,7 @@ export type PlaneTuple = [
   pricing: { purchase: number, lease: number, leaseDuration: number, leaseCancellationFee: number, leaseDownpayment: number, maintenance: number },
   registration: string,
   manufactureTime: number,
+  reputation: number,
   hub?: Airport,
   acquisitionTime?: number,
   leaseExpirationTime?: number
@@ -32,6 +33,7 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
     plane.pricing,
     plane.registration,
     plane.manufactureTime,
+    plane.reputation,
     plane.hub,
     plane.acquisitionTime,
     plane.leaseExpirationTime
@@ -39,9 +41,9 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
 }
 
 export const PlanesData: PlaneTuple[] = [
-  ['Airbus', 'A320', { economy: 164, business: 0, first: 0 }, 78, 6100, 27000, 829, 3125, { purchase: 98000000, lease: 2200, leaseDuration: 0, leaseCancellationFee: 390000 * 3, leaseDownpayment: 390000, maintenance: 800 }, '', 0],
-  ['Boeing', '787', { economy: 266, business: 24, first: 0 }, 252, 14140, 138700, 903, 5400, { purchase: 239000000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 }, '', 0],
-  ['Embraer', 'E170', { economy: 72, business: 0, first: 0 }, 39, 3900, 9300, 797, 1750, { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 }, '', 0]
+  ['Airbus', 'A320', { economy: 164, business: 0, first: 0 }, 78, 6100, 27000, 829, 3125, { purchase: 98000000, lease: 2200, leaseDuration: 0, leaseCancellationFee: 390000 * 3, leaseDownpayment: 390000, maintenance: 800 }, '', 0, 2],
+  ['Boeing', '787', { economy: 266, business: 24, first: 0 }, 252, 14140, 138700, 903, 5400, { purchase: 239000000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 }, '', 0, 3],
+  ['Embraer', 'E170', { economy: 72, business: 0, first: 0 }, 39, 3900, 9300, 797, 1750, { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 }, '', 0, 1]
   // ['Airbus', 'A330', { economy: 277, business: 0, first: 0 }, 242000, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Airbus', 'A340', { economy: 295, business: 0, first: 0 }, 276500, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Airbus', 'A350', { economy: 366, business: 0, first: 0 }, 268000, 15000, 138000, 900, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
@@ -85,12 +87,13 @@ export class Plane {
     },
     public readonly registration: string,
     public readonly manufactureTime: number,
+    public readonly reputation: number,
     public hub?: Airport,
     public acquisitionTime?: number,
     public leaseExpirationTime?: number
   ) {}
 
-  getPricingFormatted (): {
+  get pricingFormatted (): {
     purchase: string
     lease: string
     leaseDuration: string
@@ -112,23 +115,17 @@ export class Plane {
     this.hub = hub
   }
 
-  private formatPlaytimeInYearsAndMonths (playtime: number): string {
-    const years = Math.floor(playtime / Timeframes.YEAR)
-    const months = Math.floor((playtime % Timeframes.YEAR) / Timeframes.MONTH)
-    return (years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}` : `${months} ${months === 1 ? 'month' : 'months'}`)
-  }
-
-  getAge (): string {
+  get age (): string {
     const age = Clock.getInstance().playtime - this.manufactureTime
 
-    return this.formatPlaytimeInYearsAndMonths(age)
+    return Clock.formatPlaytimeInYearsAndMonths(age)
   }
 
-  getLeaseDuration (): string {
-    return this.formatPlaytimeInYearsAndMonths(this.pricing.leaseDuration)
+  get leaseDuration (): string {
+    return Clock.formatPlaytimeInYearsAndMonths(this.pricing.leaseDuration)
   }
 
-  getSellPrice (): number {
+  get sellPrice (): number {
     const age = Math.round((Clock.getInstance().playtime - this.manufactureTime) / Timeframes.YEAR)
 
     return getDepreciation(this.pricing.purchase, age)

@@ -36,7 +36,6 @@ export class MarketController {
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.WEEK) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
-      console.log('REFRESH ', playtime - (playtime % Timeframes.WEEK))
       LocalStorage.setLastMarketRefresh(playtime - playtime % Timeframes.WEEK)
       this.callListeners(newOffers)
       this.marketPlanes = newOffers
@@ -66,6 +65,12 @@ export class MarketController {
       }
     }
 
+    const getReputationDepreciated = (plane: Plane, manufactureTime: number): number => {
+      const ageInYears = (Clock.getInstance().playtime - manufactureTime) / Timeframes.YEAR
+
+      return Math.floor(plane.reputation * 100 * (1 - (ageInYears * 2 / 100))) / 100
+    }
+
     const tier = this.AirlineController.getTier()
     const constraints = tier.record.constraints
 
@@ -91,7 +96,8 @@ export class MarketController {
         prototype.fuelConsumption,
         calculatePricing(prototype, manufactureTime),
         `${getRandomCharacters(2)}-${getRandomCharacters(4, true)}`,
-        manufactureTime
+        manufactureTime,
+        getReputationDepreciated(prototype, manufactureTime)
       ))
     }
 

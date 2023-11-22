@@ -16,7 +16,8 @@ export type ContractTuple = [
   },
   accepted: boolean,
   startTime: number,
-  expirationTime: number
+  expirationTime: number,
+  reputation: number
 ]
 
 export const convertToContractTuple = (contract: Contract): ContractTuple => {
@@ -31,7 +32,8 @@ export const convertToContractTuple = (contract: Contract): ContractTuple => {
     contract.demand,
     contract.accepted,
     contract.startTime,
-    contract.expirationTime
+    contract.expirationTime,
+    contract.reputation
   ]
 }
 
@@ -47,7 +49,8 @@ export class Contract {
     public readonly demand: { economy: number, business: number, first: number },
     public accepted: boolean = false,
     public startTime: number = 0,
-    public expirationTime: number = 0
+    public expirationTime: number = 0,
+    public readonly reputation: number = 0
   ) {}
 
   public accept (): void {

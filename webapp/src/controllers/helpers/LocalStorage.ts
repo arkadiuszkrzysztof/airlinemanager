@@ -1,6 +1,6 @@
 import { Contract, convertToContractTuple } from '../../models/Contract'
 import { Plane, convertToPlaneTuple } from '../../models/Plane'
-import { type EventOrigin, type PNLRecord } from '../AirlineController'
+import { type ReputationType, type EventOrigin, type PNLRecord } from '../AirlineController'
 import { type HangarAsset } from '../HangarController'
 import { type ScheduleEvent, type Schedule } from '../ScheduleController'
 
@@ -88,12 +88,12 @@ export const LocalStorage = {
   setCash (cash: number): void {
     localStorage.setItem(Keys.CASH, cash.toString())
   },
-  getReputation (): number {
+  getReputation (): Array<{ originId: string, type: ReputationType, reputation: number }> {
     const reputation = localStorage.getItem(Keys.REPUTATION)
-    return (reputation !== null) ? parseInt(reputation) : 0
+    return (reputation !== null) ? JSON.parse(reputation) : []
   },
-  setReputation (reputation: number): void {
-    localStorage.setItem(Keys.REPUTATION, reputation.toString())
+  setReputation (reputation: Array<{ originId: string, type: ReputationType, reputation: number }>): void {
+    localStorage.setItem(Keys.REPUTATION, JSON.stringify(reputation))
   },
   getAirlineName (): string {
     const airlineName = localStorage.getItem(Keys.AIRLINE_NAME)

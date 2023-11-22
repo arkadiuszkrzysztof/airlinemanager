@@ -4,7 +4,7 @@ import { Clock, Timeframes, type DaysOfWeek } from './helpers/Clock'
 import { ContractsController, type ContractOption } from './ContractsController'
 import { HangarController, type HangarAsset } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
-import { AirlineController, EventOrigin } from './AirlineController'
+import { AirlineController, EventOrigin, ReputationType } from './AirlineController'
 
 export interface Schedule {
   day: DaysOfWeek
@@ -93,11 +93,15 @@ export class ScheduleController {
     ContractsController.getInstance().getContractOffMarket(contract, wasPreviouslyAccepted)
 
     AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${schedule.contract.dayOfWeek}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
+
+    AirlineController.getInstance().gainReputation(contract.id, ReputationType.CONNECTION, contract.reputation)
   }
 
   public expireContract (schedule: Schedule): void {
     this.activeSchedules = this.activeSchedules.filter(s => s.contract.id !== schedule.contract.id)
     LocalStorage.setActiveSchedules(this.activeSchedules)
+
+    AirlineController.getInstance().loseReputation(schedule.contract.id)
 
     if (this.getActiveSchedulesForAsset(schedule.option.asset).length === 0) {
       schedule.option.asset.plane.setHub(undefined)
@@ -109,6 +113,7 @@ export class ScheduleController {
   public registerAndExecuteEvents (playtime: number): void {
     const lastRegistration = LocalStorage.getLastScheduleEventsRegistration()
 
+    // Register flights for the entire day as events
     if (lastRegistration === 0 || playtime - lastRegistration >= Timeframes.DAY) {
       ScheduleController.getInstance().getTodaySchedules().forEach(schedule => {
         this.scheduleEvents.push({
@@ -124,6 +129,7 @@ export class ScheduleController {
 
     if (this.scheduleEvents.length === 0) return
 
+    // Execute events that are due
     this.scheduleEvents.filter(event => event.executionTime <= playtime).forEach(event => {
       AirlineController.getInstance().settleFlight(event.schedule)
       console.log(`Event: Flight ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} completed`)
@@ -131,10 +137,22 @@ export class ScheduleController {
 
       LocalStorage.setScheduleEvents(this.scheduleEvents)
 
+      // Expire contract after the last occurence if it's over
       if (event.schedule.contract.expirationTime <= playtime) {
         this.expireContract(event.schedule)
 
         AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} contract for plane ${event.schedule.option.asset.plane.registration} on ${event.schedule.contract.dayOfWeek}s expired`)
+      }
+    })
+
+    // Expire plane leases if they're over
+    HangarController.getInstance().getLeasedAssets().forEach(asset => {
+      if (asset.plane.leaseExpirationTime !== undefined && asset.plane.leaseExpirationTime <= playtime) {
+        AirlineController.getInstance().logEvent(EventOrigin.MARKET, `Lease for ${asset.plane.familyName} ${asset.plane.typeName} (${asset.plane.registration}) expired`)
+
+        AirlineController.getInstance().loseReputation(asset.plane.registration)
+
+        HangarController.getInstance().removeAsset(asset)
       }
     })
   }

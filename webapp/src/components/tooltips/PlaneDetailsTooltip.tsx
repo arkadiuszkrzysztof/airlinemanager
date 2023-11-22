@@ -19,7 +19,11 @@ const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
       <Row>
         <Col xs={7} className='text-start'>Ownership</Col>
         <Col xs={5} className='text-end'>{ownership}</Col>
-        </Row>
+      </Row>
+      <Row>
+        <Col xs={7} className='text-start'>Reputation</Col>
+        <Col xs={5} className='text-end'>{`+${plane.reputation.toFixed(2)}%`}</Col>
+      </Row>
       <Row>
         <Col xs={7} className='text-start'>Max range</Col>
         <Col xs={5} className='text-end'>{plane.maxRange} km</Col>

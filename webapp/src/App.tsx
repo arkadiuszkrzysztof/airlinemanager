@@ -4,7 +4,7 @@ import MarketListItem from './components/MarketListItem'
 import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { type Plane } from './models/Plane'
 
-import { AirplaneFill, CalendarWeek, CartCheck, Coin, FileEarmarkText, GraphUpArrow, HouseDoor } from 'react-bootstrap-icons'
+import { AirplaneFill, CalendarWeek, CartCheck, Coin, FileEarmarkText, HouseDoor, StarFill } from 'react-bootstrap-icons'
 import ListPreview from './components/widgets/ListPreview'
 import { type HangarAsset } from './controllers/HangarController'
 import HangarListItem from './components/HangarListItem'
@@ -12,6 +12,7 @@ import { GameController } from './controllers/GameController'
 import { type Contract } from './models/Contract'
 import ContractListItem from './components/ContractListItem'
 import TierDetailsTooltip from './components/tooltips/TierDetailsTooltip'
+import ReputationBreakdownTooltip from './components/tooltips/ReputationBreakdownTooltip'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -51,26 +52,24 @@ const App: React.FC = () => {
           <span className='text-primary'>Airline Simulator <small className='text-grey-light'>ALPHA</small></span>
         </Col>
         <Col xs={4} xl={3} className='d-flex align-items-center'>
-          <OverlayTrigger
-            placement="bottom"
-            overlay={<Tooltip className='tooltip-large' style={{ position: 'fixed' }}><TierDetailsTooltip /></Tooltip>}
-          >
-            <Badge
-              bg={`badge-${Controllers.Airline.getTier().name.toLocaleLowerCase()}`}
-              className='fs-6 me-2 cursor-help'
-            >
+          <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-large' style={{ position: 'fixed' }}><TierDetailsTooltip /></Tooltip>}>
+            <Badge bg={`badge-${Controllers.Airline.getTier().name.toLocaleLowerCase()}`} className='fs-6 me-2 cursor-help'>
               {Controllers.Airline.getTier().name}
             </Badge>
           </OverlayTrigger>
           <span className='text-dark fw-bold fs-5'>{Controllers.Airline.name}</span>
         </Col>
         <Col xs={1} className='d-flex align-items-center'>
-          <GraphUpArrow size={20} className='text-primary me-2' />
-          <span className='fw-bold text-dark'>{Controllers.Airline.reputation}</span>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><ReputationBreakdownTooltip /></Tooltip>}>
+            <div className='d-flex align-items-center cursor-help'>
+              <StarFill size={20} className='text-badge-gold me-2' />
+              <span className='fw-bold text-dark'>{Controllers.Airline.reputationFormatted}</span>
+            </div>
+          </OverlayTrigger>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
           <Coin size={20} className='text-primary me-2' />
-          <span className='fw-bold text-dark'>{Controllers.Airline.cash}</span>
+          <span className='fw-bold text-dark'>{Controllers.Airline.cashFormatted}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
         <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total playtime:</strong><br />{Controllers.Clock.totalPlaytime}</Tooltip>}>
@@ -101,7 +100,7 @@ const App: React.FC = () => {
           Icon={HouseDoor}
           header={`Hangar (${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
           Component={HangarListItem}
-          items={assets}
+          items={assets.sort((a, b) => (b.plane.acquisitionTime ?? 0) - (a.plane.acquisitionTime ?? 0))}
           fullWidth={true}
         />
       </Row>
