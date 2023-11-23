@@ -3,11 +3,12 @@ import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, AccordionC
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
 import { Clock, DaysOfWeek, Timeframes } from '../controllers/helpers/Clock'
-import { type Schedule } from '../controllers/ScheduleController'
 import { AirplaneFill, ArrowLeftRight, CaretDownFill, Cash, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
-import { formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
+import { flightStatus, formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
 import ScheduleDetailsTooltip from './tooltips/ScheduleDetailsTooltip'
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
+import TimetableHoursCol from './fragments/TimetableHours'
+import TimetableGrid from './fragments/TimetableGrid'
 
 interface Props {
   item: HangarAsset
@@ -30,29 +31,6 @@ const ContextAwareToggle: React.FC<{ children?: ReactElement, eventKey: string, 
 
 const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   const Controllers = GameController.getInstance()
-
-  const flightStatus = (schedule: Schedule): { inTheAir: boolean, flightLeg: 'there' | 'back' } => {
-    let inTheAir = false
-    let flightLeg: 'there' | 'back' = 'there'
-
-    const halftime = Clock.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
-
-    if (
-      (schedule.day === Controllers.Clock.currentDayOfWeek &&
-        Clock.isCurrentTimeBetween(schedule.start, schedule.end)) ||
-      (schedule.day === Controllers.Clock.previousDayOfWeek &&
-        schedule.end < schedule.start &&
-        Clock.isCurrentTimeBetween(schedule.start, schedule.end))
-    ) {
-      inTheAir = true
-
-      if (Controllers.Clock.playtimeFormatted > halftime) {
-        flightLeg = 'back'
-      }
-    }
-
-    return { inTheAir, flightLeg }
-  }
 
   const weeklyProfit = (): number => {
     const totalProfit = Controllers.Schedule
@@ -170,33 +148,10 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
             </Row>
             <Accordion.Collapse eventKey="0">
             <Row className='mx-2 mb-2' style={{ height: '300px' }}>
-              <Col xs={'auto'} className='text-center text-grey-dark fw-bold'>
-                <div className='timetable-grid mw-50'></div>
-                <div className='timetable-hour mw-50'><small>00:00</small></div>
-                <div className='timetable-hour mw-50'><small>04:00</small></div>
-                <div className='timetable-hour mw-50'><small>08:00</small></div>
-                <div className='timetable-hour mw-50'><small>12:00</small></div>
-                <div className='timetable-hour mw-50'><small>16:00</small></div>
-                <div className='timetable-hour mw-50'><small>20:00</small></div>
-                <div className='timetable-hour mw-50'><small>00:00</small></div>
-              </Col>
+              <TimetableHoursCol showLabels />
               {Object.values(DaysOfWeek).map((day) =>
                 <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
-                  <div className='timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top timetable-grid'></div>
-                  <div className='border-top border-bottom timetable-grid'></div>
-                  <div className='timetable-grid'></div>
-
+                  <TimetableGrid />
                   {Controllers.Schedule
                     .getActiveSchedulesForAsset(asset)
                     .filter((schedule) => schedule.day === day)
@@ -229,16 +184,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                   }
                 </Col>
               )}
-              <Col xs={'auto'} className='text-center text-grey-dark fw-bold'>
-                <div className='timetable-grid mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-                <div className='timetable-hour mw-50'></div>
-              </Col>
+              <TimetableHoursCol />
             </Row>
         </Accordion.Collapse>
       </Card>

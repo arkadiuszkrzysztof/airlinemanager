@@ -41,6 +41,14 @@ const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) 
         <Col xs={6} className='text-end'>{formatCashValue(schedule.option.profit)}</Col>
       </Row>
       <Row>
+        <Col xs={6} className='text-start'>Plane</Col>
+        <Col xs={6} className='text-end'>{`${schedule.option.asset.plane.familyName} ${schedule.option.asset.plane.typeName}`}</Col>
+      </Row>
+      <Row>
+        <Col xs={6} className='text-start'>Registration</Col>
+        <Col xs={6} className='text-end'>{`${schedule.option.asset.plane.registration}`}</Col>
+      </Row>
+      <Row>
         <Col xs={6} className='text-start'>Utilization</Col>
         <Col xs={6} className='text-end'>{formatUtilization(schedule.option.utilization)}</Col>
       </Row>

@@ -5,6 +5,15 @@ import { MarketController } from './MarketController'
 import { ContractsController } from './ContractsController'
 import { ScheduleController } from './ScheduleController'
 
+export interface Controllers {
+  Game: GameController
+  Airline: AirlineController
+  Market: MarketController
+  Hangar: HangarController
+  Contracts: ContractsController
+  Schedule: ScheduleController
+  Clock: Clock
+}
 export class GameController {
   private readonly airlineController: AirlineController
   private readonly marketController: MarketController
@@ -24,15 +33,7 @@ export class GameController {
     this.clock = Clock.getInstance()
   }
 
-  public static getInstance (): {
-    Game: GameController
-    Airline: AirlineController
-    Market: MarketController
-    Hangar: HangarController
-    Contracts: ContractsController
-    Schedule: ScheduleController
-    Clock: Clock
-  } {
+  public static getInstance (): Controllers {
     if (GameController.instance === undefined) {
       GameController.instance = new GameController()
     }
