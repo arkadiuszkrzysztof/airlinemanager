@@ -7,24 +7,29 @@ import { LocalStorage } from './helpers/LocalStorage'
 import { ScheduleController } from './ScheduleController'
 import { getRandomCharacters } from './helpers/Helpers'
 
-export interface ContractOptionCosts {
+export interface CostsBreakdown {
   fuel: number
   maintenance: number
   leasing: number
   landing: number
   passenger: number
+  cancellationFee?: number
+  downpayment?: number
+  purchasing?: number
   total: number
 }
-export interface ContractOptionRevenues {
+export interface RevenuesBreakdown {
   economy: number
   business: number
   first: number
+  selling?: number
   total: number
 }
+
 export interface ContractOption {
   asset: HangarAsset
-  cost: ContractOptionCosts
-  revenue: ContractOptionRevenues
+  cost: CostsBreakdown
+  revenue: RevenuesBreakdown
   profit: number
   utilization: number
   flightTime: number
@@ -94,7 +99,7 @@ export class ContractsController {
     return contracts
   }
 
-  private calculateCost (contract: Contract, asset: HangarAsset): ContractOptionCosts {
+  private calculateCost (contract: Contract, asset: HangarAsset): CostsBreakdown {
     const econonyPassengers = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
     const businessPassengers = Math.min(contract.demand.business, asset.plane.maxSeating.business)
     const firstPassengers = Math.min(contract.demand.first, asset.plane.maxSeating.first)
@@ -118,7 +123,7 @@ export class ContractsController {
     }
   }
 
-  private calculateRevenue (contract: Contract, asset: HangarAsset, passengers: { economy: number, business: number, first: number }): ContractOptionRevenues {
+  private calculateRevenue (contract: Contract, asset: HangarAsset, passengers: { economy: number, business: number, first: number }): RevenuesBreakdown {
     const duration = contract.distance / asset.plane.cruiseSpeed
 
     const economyTicketsRevenue = Math.floor(passengers.economy * 75 * duration * 2) + passengers.economy * 15 * 2

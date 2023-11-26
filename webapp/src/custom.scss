@@ -16,6 +16,23 @@ $theme-colors: (
   "grey-light": #f4f4f4,
   "grey-medium": #dad7d7,
   "grey-dark": #a6a6a6,
+  "warning-scale-1": #CA6702,
+  "warning-scale-2": #CD7110,
+  "warning-scale-3": #D07A1E,
+  "warning-scale-4": #D3832C,
+  "warning-scale-5": #D58C3A,
+  "warning-scale-6": #D89648,
+  "warning-scale-7": #DA9F56,
+  "warning-scale-8": #DDA864,
+  "success-scale-1": #0A9396,
+  "success-scale-2": #199A9B,
+  "success-scale-3": #28A0A0,
+  "success-scale-4": #37A7A5,
+  "success-scale-5": #45ADA9,
+  "success-scale-6": #54B4AE,
+  "success-scale-7": #62BAB3,
+  "success-scale-8": #71C1B8,
+
 );
 
 $grid-breakpoints: (
@@ -195,4 +212,8 @@ body {
 .timetable-grid {
   height: 20px;
   margin: 0 -12px;
+}
+
+.pnlBar {
+  min-width: 100%;
 }

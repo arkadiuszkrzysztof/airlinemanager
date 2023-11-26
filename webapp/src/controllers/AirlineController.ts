@@ -18,7 +18,7 @@ export interface PNLRecord {
     first: number
     selling: number
   }
-  expenses: {
+  costs: {
     fuel: number
     maintenance: number
     leasing: number
@@ -134,6 +134,10 @@ export class AirlineController {
     return this._name
   }
 
+  get PNL (): Record<number, PNLRecord> {
+    return this._pnl
+  }
+
   public buyPlane (plane: Plane): void {
     if (this._cash < plane.pricing.purchase) {
       return
@@ -191,7 +195,7 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfPlanes += 1
-    thisMonthPNL.expenses.downpayment += plane.pricing.leaseDownpayment
+    thisMonthPNL.costs.downpayment += plane.pricing.leaseDownpayment
 
     LocalStorage.setPNL(this._pnl)
 
@@ -206,7 +210,7 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfPlanes -= 1
-    thisMonthPNL.expenses.cancellationFee += plane.pricing.leaseCancellationFee
+    thisMonthPNL.costs.cancellationFee += plane.pricing.leaseCancellationFee
 
     LocalStorage.setPNL(this._pnl)
 
@@ -221,7 +225,7 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfPlanes += 1
-    thisMonthPNL.expenses.purchasing += plane.pricing.purchase
+    thisMonthPNL.costs.purchasing += plane.pricing.purchase
 
     LocalStorage.setPNL(this._pnl)
 
@@ -257,11 +261,11 @@ export class AirlineController {
     thisMonthPNL.revenue.business += schedule.option.revenue.business
     thisMonthPNL.revenue.first += schedule.option.revenue.first
 
-    thisMonthPNL.expenses.fuel += schedule.option.cost.fuel
-    thisMonthPNL.expenses.maintenance += schedule.option.cost.maintenance
-    thisMonthPNL.expenses.landing += schedule.option.cost.landing
-    thisMonthPNL.expenses.passenger += schedule.option.cost.passenger
-    thisMonthPNL.expenses.leasing += schedule.option.cost.leasing
+    thisMonthPNL.costs.fuel += schedule.option.cost.fuel
+    thisMonthPNL.costs.maintenance += schedule.option.cost.maintenance
+    thisMonthPNL.costs.landing += schedule.option.cost.landing
+    thisMonthPNL.costs.passenger += schedule.option.cost.passenger
+    thisMonthPNL.costs.leasing += schedule.option.cost.leasing
 
     LocalStorage.setPNL(this._pnl)
 

@@ -72,6 +72,7 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
               {getSchedulesForToday().map((bucket, index) =>
                 <Col key={`bucket-${index}`} style={{ position: 'relative' }}>
                   <TimetableGrid />
+                  <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                   {bucket.map((schedule) =>
                       <OverlayTrigger
                         placement="bottom"
