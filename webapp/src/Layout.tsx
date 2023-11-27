@@ -1,5 +1,5 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
 import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { AirplaneFill, CalendarWeek, Coin, StarFill } from 'react-bootstrap-icons'
@@ -48,6 +48,14 @@ const App: React.FC<Props> = ({ Controllers }) => {
             {Controllers.Clock.currentDayOfWeek}
           </Badge>
           <span className='fw-bold text-dark'>{Controllers.Clock.playtimeFormatted}</span>
+        </Col>
+      </Row>
+      <Row className='justify-content-center'>
+        <Col xs={10} className='text-center'>
+          <Link to='/dashboard' className='text-decoration-none'>Dashboard</Link>
+          <Link to='/operations' className='text-decoration-none mx-4'>Operations</Link>
+          <Link to='/mission' className='text-decoration-none mx-4'>Mission</Link>
+          <Link to='/map' className='text-decoration-none'>Map</Link>
         </Col>
       </Row>
       <Row className='justify-content-center'>

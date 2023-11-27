@@ -1,8 +1,11 @@
+import { GreatCircle, type Coordinates } from '../controllers/helpers/GreatCircle'
+
 export type AirportTuple = [
   IATACode: string,
   location: string,
   country: string,
   countryCode: string,
+  coordinates: Coordinates,
   longestRunway: number,
   passengers: number,
   feees: { landing: number, passenger: number }
@@ -10,35 +13,22 @@ export type AirportTuple = [
 
 export const AirportsData: Record<string, AirportTuple[]> = {
   EU: [
-    ['KRK', 'Krakow', 'Poland', 'PL', 2550, 7400000, { landing: 10, passenger: 7.5 }],
-    ['WAW', 'Warsaw', 'Poland', 'PL', 3690, 14400000, { landing: 10, passenger: 7.5 }],
-    ['GDN', 'Gdansk', 'Poland', 'PL', 2800, 4600000, { landing: 10, passenger: 7.5 }],
-    ['LHR', 'London', 'United Kingdom', 'UK', 3902, 61600000, { landing: 12.5, passenger: 42.5 }],
-    ['AMS', 'Amsterdam', 'Netherlands', 'NL', 3800, 52500000, { landing: 12.5, passenger: 42.5 }],
-    ['CDG', 'Paris', 'France', 'FR', 4200, 57500000, { landing: 12.5, passenger: 42.5 }],
-    ['EDI', 'Edinburgh', 'United Kingdom', 'UK', 2556, 11250000, { landing: 9, passenger: 25 }],
-    ['IST', 'Istanbul', 'Turkey', 'TR', 4100, 64500000, { landing: 15, passenger: 25 }]
+    ['KRK', 'Krakow', 'Poland', 'PL', { latitude: 50.077778, longitude: 19.784722 }, 2550, 7400000, { landing: 10, passenger: 7.5 }],
+    ['WAW', 'Warsaw', 'Poland', 'PL', { latitude: 52.165833, longitude: 20.967222 }, 3690, 14400000, { landing: 10, passenger: 7.5 }],
+    ['GDN', 'Gdansk', 'Poland', 'PL', { latitude: 54.3775, longitude: 18.466111 }, 2800, 4600000, { landing: 10, passenger: 7.5 }],
+    ['LHR', 'London', 'United Kingdom', 'UK', { latitude: 51.470833, longitude: -0.460556 }, 3902, 61600000, { landing: 12.5, passenger: 42.5 }],
+    ['AMS', 'Amsterdam', 'Netherlands', 'NL', { latitude: 52.308611, longitude: 4.763889 }, 3800, 52500000, { landing: 12.5, passenger: 42.5 }],
+    ['CDG', 'Paris', 'France', 'FR', { latitude: 49.009722, longitude: 2.547778 }, 4200, 57500000, { landing: 12.5, passenger: 42.5 }],
+    ['EDI', 'Edinburgh', 'United Kingdom', 'UK', { latitude: 55.95, longitude: -3.3725 }, 2556, 11250000, { landing: 9, passenger: 25 }],
+    ['IST', 'Istanbul', 'Turkey', 'TR', { latitude: 41.262222, longitude: 28.727778 }, 4100, 64500000, { landing: 15, passenger: 25 }]
+  ],
+  NA: [
+    ['JFK', 'New York', 'United States', 'US', { latitude: 40.639722, longitude: -73.778889 }, 4400, 61800000, { landing: 15, passenger: 25 }]
   ]
 }
 
 export const calculateAirportsDistance = (airport1: Airport, airport2: Airport): number => {
-  enum IATACodes { 'KRK', 'WAW', 'GDN', 'LHR', 'AMS', 'CDG', 'EDI', 'IST' }
-
-  const distances = [
-    [0, 247, 487, 1428, 1074, 1247, 1671, 1201],
-    [247, 0, 297, 1470, 1102, 1343, 1634, 1348],
-    [487, 297, 0, 1305, 937, 1245, 1393, 1644],
-    [1428, 1470, 1305, 0, 371, 348, 534, 2489],
-    [1074, 1102, 937, 371, 0, 399, 667, 2185],
-    [1247, 1343, 1245, 348, 399, 0, 869, 2214],
-    [1671, 1634, 1393, 534, 667, 869, 0, 2831],
-    [1201, 1348, 1644, 2489, 2185, 2214, 2831, 0]
-  ]
-
-  const key1 = IATACodes[airport1.IATACode as keyof typeof IATACodes]
-  const key2 = IATACodes[airport2.IATACode as keyof typeof IATACodes]
-
-  return distances[key1][key2]
+  return GreatCircle.calculateDistance(airport1.coordinates, airport2.coordinates)
 }
 
 export class Airport {
@@ -47,6 +37,7 @@ export class Airport {
     public readonly location: string,
     public readonly country: string,
     public readonly countryCode: string,
+    public readonly coordinates: Coordinates,
     public readonly longestRunway: number,
     public readonly passengers: number,
     public readonly fees: {

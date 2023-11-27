@@ -30,6 +30,8 @@ export interface PNLRecord {
   }
 }
 
+export type EventLogRecords = Array<{ playtime: number, origin: EventOrigin, message: string }>
+
 export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Contract', SCHEDULE = 'Schedule', HANGAR = 'Hangar' }
 
 export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection' }
@@ -40,7 +42,7 @@ export class AirlineController {
   private _reputation: Array<{ originId: string, type: ReputationType, reputation: number }>
   private _cash: number
   private readonly _pnl: Record<number, PNLRecord>
-  private readonly _eventLog: Array<{ playtime: number, origin: EventOrigin, message: string }>
+  private readonly _eventLog: EventLogRecords
 
   private constructor () {
     this._name = LocalStorage.getAirlineName()
@@ -182,11 +184,15 @@ export class AirlineController {
     LocalStorage.setEventLog(this._eventLog)
   }
 
+  public getEventLog (): EventLogRecords {
+    return this._eventLog
+  }
+
   private getThisMonthPNLRecord (): PNLRecord {
     const timeThisMonthStart = Clock.getInstance().timeThisMonthStart
 
     this._pnl[timeThisMonthStart] = this._pnl[timeThisMonthStart] ??
-      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0 }, expenses: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0 } }
+      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0 } }
 
     return this._pnl[timeThisMonthStart]
   }

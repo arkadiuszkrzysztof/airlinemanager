@@ -32,7 +32,7 @@ export class Clock {
 
     this._playtime = playtime + Math.min(offlineTime, Math.max(lastSave - currentTime, 0))
 
-    this.clockTicker = setInterval(() => { this.updateClock() }, 200)
+    this.clockTicker = setInterval(() => { this.updateClock() }, 100)
   }
 
   private callListeners (playtime: number): void {
@@ -51,7 +51,7 @@ export class Clock {
   }
 
   public resumeGame (): void {
-    this.clockTicker = setInterval(() => { this.updateClock() }, 1000)
+    this.clockTicker = setInterval(() => { this.updateClock() }, 100)
   }
 
   public static getInstance (): Clock {
@@ -95,7 +95,7 @@ export class Clock {
 
     const years = Math.floor((time - this.instance.playtime) / YEAR)
     const months = Math.floor((time - this.instance.playtime) / MONTH) % 12
-    const days = Math.floor((time - this.instance.playtime) / DAY) % 7
+    const days = Math.floor((time - this.instance.playtime) / DAY) % 28
     const hours = Math.floor((time - this.instance.playtime) / HOUR) % 24
     const minutes = (time - this.instance.playtime) % HOUR
 
@@ -108,6 +108,15 @@ export class Clock {
     } else {
       return hours + (hours !== 1 ? ' hours ' : ' hour ') + minutes + (minutes !== 1 ? ' minutes' : ' minute')
     }
+  }
+
+  public static getExpirationTime (time: number): [number, number] {
+    const { HOUR, DAY } = Timeframes
+
+    const days = Math.floor(Math.abs(time - this.instance.playtime) / DAY) % 28
+    const hours = Math.floor(Math.abs(time - this.instance.playtime) / HOUR) % 24
+
+    return [days, hours]
   }
 
   public static getFormattedHourlyTime (time: number): string {

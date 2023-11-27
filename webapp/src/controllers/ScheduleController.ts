@@ -36,6 +36,10 @@ export class ScheduleController {
     return ScheduleController.instance
   }
 
+  public getActiveSchedules (): Schedule[] {
+    return this.activeSchedules
+  }
+
   public getActiveSchedulesForAsset (asset: HangarAsset): Schedule[] {
     return this.activeSchedules.filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
   }
@@ -141,7 +145,7 @@ export class ScheduleController {
       if (event.schedule.contract.expirationTime <= playtime) {
         this.expireContract(event.schedule)
 
-        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} contract for plane ${event.schedule.option.asset.plane.registration} on ${event.schedule.contract.dayOfWeek}s expired`)
+        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} for plane ${event.schedule.option.asset.plane.registration} on ${event.schedule.contract.dayOfWeek}s expired`)
       }
     })
 

@@ -26,7 +26,7 @@ const App: React.FC = () => {
   }, [])
 
   const clockWrapper = (playtime: number): void => {
-    if (playtime % 5 === 0) {
+    if (playtime % 15 === 0) {
       setClock(Controllers.Clock.playtime)
     }
   }

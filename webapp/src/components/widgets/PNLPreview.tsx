@@ -114,7 +114,7 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
               <Col key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
                 <Row className='align-items-end gx-2' style={{ height: 'calc(100% - 24px)' }}>
                   <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
-                    <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end'>
+                    <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
                       <div className='pnlBar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
                       {Object.keys(record.costs).filter((key) => key !== 'total').map((key, index) => {
                         const value = record.costs[key as keyof typeof record.costs]
@@ -128,7 +128,7 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
                     </Col>
                   </OverlayTrigger>
                   <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={record.revenue} showTotal /></Tooltip>}>
-                    <Col key={`${record.month}-revenues`} className='d-flex flex-wrap align-items-stretch justify-content-end'>
+                    <Col key={`${record.month}-revenues`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
                     <div className='pnlBar fw-bold small text-center'>{formatScale(record.revenue.total, true)}</div>
                       {Object.keys(record.revenue).filter((key) => key !== 'total').map((key, index) => {
                         const value = record.revenue[key as keyof typeof record.revenue]
