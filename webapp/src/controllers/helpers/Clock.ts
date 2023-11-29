@@ -1,3 +1,4 @@
+import { type Schedule } from '../ScheduleController'
 import { LocalStorage } from './LocalStorage'
 
 export enum Timeframes {
@@ -84,10 +85,11 @@ export class Clock {
     return closestDayStart
   }
 
-  public static getTimeAt (time: string, tomorrow: boolean = false): number {
+  public static getTimeAt (time: string, when: 'yesterday' | 'today' | 'tomorrow' = 'today'): number {
     const [hours, minutes] = time.split(':')
+    const delta = (when === 'tomorrow' ? Timeframes.DAY : when === 'yesterday' ? -Timeframes.DAY : 0)
 
-    return parseInt(hours) * 60 + parseInt(minutes) + this.instance.timeThisDayStart + (tomorrow ? Timeframes.DAY : 0)
+    return parseInt(hours) * 60 + parseInt(minutes) + this.instance.timeThisDayStart + delta
   }
 
   public static getFormattedTimeUntil (time: number): string {
@@ -162,6 +164,33 @@ export class Clock {
     const years = Math.floor(playtime / Timeframes.YEAR)
     const months = Math.floor((playtime % Timeframes.YEAR) / Timeframes.MONTH)
     return (years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}` : `${months} ${months === 1 ? 'month' : 'months'}`)
+  }
+
+  public static flightStatus = (schedule: Schedule): { inTheAir: boolean, flightLeg: 'there' | 'back' } => {
+    let inTheAir = false
+    let flightLeg: 'there' | 'back' = 'there'
+
+    const halftime = this.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
+
+    if (
+      schedule.day === this.instance.currentDayOfWeek &&
+      this.instance.playtimeFormatted >= schedule.start &&
+      this.isCurrentTimeBetween(schedule.start, schedule.end)
+    ) {
+      inTheAir = true
+    } else if (
+      schedule.day === this.instance.previousDayOfWeek &&
+      schedule.end < schedule.start &&
+      this.isCurrentTimeBetween('00:00', schedule.end)
+    ) {
+      inTheAir = true
+    }
+
+    if (this.instance.playtimeFormatted > halftime) {
+      flightLeg = 'back'
+    }
+
+    return { inTheAir, flightLeg }
   }
 
   get playtime (): number {

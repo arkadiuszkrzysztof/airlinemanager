@@ -5,9 +5,9 @@ import { type Controllers } from '../../controllers/GameController'
 import { Map } from 'react-bootstrap-icons'
 import { MapContainer, Marker, Polyline, TileLayer } from 'react-leaflet'
 import { GreatCircle } from '../../controllers/helpers/GreatCircle'
-import { flightStatus } from '../../controllers/helpers/Helpers'
 import { DivIcon } from 'leaflet'
 import { type Airport } from '../../models/Airport'
+import { Clock } from '../../controllers/helpers/Clock'
 
 interface Props {
   Controllers: Controllers
@@ -64,18 +64,6 @@ const MapWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactEl
     return connections
   }
 
-  const getHubs = (): Set<string> => {
-    const hubs = new Set<string>()
-
-    Controllers.Hangar.getAllAssets().forEach((asset) => {
-      if (asset.plane.hub !== undefined) {
-        hubs.add(asset.plane.hub.IATACode)
-      }
-    })
-
-    return hubs
-  }
-
   return (
     <Col xs={12} md={11} xxl={10} xxxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
@@ -101,17 +89,13 @@ const MapWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactEl
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
 
-                  {showAirports && Controllers.Contracts.getAirports().map((airport) => {
-                    const hubs = getHubs()
-
-                    return (
+                  {showAirports && Controllers.Contracts.getAirports().map((airport) => (
                     <Marker
                       key={`airport-${airport.IATACode}`}
                       position={[airport.coordinates.latitude, airport.coordinates.longitude]}
-                      icon={getAirportIcon(hubs.has(airport.IATACode), airport.IATACode, showLabels)}>
+                      icon={getAirportIcon(Controllers.Hangar.getHubs().has(airport.IATACode), airport.IATACode, showLabels)}>
                     </Marker>
-                    )
-                  })}
+                  ))}
 
                   {showConnections && getConnections().map(([hub, destination, connection]) =>
                     <Polyline
@@ -121,7 +105,7 @@ const MapWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactEl
                       weight={Math.min(connection, 5)} />
                   )}
 
-                  {showInAir && Controllers.Schedule.getActiveSchedules().filter(schedule => flightStatus(schedule).inTheAir).map((schedule) => {
+                  {showInAir && Controllers.Schedule.getActiveSchedules().filter(schedule => Clock.flightStatus(schedule).inTheAir).map((schedule) => {
                     const currentPosition = GreatCircle.getCurrentPoint(schedule)
 
                     return (

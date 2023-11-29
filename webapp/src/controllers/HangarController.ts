@@ -58,6 +58,18 @@ export class HangarController {
     this.callListeners([...this.assets])
   }
 
+  getHubs (): Set<string> {
+    const hubs = new Set<string>()
+
+    this.assets.forEach((asset) => {
+      if (asset.plane.hub !== undefined) {
+        hubs.add(asset.plane.hub.IATACode)
+      }
+    })
+
+    return hubs
+  }
+
   public static getInstance (): HangarController {
     if (HangarController.instance === undefined) {
       HangarController.instance = new HangarController()

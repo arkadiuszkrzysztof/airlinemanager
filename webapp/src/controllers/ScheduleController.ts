@@ -50,7 +50,9 @@ export class ScheduleController {
   }
 
   public getTodaySchedules (): Schedule[] {
-    return this.activeSchedules.filter(schedule => schedule.day === Clock.getInstance().currentDayOfWeek)
+    return this.activeSchedules.filter(schedule =>
+      schedule.day === Clock.getInstance().currentDayOfWeek ||
+      (schedule.day === Clock.getInstance().previousDayOfWeek && schedule.end < schedule.start && schedule.end > '01:00'))
   }
 
   public getTotalUseTime (asset: HangarAsset, day: DaysOfWeek): string {
@@ -121,7 +123,7 @@ export class ScheduleController {
     if (lastRegistration === 0 || playtime - lastRegistration >= Timeframes.DAY) {
       ScheduleController.getInstance().getTodaySchedules().forEach(schedule => {
         this.scheduleEvents.push({
-          executionTime: Clock.getTimeAt(schedule.end, schedule.end < schedule.start),
+          executionTime: Clock.getTimeAt(schedule.end, schedule.end < schedule.start ? 'tomorrow' : 'today'),
           schedule
         })
         console.log(`Event scheduled: Flight ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode}`)

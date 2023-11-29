@@ -97,8 +97,8 @@ const NotificationsWidget: React.FC<Props> = ({ Controllers, fullWidth = false }
                 <ClockHistory size={20} className='me-2' />
                 Event log
               </div>
-              {events.map((event) => (
-                <Row key={event.playtime} className='mb-2'>
+              {events.map((event, index) => (
+                <Row key={`${event.playtime}-${index}`} className='mb-2'>
                   {getPastEventCountdown(event.playtime)}
                   <Col xs={9} className='bg-grey-light rounded-end'>
                     {event.message}

@@ -2,7 +2,7 @@ import React from 'react'
 import { type Plane } from '../models/Plane'
 import { Row, Col, Button } from 'react-bootstrap'
 import { GameController } from '../controllers/GameController'
-import { CalendarWeekFill, Cash, PersonFill, PinMapFill, StarFill, TagFill } from 'react-bootstrap-icons'
+import { CalendarWeekFill, CashStack, PersonFill, PinMapFill, StarFill, TagFill } from 'react-bootstrap-icons'
 
 interface Props {
   item: Plane
@@ -10,6 +10,16 @@ interface Props {
 
 const MarketListItem: React.FC<Props> = ({ item: plane }) => {
   const Controllers = GameController.getInstance()
+
+  const canBuy = (plane: Plane): boolean => {
+    return Controllers.Hangar.getAssetsCount() < Controllers.Airline.getTier().record.constraints.maxPlanes &&
+      Controllers.Airline.cash >= plane.pricing.purchase
+  }
+
+  const canLease = (pleane: Plane): boolean => {
+    return Controllers.Hangar.getAssetsCount() < Controllers.Airline.getTier().record.constraints.maxPlanes &&
+      Controllers.Airline.cash >= plane.pricing.leaseDownpayment
+  }
 
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
@@ -39,7 +49,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           <span><strong>{plane.age}</strong> old</span>
         </div>
         <div className='d-flex align-items-center'>
-          <Cash size={20} className='text-grey-dark me-2' />
+          <CashStack size={20} className='text-grey-dark me-2' />
           <span>Maintenance: <strong>{plane.pricingFormatted.maintenance} / flight hour</strong></span>
         </div>
       </Col>
@@ -47,7 +57,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
         <Button
           variant="dark"
           onClick={ () => { Controllers.Airline.buyPlane(plane) }}
-          disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
+          disabled={ !canBuy(plane) }
         >
           <span className='fw-bold'>Buy for {plane.pricingFormatted.purchase}</span>
         </Button>
@@ -55,7 +65,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
           variant="info"
           className='mt-2'
           onClick={ () => { Controllers.Airline.leasePlane(plane) }}
-          disabled={ Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes }
+          disabled={ !canLease(plane) }
         >
           <span className='fw-bold'>Lease for {plane.pricingFormatted.lease} / flight hour</span><br />
           <small>+ {plane.pricingFormatted.leaseDownpayment} down payment<br />

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
-import { AirplaneFill, CalendarWeek, Coin, PauseFill, PlayFill, StarFill } from 'react-bootstrap-icons'
+import { AirplaneFill, CalendarWeek, CashStack, PauseFill, PlayFill, StarFill } from 'react-bootstrap-icons'
 
 import { type Controllers } from './controllers/GameController'
 import TierDetailsTooltip from './components/tooltips/TierDetailsTooltip'
@@ -61,7 +61,7 @@ const App: React.FC<Props> = ({ Controllers }) => {
           </OverlayTrigger>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>
-          <Coin size={20} className='text-primary me-2' />
+          <CashStack size={20} className='text-primary me-2' />
           <span className='fw-bold text-dark'>{Controllers.Airline.cashFormatted}</span>
         </Col>
         <Col xs={2} className='d-flex align-items-center'>

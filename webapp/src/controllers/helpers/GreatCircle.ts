@@ -79,7 +79,7 @@ export const GreatCircle = {
   },
   getCurrentPoint (schedule: Schedule): { coordinates: Coordinates, angle: number } {
     const points = this.getPathPoints(schedule.contract.hub.coordinates, schedule.contract.destination.coordinates)
-    const startTime = Clock.getTimeAt(schedule.start)
+    const startTime = Clock.getTimeAt(schedule.start, schedule.day === Clock.getInstance().previousDayOfWeek ? 'yesterday' : 'today')
 
     const progress = Math.abs(Clock.getInstance().playtime - startTime) / schedule.option.totalTime
 

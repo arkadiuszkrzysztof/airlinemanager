@@ -1,6 +1,6 @@
 import React from 'react'
 import { type Contract } from '../models/Contract'
-import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge } from 'react-bootstrap'
+import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge, Card } from 'react-bootstrap'
 import { GameController } from '../controllers/GameController'
 import { type ContractOption } from '../controllers/ContractsController'
 import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
@@ -9,6 +9,7 @@ import { formatCashValue, formatTurnaround, formatUtilization } from '../control
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
 import CostBreakdownTooltip from './tooltips/CostBreakdownTooltip'
 import RevenueBreakdownTooltip from './tooltips/RevenueBreakdownTooltip'
+import ContentToggle from './fragments/ContentToggle'
 
 interface Props {
   item: Contract
@@ -56,72 +57,80 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
           <strong>{`${contract.contractDuration / Timeframes.MONTH} months`}</strong>
         </Col>
       </Row>
-      <Accordion>
-        <Accordion.Item eventKey="0">
-          <Accordion.Header className='flex-row'>
-              <Col xs={4}>Available planes: {contractOptions.filter(c => c.available).length}</Col>
-              <Col xs={4}>Best option: {contractOptions.length > 0
-                ? <span className={`fw-bold ${contractOptions[0].profit > 0 ? 'text-dark' : 'text-danger'}`}>
-                    {formatCashValue(contractOptions[0].profit)}
-                  </span>
-                : <i>None</i>}</Col>
-            </Accordion.Header>
-          <Accordion.Body>
-            <Row className='small text-end fw-bold text-primary'>
-              <Col xs={2} className='text-start'>Plane</Col>
-              <Col xs={2}>Cost</Col>
-              <Col xs={2}>Revenue</Col>
-              <Col xs={2}>Profit</Col>
-              <Col xs={2}>Utilization</Col>
-              <Col xs={2}>Turnaround</Col>
-            </Row>
-            {contractOptions.map((option: ContractOption) => (
-              <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'} hover-bg-grey-light`}>
-                <Col xs={2}>
-                  <span className='d-flex flex-row align-items-center'>
-                    {option.available &&
-                      <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
-                        <CheckSquare size={12} />
-                      </span>
-                    }
-                  <OverlayTrigger
-                      placement="bottom"
-                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
-                  >
-                    <span className='cursor-help'>
-                      {option.asset.plane.typeName}
-                      <small className={`ps-1 fs-7 fw-bold text-${option.asset.ownership === 'owned' ? 'dark' : 'light'}`}>{option.asset.ownership.toUpperCase()}</small>
-                    </span>
-                  </OverlayTrigger>
-                  </span>
-                </Col>
-                <Col xs={2} className='text-end'>
-                  <OverlayTrigger
-                    placement="bottom"
-                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={option.cost} /></Tooltip>}
-                  >
-                    <span className='cursor-help'>{formatCashValue(option.cost.total)}</span>
-                  </OverlayTrigger>
-                </Col>
-                <Col xs={2} className='text-end'>
-                  <OverlayTrigger
-                    placement="bottom"
-                    overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={option.revenue} /></Tooltip>}
-                  >
-                    <span className='cursor-help'>{formatCashValue(option.revenue.total)}</span>
-                  </OverlayTrigger>
-                </Col>
-                <Col xs={2} className='text-end'>
-                  <span className={`fw-bold ${option.profit > 0 ? 'text-dark' : 'text-danger'}`}>
-                    {formatCashValue(option.profit)}
-                  </span>
-                </Col>
-                <Col xs={2} className='text-end'>{formatUtilization(option.utilization)}</Col>
-                <Col xs={2} className='text-end'>{formatTurnaround(option.totalTime)}</Col>
+      <Accordion key={contract.id} className='mt-2'>
+        <Card>
+          <Row className='mx-2 my-2'>
+            <Col xs={4}>Available planes: {contractOptions.filter(c => c.available).length}</Col>
+            <Col xs={4}>Best option: {contractOptions.length > 0
+              ? <span className={`fw-bold ${contractOptions[0].profit > 0 ? 'text-dark' : 'text-danger'}`}>
+                  {formatCashValue(contractOptions[0].profit)}
+                </span>
+              : <i>None</i>}
+            </Col>
+            <Col xs={4} className='d-flex justify-content-end'>
+              <ContentToggle eventKey="0" iconSize={24} />
+            </Col>
+          </Row>
+          <Accordion.Collapse eventKey="0" className='mx-4 mb-2'>
+            <>
+              <Row className='small text-end fw-bold text-primary'>
+                <Col xs={2} className='text-start'>Plane</Col>
+                <Col xs={2}>Cost</Col>
+                <Col xs={2}>Revenue</Col>
+                <Col xs={2}>Profit</Col>
+                <Col xs={2}>Utilization</Col>
+                <Col xs={2}>Turnaround</Col>
               </Row>
-            ))}
-          </Accordion.Body>
-        </Accordion.Item>
+              {contractOptions.map((option: ContractOption) => (
+                <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'} hover-bg-grey-light`}>
+                  <Col xs={2} className={`pe-0 ${option.available ? ' ps-0' : ''}`}>
+                    <span className='d-flex flex-row align-items-center'>
+                      {option.available &&
+                        <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
+                          <CheckSquare size={12} />
+                        </span>
+                      }
+                    <OverlayTrigger
+                        placement="bottom"
+                        overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
+                    >
+                      <span className='cursor-help'>
+                        {option.asset.plane.typeName}
+                        {option.asset.plane.hub !== undefined && <Badge bg={'grey-dark'} className='ms-2'>
+                          {option.asset.plane.hub.IATACode}
+                        </Badge>}
+                      </span>
+                    </OverlayTrigger>
+                    </span>
+                  </Col>
+                  <Col xs={2} className='text-end'>
+                    <OverlayTrigger
+                      placement="bottom"
+                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={option.cost} /></Tooltip>}
+                    >
+                      <span className='cursor-help'>{formatCashValue(option.cost.total)}</span>
+                    </OverlayTrigger>
+                  </Col>
+                  <Col xs={2} className='text-end'>
+                    <OverlayTrigger
+                      placement="bottom"
+                      overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={option.revenue} /></Tooltip>}
+                    >
+                      <span className='cursor-help'>{formatCashValue(option.revenue.total)}</span>
+                    </OverlayTrigger>
+                  </Col>
+                  <Col xs={2} className='text-end'>
+                    <span className={`fw-bold ${option.profit > 0 ? 'text-dark' : 'text-danger'}`}>
+                      {formatCashValue(option.profit)}
+                    </span>
+                  </Col>
+                  <Col xs={2} className='text-end'>{formatUtilization(option.utilization)}</Col>
+                  <Col xs={2} className='text-end'>{formatTurnaround(option.totalTime)}</Col>
+                </Row>
+              ))}
+            </>
+          </Accordion.Collapse>
+        </Card>
       </Accordion>
     </Row>
   )

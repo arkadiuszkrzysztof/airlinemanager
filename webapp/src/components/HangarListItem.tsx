@@ -1,32 +1,18 @@
-import React, { type ReactElement, useContext } from 'react'
-import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, AccordionContext, useAccordionButton, Card } from 'react-bootstrap'
+import React, { type ReactElement } from 'react'
+import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, Card } from 'react-bootstrap'
 import { type HangarAsset } from '../controllers/HangarController'
 import { GameController } from '../controllers/GameController'
 import { Clock, DaysOfWeek, Timeframes } from '../controllers/helpers/Clock'
-import { AirplaneFill, ArrowLeftRight, CaretDownFill, Cash, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
-import { flightStatus, formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
+import { AirplaneFill, ArrowLeftRight, CashStack, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
+import { formatCashValue, formatUtilization } from '../controllers/helpers/Helpers'
 import ScheduleDetailsTooltip from './tooltips/ScheduleDetailsTooltip'
 import PlaneDetailsTooltip from './tooltips/PlaneDetailsTooltip'
 import TimetableHoursCol from './fragments/TimetableHours'
 import TimetableGrid from './fragments/TimetableGrid'
+import ContentToggle from './fragments/ContentToggle'
 
 interface Props {
   item: HangarAsset
-}
-
-const ContextAwareToggle: React.FC<{ children?: ReactElement, eventKey: string, callback?: (eventKey: string) => void }> = ({ children, eventKey, callback }) => {
-  const { activeEventKey } = useContext(AccordionContext)
-
-  const decoratedOnClick = useAccordionButton(
-    eventKey,
-    () => { if (callback !== undefined) callback(eventKey) }
-  )
-
-  const isCurrentEventKey = activeEventKey === eventKey
-
-  return (
-    <CaretDownFill onClick={decoratedOnClick} role="button" size={40} className={`text-secondary rotate-${isCurrentEventKey ? '180' : '0'}`} />
-  )
 }
 
 const HangarListItem: React.FC<Props> = ({ item: asset }) => {
@@ -91,7 +77,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
             <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-4'>
               {asset.ownership.toUpperCase()}
             </Badge>
-            <Cash size={20} className='text-grey-dark me-2' />
+            <CashStack size={20} className='text-grey-dark me-2' />
             <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-dark' : 'text-danger'}`}>
               {formatCashValue(weeklyProfit())}
             </span>
@@ -142,7 +128,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
               )}
               <Col xs={'auto'} className='flex-grow-0'>
                 <div className='timetable-hour mw-50'>
-                  <ContextAwareToggle eventKey="0" />
+                  <ContentToggle eventKey="0" />
                 </div>
               </Col>
             </Row>
@@ -152,6 +138,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
               {Object.values(DaysOfWeek).map((day) =>
                 <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
                   <TimetableGrid />
+                  <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                   {Controllers.Schedule
                     .getActiveSchedulesForAsset(asset)
                     .filter((schedule) => schedule.day === day)
@@ -172,8 +159,8 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                           }}
                         >
                           {schedule.contract.hub.IATACode}
-                          {flightStatus(schedule).inTheAir
-                            ? flightStatus(schedule).flightLeg === 'there'
+                          {Clock.flightStatus(schedule).inTheAir
+                            ? Clock.flightStatus(schedule).flightLeg === 'there'
                               ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
                               : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
                             : <ArrowLeftRight size={12} className='text-dark mx-2'/>}

@@ -77,8 +77,14 @@ export class ContractsController {
     const contracts: Contract[] = []
     const connections: string[] = []
 
-    for (; contracts.length < Math.random() * 10 + 5;) {
-      const airport1 = this.airports[Math.floor(Math.random() * this.airports.length)]
+    const hubs = HangarController.getInstance().getHubs()
+    const numberOfContractsToGenerate = hubs.size * 2 + Math.floor(Math.random() * 5 + 2)
+    const hubAirports = this.airports.filter(airport => hubs.has(airport.IATACode))
+
+    for (; contracts.length < numberOfContractsToGenerate;) {
+      const airport1 = (contracts.length < hubs.size * 2
+        ? hubAirports[Math.floor(Math.random() * hubAirports.length)]
+        : this.airports[Math.floor(Math.random() * this.airports.length)])
       const airport2 = this.airports[Math.floor(Math.random() * this.airports.length)]
 
       const connection = `${airport1.IATACode}${airport2.IATACode}`
@@ -183,33 +189,36 @@ export class ContractsController {
     const hangarController = HangarController.getInstance()
     const options: ContractOption[] = []
 
-    hangarController.getAllAssets().forEach((asset) => {
-      const economy = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
-      const business = Math.min(contract.demand.business, asset.plane.maxSeating.business)
-      const first = Math.min(contract.demand.first, asset.plane.maxSeating.first)
+    hangarController
+      .getAllAssets()
+      .filter(asset => asset.plane.hub === undefined || asset.plane.hub.IATACode === contract.hub.IATACode)
+      .forEach((asset) => {
+        const economy = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
+        const business = Math.min(contract.demand.business, asset.plane.maxSeating.business)
+        const first = Math.min(contract.demand.first, asset.plane.maxSeating.first)
 
-      const cost = this.calculateCost(contract, asset)
-      const revenue = this.calculateRevenue(contract, asset, { economy, business, first })
-      const { flightTime, boardingTime, totalTime } = this.calculateTurnaround(contract, asset)
+        const cost = this.calculateCost(contract, asset)
+        const revenue = this.calculateRevenue(contract, asset, { economy, business, first })
+        const { flightTime, boardingTime, totalTime } = this.calculateTurnaround(contract, asset)
 
-      const option = {
-        asset,
-        cost,
-        revenue,
-        profit: revenue.total - cost.total,
-        utilization: this.calculateUtilization(contract, asset, { economy, business, first }),
-        flightTime,
-        boardingTime,
-        totalTime,
-        numberOfPassengers: economy + business + first,
-        available: true
-      }
+        const option = {
+          asset,
+          cost,
+          revenue,
+          profit: revenue.total - cost.total,
+          utilization: this.calculateUtilization(contract, asset, { economy, business, first }),
+          flightTime,
+          boardingTime,
+          totalTime,
+          numberOfPassengers: economy + business + first,
+          available: true
+        }
 
-      const available = this.checkAvailability(contract, option)
-      option.available = available
+        const available = this.checkAvailability(contract, option)
+        option.available = available
 
-      options.push(option)
-    })
+        options.push(option)
+      })
 
     return options.sort((a, b) => b.profit - a.profit)
   }
@@ -241,7 +250,7 @@ export class ContractsController {
     const lastRefresh = LocalStorage.getLastContractsRefresh()
 
     if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.DAY) {
-      const newContracts = this.generateContracts().sort((a, b) => b.distance - a.distance)
+      const newContracts = this.generateContracts().sort((a, b) => b.reputation - a.reputation)
       LocalStorage.setContractsOffers(newContracts)
       LocalStorage.setLastContractsRefresh(playtime - (playtime % Timeframes.DAY))
       this.callListeners(this.inactiveContracts.concat(...newContracts))

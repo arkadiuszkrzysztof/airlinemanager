@@ -21,7 +21,7 @@ export interface TierRecord {
 
 export const Tiers: Record<Tier, TierRecord> = {
   [Tier.PLATINUM]: {
-    minReputation: 75,
+    minReputation: 90,
     constraints: {
       MTOW: 750,
       maxPlanes: 25,

@@ -1,6 +1,3 @@
-import { type Schedule } from '../ScheduleController'
-import { Clock } from './Clock'
-
 export const getRandomCharacters = (length: number, includeNumbers: boolean = false): string => {
   const characters = includeNumbers ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   let result = ''
@@ -31,27 +28,4 @@ export const formatUtilization = (utilization: number): string => {
 
 export const formatPercentageValue = (value: number): string => {
   return `${Math.floor(value * 100)}%`
-}
-
-export const flightStatus = (schedule: Schedule): { inTheAir: boolean, flightLeg: 'there' | 'back' } => {
-  let inTheAir = false
-  let flightLeg: 'there' | 'back' = 'there'
-
-  const halftime = Clock.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
-
-  if (
-    (schedule.day === Clock.getInstance().currentDayOfWeek &&
-      Clock.isCurrentTimeBetween(schedule.start, schedule.end)) ||
-    (schedule.day === Clock.getInstance().previousDayOfWeek &&
-      schedule.end < schedule.start &&
-      Clock.isCurrentTimeBetween(schedule.start, schedule.end))
-  ) {
-    inTheAir = true
-
-    if (Clock.getInstance().playtimeFormatted > halftime) {
-      flightLeg = 'back'
-    }
-  }
-
-  return { inTheAir, flightLeg }
 }

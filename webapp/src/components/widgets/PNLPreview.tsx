@@ -90,13 +90,37 @@ const getScale = (pnlData: PNLChartData): ReactElement[] => {
 
   for (let i = 0; i <= pnlData.scale.numberOfSteps; i++) {
     content.push(
-      <div key={`scale-${i}`} className='position-absolute start-0 border-top' style={{ bottom: `${(i * pnlData.scale.step) / pnlData.scale.max * 250 + 24}px` }}>
+      <div key={`scale-${i}`} className='position-absolute start-0 border-top' style={{ bottom: `${(i * pnlData.scale.step) / pnlData.scale.max * 250 + 50}px` }}>
         {i > 0 && <span className='position-absolute small text-grey-dark fw-bold' style={{ marginLeft: '-50px', marginTop: '-12px' }}>{`$${formatScale(i * pnlData.scale.step)}`}</span>}
       </div>
     )
   }
 
   return content
+}
+
+const formatNetProfit = (value: string, profit: number): ReactElement => {
+  if (profit > 0) {
+    return (
+      <span className='text-success'>
+        <span className='me-1'>+</span>
+        {value}
+      </span>
+    )
+  } else if (profit < 0) {
+    return (
+      <span className='text-danger'>
+        <span className='me-1'>-</span>
+        {value}
+      </span>
+    )
+  } else {
+    return (
+      <span className='text-grey-dark'>
+        {value}
+      </span>
+    )
+  }
 }
 
 const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
@@ -112,11 +136,11 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2'>
-          <Row className='mx-2 mb-2 position-relative ms-5' style={{ height: '300px' }}>
+          <Row className='mx-2 mb-2 position-relative ms-5'>
             {getScale(pnlData)}
             {pnlData.data.map((record) => (
               <Col key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
-                <Row className='align-items-end gx-2' style={{ height: 'calc(100% - 24px)' }}>
+                <Row className='align-items-end gx-2' style={{ height: '275px' }}>
                   <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
                       <div className='pnlBar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
@@ -146,8 +170,19 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
                     </Col>
                   </OverlayTrigger>
                 </Row>
-                <Row className='justify-content-center small fw-bold'>
-                  {record.month}
+                <Row className='justify-content-center small fw-bold' style={{ height: '50px' }}>
+                  <Col className='d-flex flex-column'>
+                      <Row>
+                        <Col xs={12} className='m-0 p-0 text-center'>
+                          {record.month}
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col xs={12} className='m-0 p-0 text-center fs-5'>
+                          {formatNetProfit(formatScale(Math.abs(record.revenue.total - record.costs.total), true), record.revenue.total - record.costs.total)}
+                        </Col>
+                      </Row>
+                  </Col>
                 </Row>
               </Col>
             )

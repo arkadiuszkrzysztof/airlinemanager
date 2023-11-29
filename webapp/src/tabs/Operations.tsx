@@ -25,7 +25,7 @@ const Operations: React.FC<Props> = ({ assets, market, contracts, Controllers })
           header='Market'
           subheader={`Refresh in ${Controllers.Clock.timeToNextWeek}`}
           Component={MarketListItem}
-          items={market.sort((a, b) => a.pricing.purchase - b.pricing.purchase)}
+          items={market.sort((a, b) => b.reputation - a.reputation)}
         />
         <ListPreview<Contract>
           Icon={FileEarmarkText}
