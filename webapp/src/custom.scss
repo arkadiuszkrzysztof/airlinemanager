@@ -150,6 +150,21 @@ body {
   height: 100%;
 }
 
+.mh-600 {
+  max-height: 600px;
+  height: 100%;
+}
+
+.mh-700 {
+  max-height: 700px;
+  height: 100%;
+}
+
+.mh-800 {
+  max-height: 800px;
+  height: 100%;
+}
+
 .rotate-0 {
   transform: rotate(0deg);
   transition: all 0.3s ease-in-out;
@@ -183,6 +198,10 @@ body {
 .pulse-animation {
   animation: fadeInOut 2s linear 1 forwards;
   animation-iteration-count: infinite;
+}
+
+.plane-icon {
+  border: none;
 }
 
 @keyframes fadeInOut {

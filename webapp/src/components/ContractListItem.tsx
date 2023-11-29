@@ -78,20 +78,22 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
             {contractOptions.map((option: ContractOption) => (
               <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'} hover-bg-grey-light`}>
                 <Col xs={2}>
+                  <span className='d-flex flex-row align-items-center'>
+                    {option.available &&
+                      <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
+                        <CheckSquare size={12} />
+                      </span>
+                    }
                   <OverlayTrigger
                       placement="bottom"
                       overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
                   >
-                    <span className='d-flex flex-row align-items-center cursor-help'>
-                      {option.available &&
-                        <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
-                          <CheckSquare size={12} />
-                        </span>
-                      }
+                    <span className='cursor-help'>
                       {option.asset.plane.typeName}
                       <small className={`ps-1 fs-7 fw-bold text-${option.asset.ownership === 'owned' ? 'dark' : 'light'}`}>{option.asset.ownership.toUpperCase()}</small>
                     </span>
                   </OverlayTrigger>
+                  </span>
                 </Col>
                 <Col xs={2} className='text-end'>
                   <OverlayTrigger

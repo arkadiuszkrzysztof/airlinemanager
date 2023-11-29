@@ -1,3 +1,6 @@
+import { type Schedule } from '../ScheduleController'
+import { Clock } from './Clock'
+
 export interface Coordinates {
   latitude: number
   longitude: number
@@ -56,5 +59,46 @@ export const GreatCircle = {
     midpoints.push(pointB)
 
     return midpoints
+  },
+  toRadians (degrees: number): number {
+    return degrees * (Math.PI / 180)
+  },
+  calculateAngleWithXAxis (pointA: Coordinates, pointB: Coordinates): number {
+    const lat1 = this.toRadians(pointA.latitude)
+    const lon1 = this.toRadians(pointA.longitude)
+    const lat2 = this.toRadians(pointB.latitude)
+    const lon2 = this.toRadians(pointB.longitude)
+
+    const y = Math.sin(lon2 - lon1) * Math.cos(lat2)
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1)
+
+    const angle = Math.atan2(y, x)
+    const azimuth = (angle >= 0 ? angle : (2 * Math.PI + angle)) * (180 / Math.PI)
+
+    return azimuth
+  },
+  getCurrentPoint (schedule: Schedule): { coordinates: Coordinates, angle: number } {
+    const points = this.getPathPoints(schedule.contract.hub.coordinates, schedule.contract.destination.coordinates)
+    const startTime = Clock.getTimeAt(schedule.start)
+
+    const progress = Math.abs(Clock.getInstance().playtime - startTime) / schedule.option.totalTime
+
+    if (progress < 0.5) {
+      const index = Math.min(Math.floor(progress * 2 * points.length), points.length - 1)
+      const indexNext = Math.min(index + 1, points.length - 1)
+
+      return {
+        coordinates: points[index],
+        angle: this.calculateAngleWithXAxis(points[index], points[indexNext])
+      }
+    } else {
+      const index = Math.min(Math.floor((progress - 0.5) * 2 * points.length), points.length - 1)
+      const indexNext = Math.min(index + 1, points.length - 1)
+
+      return {
+        coordinates: points[Math.max(points.length - 1 - index, 0)],
+        angle: this.calculateAngleWithXAxis(points[Math.max(points.length - 1 - index, 0)], points[Math.max(points.length - 1 - indexNext)])
+      }
+    }
   }
 }

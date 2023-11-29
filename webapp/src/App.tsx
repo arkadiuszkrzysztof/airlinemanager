@@ -8,6 +8,7 @@ import { GameController } from './controllers/GameController'
 import Layout from './Layout'
 import Operations from './tabs/Operations'
 import Dashboard from './tabs/Dashboard'
+import MapWidget from './components/widgets/MapWidget'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -44,8 +45,10 @@ const App: React.FC = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout Controllers={Controllers} />}>
-          <Route path="/dashboard" element={<Dashboard contracts={contracts} Controllers={Controllers} />} />
+          <Route path="/dashboard" element={<Dashboard Controllers={Controllers} />} />
           <Route path="/operations" element={<Operations assets={assets} market={market} contracts={contracts} Controllers={Controllers} />} />
+          <Route path="/mission" element={<div>mission</div>} />
+          <Route path="/map" element={<MapWidget Controllers={Controllers} />} />
         </Route>
       </Routes>
     </BrowserRouter>

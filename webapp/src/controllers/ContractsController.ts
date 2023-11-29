@@ -69,6 +69,10 @@ export class ContractsController {
     return ContractsController.instance
   }
 
+  public getAirports (): Airport[] {
+    return this.airports
+  }
+
   private generateContracts (): Contract[] {
     const contracts: Contract[] = []
     const connections: string[] = []
@@ -86,7 +90,7 @@ export class ContractsController {
       const id = `${airport1.IATACode}${airport2.IATACode}-${getRandomCharacters(4, true)}`
       const distance = calculateAirportsDistance(airport1, airport2)
       const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
-      const departureTime = `${Math.floor(Math.random() * 18 + 5).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
+      const departureTime = `${Math.floor(Math.random() * 20 + 2).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
       const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
       const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)

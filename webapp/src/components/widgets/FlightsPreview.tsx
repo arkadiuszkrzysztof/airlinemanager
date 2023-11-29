@@ -95,7 +95,6 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
                               : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
                             : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
                           {schedule.contract.destination.IATACode}
-                          <div className='text-primary ms-2'>{`${schedule.option.asset.plane.typeName} (${schedule.option.asset.plane.registration})`}</div>
                         </div>
                       </OverlayTrigger>
                   )}
