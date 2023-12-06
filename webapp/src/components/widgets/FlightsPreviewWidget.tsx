@@ -14,7 +14,7 @@ interface Props {
   fullWidth?: boolean
 }
 
-const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const FlightsPreviewWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
   const getSchedulesForToday = (): Schedule[][] => {
     const schedulesToAssign = Controllers.Schedule.getTodaySchedules().sort((a, b) => (a.start < b.start ? -1 : 1))
 
@@ -135,4 +135,4 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
   )
 }
 
-export default FlightsPreview
+export default FlightsPreviewWidget

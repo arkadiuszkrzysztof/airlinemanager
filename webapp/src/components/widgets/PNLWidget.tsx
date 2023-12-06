@@ -44,7 +44,7 @@ const preparePNLData = (Controllers: Controllers): PNLChartData => {
     .slice(-6)
     .forEach(([monthPlaytime, record]: [string, PNLRecord]) => {
       const totalcosts = record.costs.cancellationFee + record.costs.fuel + record.costs.maintenance + record.costs.downpayment + record.costs.landing + record.costs.leasing + record.costs.passenger + record.costs.purchasing
-      const totalRevenue = record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling
+      const totalRevenue = record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + (record.revenue.missions ?? 0)
 
       result.data.push({
         month: (Controllers.Clock.playtime - parseInt(monthPlaytime) < Timeframes.MONTH ? 'Current Month' : `Last -${Math.floor((Controllers.Clock.playtime - parseInt(monthPlaytime)) / Timeframes.MONTH)}`),
@@ -123,7 +123,7 @@ const formatNetProfit = (value: string, profit: number): ReactElement => {
   }
 }
 
-const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const PNLWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
   const [pnlData] = React.useState<PNLChartData>(preparePNLData(Controllers))
 
   return (
@@ -141,7 +141,7 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
             {pnlData.data.map((record) => (
               <Col key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
                 <Row className='align-items-end gx-2' style={{ height: '275px' }}>
-                  <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
+                  <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
                       <div className='pnlBar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
                       {Object.keys(record.costs).filter((key) => key !== 'total').map((key, index) => {
@@ -155,7 +155,7 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
                       })}
                     </Col>
                   </OverlayTrigger>
-                  <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={record.revenue} showTotal /></Tooltip>}>
+                  <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={record.revenue} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-revenues`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
                     <div className='pnlBar fw-bold small text-center'>{formatScale(record.revenue.total, true)}</div>
                       {Object.keys(record.revenue).filter((key) => key !== 'total').map((key, index) => {
@@ -195,4 +195,4 @@ const FlightsPreview: React.FC<Props> = ({ Controllers, fullWidth = false }): Re
   )
 }
 
-export default FlightsPreview
+export default PNLWidget

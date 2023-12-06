@@ -1,7 +1,7 @@
 import React from 'react'
-import { type Plane } from '../models/Plane'
+import { type Plane } from '../../../models/Plane'
 import { Row, Col, Button } from 'react-bootstrap'
-import { GameController } from '../controllers/GameController'
+import { GameController } from '../../../controllers/GameController'
 import { CalendarWeekFill, CashStack, PersonFill, PinMapFill, StarFill, TagFill } from 'react-bootstrap-icons'
 
 interface Props {

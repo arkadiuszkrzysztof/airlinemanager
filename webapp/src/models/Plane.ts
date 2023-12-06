@@ -43,16 +43,16 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
 export const PlanesData: PlaneTuple[] = [
   ['Airbus', 'A320', { economy: 164, business: 0, first: 0 }, 78, 6100, 27000, 829, 3125, { purchase: 98000000, lease: 2200, leaseDuration: 0, leaseCancellationFee: 390000 * 3, leaseDownpayment: 390000, maintenance: 800 }, '', 0, 2],
   ['Boeing', '787', { economy: 266, business: 24, first: 0 }, 252, 14140, 138700, 903, 5400, { purchase: 239000000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 }, '', 0, 3],
-  ['Embraer', 'E170', { economy: 72, business: 0, first: 0 }, 39, 3900, 9300, 797, 1750, { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 }, '', 0, 1]
+  ['Embraer', 'E170', { economy: 72, business: 0, first: 0 }, 39, 3900, 9300, 797, 1750, { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 }, '', 0, 1],
+  ['Airbus', 'A350', { economy: 315, business: 54, first: 0 }, 322, 16100, 158800, 903, 7250, { purchase: 366000000, lease: 7000, leaseDuration: 0, leaseCancellationFee: 1250000 * 3, leaseDownpayment: 1250000, maintenance: 2500 }, '', 0, 4],
+  ['Boeing', '777', { economy: 304, business: 42, first: 8 }, 299, 11100, 171000, 892, 7690, { purchase: 375000000, lease: 7100, leaseDuration: 0, leaseCancellationFee: 1300000 * 3, leaseDownpayment: 1300000, maintenance: 2500 }, '', 0, 4]
   // ['Airbus', 'A330', { economy: 277, business: 0, first: 0 }, 242000, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Airbus', 'A340', { economy: 295, business: 0, first: 0 }, 276500, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Airbus', 'A350', { economy: 366, business: 0, first: 0 }, 268000, 15000, 138000, 900, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Airbus', 'A380', { economy: 555, business: 0, first: 0 }, 575000, 15200, 320000, 903, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Boeing', '737', { economy: 189, business: 0, first: 0 }, 79000, 5600, 26000, 830, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Boeing', '747', { economy: 467, business: 0, first: 0 }, 396890, 14815, 216840, 920, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Boeing', '757', { economy: 239, business: 0, first: 0 }, 115680, 7222, 43000, 850, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Boeing', '767', { economy: 375, business: 0, first: 0 }, 186880, 11000, 91000, 850, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Boeing', '777', { economy: 451, business: 0, first: 0 }, 297560, 11000, 181280, 905, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Bombardier', 'CRJ', { economy: 50, business: 0, first: 0 }, 36287, 3710, 11000, 780, 1000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Bombardier', 'CSeries', { economy: 133, business: 0, first: 0 }, 60000, 5900, 19000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
   // ['Embraer', 'E-Jet', { economy: 124, business: 0, first: 0 }, 50000, 3334, 15000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],

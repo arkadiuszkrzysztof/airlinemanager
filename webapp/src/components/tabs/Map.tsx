@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { type Controllers } from '../controllers/GameController'
-import MapWidget from '../components/widgets/MapWidget'
+import { type Controllers } from '../../controllers/GameController'
+import MapWidget from '../widgets/MapWidget'
 
 interface Props {
   Controllers: Controllers

@@ -1,10 +1,11 @@
-import { Autobind } from '../decorators/Autobind'
+import { Autobind } from './helpers/Autobind'
 import { type Contract } from '../models/Contract'
 import { Clock, Timeframes, type DaysOfWeek } from './helpers/Clock'
 import { ContractsController, type ContractOption } from './ContractsController'
 import { HangarController, type HangarAsset } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { AirlineController, EventOrigin, ReputationType } from './AirlineController'
+import { AchievementType, MissionController } from './MissionController'
 
 export interface Schedule {
   day: DaysOfWeek
@@ -42,6 +43,14 @@ export class ScheduleController {
 
   public getActiveSchedulesForAsset (asset: HangarAsset): Schedule[] {
     return this.activeSchedules.filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
+  }
+
+  public getActiveSchedulesForDestination (destinationCode: string): Schedule[] {
+    return this.activeSchedules.filter(schedule => schedule.contract.destination.IATACode === destinationCode)
+  }
+
+  public getActiveSchedulesForPlaneType (planeType: string): Schedule[] {
+    return this.activeSchedules.filter(schedule => schedule.option.asset.plane.typeName === planeType)
   }
 
   public removeActiveSchedulesForAsset (asset: HangarAsset): void {
@@ -101,6 +110,8 @@ export class ScheduleController {
     AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${schedule.contract.dayOfWeek}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
 
     AirlineController.getInstance().gainReputation(contract.id, ReputationType.CONNECTION, contract.reputation)
+
+    MissionController.getInstance().notifyAchievements(AchievementType.REPUTATION)
   }
 
   public expireContract (schedule: Schedule): void {
@@ -140,6 +151,8 @@ export class ScheduleController {
       AirlineController.getInstance().settleFlight(event.schedule)
       console.log(`Event: Flight ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} completed`)
       this.scheduleEvents = this.scheduleEvents.filter(e => e.schedule.contract.id !== event.schedule.contract.id)
+
+      MissionController.getInstance().notifyMissions(event.schedule)
 
       LocalStorage.setScheduleEvents(this.scheduleEvents)
 

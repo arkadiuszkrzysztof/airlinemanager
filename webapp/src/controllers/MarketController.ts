@@ -1,4 +1,4 @@
-import { Autobind } from '../decorators/Autobind'
+import { Autobind } from './helpers/Autobind'
 import { Plane, PlanesData } from '../models/Plane'
 import { AirlineController } from './AirlineController'
 import { Clock, Timeframes } from './helpers/Clock'

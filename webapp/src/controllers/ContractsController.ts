@@ -1,4 +1,4 @@
-import { Autobind } from '../decorators/Autobind'
+import { Autobind } from './helpers/Autobind'
 import { Airport, AirportsData, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
 import { Timeframes, DaysOfWeek, Clock } from './helpers/Clock'
@@ -23,6 +23,7 @@ export interface RevenuesBreakdown {
   business: number
   first: number
   selling?: number
+  missions?: number
   total: number
 }
 
@@ -35,7 +36,12 @@ export interface ContractOption {
   flightTime: number
   boardingTime: number
   totalTime: number
-  numberOfPassengers: number
+  numberOfPassengers: {
+    economy: number
+    business: number
+    first: number
+    total: number
+  }
   available: boolean
 }
 
@@ -210,7 +216,12 @@ export class ContractsController {
           flightTime,
           boardingTime,
           totalTime,
-          numberOfPassengers: economy + business + first,
+          numberOfPassengers: {
+            economy,
+            business,
+            first,
+            total: economy + business + first
+          },
           available: true
         }
 

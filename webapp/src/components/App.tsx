@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { type Plane } from './models/Plane'
-import { type Contract } from './models/Contract'
-import { type HangarAsset } from './controllers/HangarController'
-import { GameController } from './controllers/GameController'
+import { type Plane } from '../models/Plane'
+import { type Contract } from '../models/Contract'
+import { type HangarAsset } from '../controllers/HangarController'
+import { GameController } from '../controllers/GameController'
 import Layout from './Layout'
 import Operations from './tabs/Operations'
 import Dashboard from './tabs/Dashboard'
-import MapWidget from './components/widgets/MapWidget'
+import Map from './tabs/Map'
+import Missions from './tabs/Missions'
 
 const App: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -47,8 +48,8 @@ const App: React.FC = () => {
         <Route path="/" element={<Layout Controllers={Controllers} />}>
           <Route path="/dashboard" element={<Dashboard Controllers={Controllers} />} />
           <Route path="/operations" element={<Operations assets={assets} market={market} contracts={contracts} Controllers={Controllers} />} />
-          <Route path="/mission" element={<div>mission</div>} />
-          <Route path="/map" element={<MapWidget Controllers={Controllers} />} />
+          <Route path="/missions" element={<Missions Controllers={Controllers} />} />
+          <Route path="/map" element={<Map Controllers={Controllers} />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -5,6 +5,7 @@ import { LocalStorage } from './helpers/LocalStorage'
 import { type Schedule } from './ScheduleController'
 import { formatCashValue } from './helpers/Helpers'
 import { Tier, type TierRecord, Tiers } from './helpers/Tiers'
+import { type Achievement, AchievementType, MissionController, type Mission } from './MissionController'
 
 export interface PNLRecord {
   statistics: {
@@ -17,6 +18,7 @@ export interface PNLRecord {
     business: number
     first: number
     selling: number
+    missions: number
   }
   costs: {
     fuel: number
@@ -32,7 +34,7 @@ export interface PNLRecord {
 
 export type EventLogRecords = Array<{ playtime: number, origin: EventOrigin, message: string }>
 
-export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Contract', SCHEDULE = 'Schedule', HANGAR = 'Hangar' }
+export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Contract', SCHEDULE = 'Schedule', HANGAR = 'Hangar', MISSIONS = 'Missions' }
 
 export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection' }
 export class AirlineController {
@@ -63,7 +65,7 @@ export class AirlineController {
   public getTier (): { name: Tier, record: TierRecord } {
     let currentTier: { name: Tier, record: TierRecord }
 
-    if (this.reputation.totalCapped >= 75) {
+    if (this.reputation.totalCapped >= 90) {
       currentTier = { name: Tier.PLATINUM, record: Tiers[Tier.PLATINUM] }
     } else if (this.reputation.totalCapped >= 50) {
       currentTier = { name: Tier.GOLD, record: Tiers[Tier.GOLD] }
@@ -79,7 +81,7 @@ export class AirlineController {
   public getNextTier (): { name: Tier, record: TierRecord } | undefined {
     let nextTier: { name: Tier, record: TierRecord } | undefined
 
-    if (this.reputation.totalCapped >= 75) {
+    if (this.reputation.totalCapped >= 90) {
       nextTier = undefined
     } else if (this.reputation.totalCapped >= 50) {
       nextTier = { name: Tier.PLATINUM, record: Tiers[Tier.PLATINUM] }
@@ -149,6 +151,9 @@ export class AirlineController {
 
     plane.acquisitionTime = Clock.getInstance().timeThisDayStart
     HangarController.getInstance().addAsset({ plane, ownership: 'owned' })
+
+    MissionController.getInstance().notifyAchievements(AchievementType.FLEET_SIZE)
+    MissionController.getInstance().notifyAchievements(AchievementType.REPUTATION)
   }
 
   public sellPlane (asset: HangarAsset): void {
@@ -167,6 +172,9 @@ export class AirlineController {
     plane.acquisitionTime = Clock.getInstance().timeThisDayStart
     plane.leaseExpirationTime = plane.acquisitionTime + plane.pricing.leaseDuration
     HangarController.getInstance().addAsset({ plane, ownership: 'leased' })
+
+    MissionController.getInstance().notifyAchievements(AchievementType.FLEET_SIZE)
+    MissionController.getInstance().notifyAchievements(AchievementType.REPUTATION)
   }
 
   public cancelLease (asset: HangarAsset): void {
@@ -192,7 +200,7 @@ export class AirlineController {
     const timeThisMonthStart = Clock.getInstance().timeThisMonthStart
 
     this._pnl[timeThisMonthStart] = this._pnl[timeThisMonthStart] ??
-      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0 } }
+      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0, missions: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0 } }
 
     return this._pnl[timeThisMonthStart]
   }
@@ -261,7 +269,7 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfFlights += 1
-    thisMonthPNL.statistics.totalPassengers += schedule.option.numberOfPassengers
+    thisMonthPNL.statistics.totalPassengers += schedule.option.numberOfPassengers.total
 
     thisMonthPNL.revenue.economy += schedule.option.revenue.economy
     thisMonthPNL.revenue.business += schedule.option.revenue.business
@@ -276,5 +284,38 @@ export class AirlineController {
     LocalStorage.setPNL(this._pnl)
 
     this.gainCash(schedule.option.profit)
+
+    MissionController.getInstance().notifyAchievements(AchievementType.PROFIT)
+    MissionController.getInstance().notifyAchievements(AchievementType.TOTAL_PASSENGERS)
+  }
+
+  public settleAchievement (achievement: Achievement): void {
+    const thisMonthPNL = this.getThisMonthPNLRecord()
+    thisMonthPNL.revenue.missions += achievement.reward
+    LocalStorage.setPNL(this._pnl)
+
+    this.logEvent(EventOrigin.MISSIONS, `Earned achievement "${achievement.label}" with ${formatCashValue(achievement.reward)} reward`)
+
+    this.gainCash(achievement.reward)
+  }
+
+  public settleMission (mission: Mission): void {
+    const thisMonthPNL = this.getThisMonthPNLRecord()
+    thisMonthPNL.revenue.missions += mission.reward
+    LocalStorage.setPNL(this._pnl)
+
+    this.logEvent(EventOrigin.MISSIONS, `Completed mission "${mission.label}" with ${formatCashValue(mission.reward)} reward`)
+
+    this.gainCash(mission.reward)
+  }
+
+  public getTotalProfit (): number {
+    // remove isNaN check when all records have been migrated
+    return Object.values(this._pnl).reduce((sum, record) => sum + record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + (isNaN(record.revenue.missions) ? 0 : record.revenue.missions), 0)
+  }
+
+  public getTotalPassengers (): number {
+    // remove isNaN check when all records have been migrated
+    return Object.values(this._pnl).reduce((sum, record) => sum + (isNaN(record.statistics.totalPassengers) ? 0 : record.statistics.totalPassengers), 0)
   }
 }

@@ -4,6 +4,7 @@ import { HangarController } from './HangarController'
 import { MarketController } from './MarketController'
 import { ContractsController } from './ContractsController'
 import { ScheduleController } from './ScheduleController'
+import { MissionController } from './MissionController'
 
 export interface Controllers {
   Game: GameController
@@ -12,6 +13,7 @@ export interface Controllers {
   Hangar: HangarController
   Contracts: ContractsController
   Schedule: ScheduleController
+  Mission: MissionController
   Clock: Clock
 }
 export class GameController {
@@ -20,6 +22,7 @@ export class GameController {
   private readonly hangarController: HangarController
   private readonly contractsController: ContractsController
   private readonly scheduleController: ScheduleController
+  private readonly missionController: MissionController
   private readonly clock: Clock
 
   private static instance: GameController
@@ -30,6 +33,7 @@ export class GameController {
     this.hangarController = HangarController.getInstance()
     this.contractsController = ContractsController.getInstance()
     this.scheduleController = ScheduleController.getInstance()
+    this.missionController = MissionController.getInstance()
     this.clock = Clock.getInstance()
   }
 
@@ -45,6 +49,7 @@ export class GameController {
       Hangar: this.instance.hangarController,
       Contracts: this.instance.contractsController,
       Schedule: this.instance.scheduleController,
+      Mission: this.instance.missionController,
       Clock: this.instance.clock
     }
   }

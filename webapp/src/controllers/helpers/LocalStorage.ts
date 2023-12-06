@@ -2,6 +2,7 @@ import { Contract, convertToContractTuple } from '../../models/Contract'
 import { Plane, convertToPlaneTuple } from '../../models/Plane'
 import { type ReputationType, type EventOrigin, type PNLRecord } from '../AirlineController'
 import { type HangarAsset } from '../HangarController'
+import { type Achievement, type Mission } from '../MissionController'
 import { type ScheduleEvent, type Schedule } from '../ScheduleController'
 
 enum Keys {
@@ -21,7 +22,10 @@ enum Keys {
   SCHEDULE_EVENTS = 'scheduleEvents',
   LAST_SCHEDULE_EVENTS_REGISTRATION = 'lastScheduleEventsRegistration',
   PNL_RECORDS = 'pnlRecords',
-  EVENT_LOG = 'eventLog'
+  EVENT_LOG = 'eventLog',
+  ACHIEVEMENTS_COMPLETED = 'achievementsCompleted',
+  MISSIONS_COMPLETED = 'missionsCompleted',
+  MISSIONS_PROGRESS = 'missionsProgress'
 }
 
 export const LocalStorage = {
@@ -165,5 +169,26 @@ export const LocalStorage = {
   },
   setEventLog (eventLog: Array<{ playtime: number, origin: EventOrigin, message: string }>): void {
     localStorage.setItem(Keys.EVENT_LOG, JSON.stringify(eventLog))
+  },
+  getAchievementsCompleted (): Array<{ completedAt: number, achievement: Achievement }> {
+    const achievementsCompleted = localStorage.getItem(Keys.ACHIEVEMENTS_COMPLETED)
+    return (achievementsCompleted !== null) ? JSON.parse(achievementsCompleted) : []
+  },
+  setAchievementsCompleted (achievementsCompleted: Array<{ completedAt: number, achievement: Achievement }>): void {
+    localStorage.setItem(Keys.ACHIEVEMENTS_COMPLETED, JSON.stringify(achievementsCompleted))
+  },
+  getMissionsCompleted (): Array<{ completedAt: number, mission: Mission }> {
+    const missionsCompleted = localStorage.getItem(Keys.MISSIONS_COMPLETED)
+    return (missionsCompleted !== null) ? JSON.parse(missionsCompleted) : []
+  },
+  setMissionsCompleted (missionsCompleted: Array<{ completedAt: number, mission: Mission }>): void {
+    localStorage.setItem(Keys.MISSIONS_COMPLETED, JSON.stringify(missionsCompleted))
+  },
+  getMissionsProgress (): Record<string, number> {
+    const missionsProgress = localStorage.getItem(Keys.MISSIONS_PROGRESS)
+    return (missionsProgress !== null) ? JSON.parse(missionsProgress) : {}
+  },
+  setMissionsProgress (missionsProgress: Record<string, number>): void {
+    localStorage.setItem(Keys.MISSIONS_PROGRESS, JSON.stringify(missionsProgress))
   }
 }

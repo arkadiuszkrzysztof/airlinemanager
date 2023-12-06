@@ -4,14 +4,14 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Container, Row, Col, Badge, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { AirplaneFill, CalendarWeek, CashStack, PauseFill, PlayFill, StarFill } from 'react-bootstrap-icons'
 
-import { type Controllers } from './controllers/GameController'
-import TierDetailsTooltip from './components/tooltips/TierDetailsTooltip'
-import ReputationBreakdownTooltip from './components/tooltips/ReputationBreakdownTooltip'
+import { type Controllers } from '../controllers/GameController'
+import TierDetailsTooltip from './tooltips/TierDetailsTooltip'
+import ReputationBreakdownTooltip from './tooltips/ReputationBreakdownTooltip'
 
 enum Pages {
   DASHBOARD = 'dashboard',
   OPERATIONS = 'operations',
-  MISSION = 'mission',
+  MISSIONS = 'missions',
   MAP = 'map'
 }
 
@@ -82,7 +82,7 @@ const App: React.FC<Props> = ({ Controllers }) => {
         <Col xs={10} className='text-center'>
           <Link to='/dashboard' className={`text-decoration-none text-white me-4 ${getPageClassName(Pages.DASHBOARD)}`}>Dashboard</Link>
           <Link to='/operations' className={`text-decoration-none text-white me-4 ${getPageClassName(Pages.OPERATIONS)}`}>Operations</Link>
-          <Link to='/mission' className={`text-decoration-none text-white me-4 ${getPageClassName(Pages.MISSION)}`}>Mission</Link>
+          <Link to='/missions' className={`text-decoration-none text-white me-4 ${getPageClassName(Pages.MISSIONS)}`}>Missions</Link>
           <Link to='/map' className={`text-decoration-none text-white ${getPageClassName(Pages.MAP)}`}>Map</Link>
         </Col>
       </Row>

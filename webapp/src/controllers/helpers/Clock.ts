@@ -95,11 +95,11 @@ export class Clock {
   public static getFormattedTimeUntil (time: number): string {
     const { HOUR, DAY, MONTH, YEAR } = Timeframes
 
-    const years = Math.floor((time - this.instance.playtime) / YEAR)
-    const months = Math.floor((time - this.instance.playtime) / MONTH) % 12
-    const days = Math.floor((time - this.instance.playtime) / DAY) % 28
-    const hours = Math.floor((time - this.instance.playtime) / HOUR) % 24
-    const minutes = (time - this.instance.playtime) % HOUR
+    const years = Math.floor(Math.abs(time - this.instance.playtime) / YEAR)
+    const months = Math.floor(Math.abs(time - this.instance.playtime) / MONTH) % 12
+    const days = Math.floor(Math.abs(time - this.instance.playtime) / DAY) % 28
+    const hours = Math.floor(Math.abs(time - this.instance.playtime) / HOUR) % 24
+    const minutes = Math.abs(time - this.instance.playtime) % HOUR
 
     if (years > 0) {
       return years + (years !== 1 ? ' years ' : ' year ') + months + (months !== 1 ? ' months' : ' month')

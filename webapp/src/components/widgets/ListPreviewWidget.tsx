@@ -9,9 +9,11 @@ interface ListPreviewProps<U> {
   subheader?: string
   Icon?: React.FC<IconProps>
   fullWidth?: boolean
+  fullHeight?: boolean
+  wrapItems?: boolean
 }
 
-const ListPreview = <U,>({ Component, items, header, Icon, subheader, fullWidth = false }: ListPreviewProps<U>): ReactElement => {
+const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, wrapItems = false }: ListPreviewProps<U>): ReactElement => {
   return (
     <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
@@ -22,7 +24,7 @@ const ListPreview = <U,>({ Component, items, header, Icon, subheader, fullWidth 
           </div>
           <span className='text-primary fs-6'>{subheader}</span>
         </Card.Header>
-        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2'>
+        <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'mh-800' : 'mh-400'} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`}>
             {items.map((item, index) => (
               <Component key={`list-preview-${index}`} item={item} />
             ))}
@@ -33,4 +35,4 @@ const ListPreview = <U,>({ Component, items, header, Icon, subheader, fullWidth 
   )
 }
 
-export default ListPreview
+export default ListPreviewWidget
