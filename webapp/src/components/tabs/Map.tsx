@@ -1,18 +1,13 @@
 import React from 'react'
 
-import { type Controllers } from '../../controllers/GameController'
 import MapWidget from '../widgets/MapWidget'
 
-interface Props {
-  Controllers: Controllers
-}
-
-const Dashboard: React.FC<Props> = ({ Controllers }) => {
+const Map: React.FC = () => {
   return (
     <>
-      <MapWidget Controllers={Controllers} fullWidth />
+      <MapWidget fullWidth />
     </>
   )
 }
 
-export default Dashboard
+export default Map

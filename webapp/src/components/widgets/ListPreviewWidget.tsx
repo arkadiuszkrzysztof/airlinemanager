@@ -15,7 +15,7 @@ interface ListPreviewProps<U> {
 
 const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, wrapItems = false }: ListPreviewProps<U>): ReactElement => {
   return (
-    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
+    <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
@@ -24,7 +24,7 @@ const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, full
           </div>
           <span className='text-primary fs-6'>{subheader}</span>
         </Card.Header>
-        <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'mh-800' : 'mh-400'} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`}>
+        <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'mh-800' : 'mh-350'} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`}>
             {items.map((item, index) => (
               <Component key={`list-preview-${index}`} item={item} />
             ))}

@@ -121,9 +121,9 @@ export class Clock {
     return [days, hours]
   }
 
-  public static getFormattedHourlyTime (time: number): string {
+  public static getFormattedHourlyTime (time: number, limitTo24h: boolean = false): string {
     const { HOUR } = Timeframes
-    const hours = Math.floor(time / HOUR)
+    const hours = (limitTo24h ? Math.floor(time / HOUR) % 24 : Math.floor(time / HOUR))
     const minutes = time % HOUR
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`

@@ -4,17 +4,18 @@ import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 import TimetableHoursCol from '../fragments/TimetableHours'
 import TimetableGrid from '../fragments/TimetableGrid'
 import { type Schedule } from '../../controllers/ScheduleController'
-import { type Controllers } from '../../controllers/GameController'
+import { GameController } from '../../controllers/GameController'
 import { Clock, Timeframes } from '../../controllers/helpers/Clock'
 import { AirplaneFill, ArrowLeftRight, CalendarWeek, CaretDownFill, CaretUpFill } from 'react-bootstrap-icons'
 import ScheduleDetailsTooltip from '../tooltips/ScheduleDetailsTooltip'
 
 interface Props {
-  Controllers: Controllers
   fullWidth?: boolean
 }
 
-const FlightsPreviewWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const FlightsPreviewWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+  const Controllers = GameController.getInstance()
+
   const getSchedulesForToday = (): Schedule[][] => {
     const schedulesToAssign = Controllers.Schedule.getTodaySchedules().sort((a, b) => (a.start < b.start ? -1 : 1))
 
@@ -82,7 +83,7 @@ const FlightsPreviewWidget: React.FC<Props> = ({ Controllers, fullWidth = false 
   }
 
   return (
-    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
+    <Col xs={12} xl={10} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>

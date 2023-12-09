@@ -139,6 +139,9 @@ export class AirlineController {
   }
 
   get PNL (): Record<number, PNLRecord> {
+    if (Object.keys(this._pnl).length === 0) {
+      this.getThisMonthPNLRecord()
+    }
     return this._pnl
   }
 

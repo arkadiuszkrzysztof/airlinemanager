@@ -1,0 +1,110 @@
+import React, { useState } from 'react'
+import { Badge, Col, Container, Row, Button, Form } from 'react-bootstrap'
+import { AirplaneEnginesFill, type Icon, Icon1CircleFill, Icon2CircleFill, Icon3CircleFill, RCircleFill, TrophyFill, ChevronRight } from 'react-bootstrap-icons'
+import { GameController } from '../controllers/GameController'
+import { useNavigate } from 'react-router-dom'
+
+const ColPath: React.FC<{ Icon: Icon }> = ({ Icon }) => {
+  return (
+    <Col xs={'auto'} className='position-relative p-0'>
+      <div className='icon-container'>
+        <Icon size={40} className='text-white bg-dark' />
+      </div>
+      <div className='icon-container position-absolute z-1' style={{ top: '50%' }}>
+        <AirplaneEnginesFill size={40} className='text-white opacity-25 rotate-180' style={{ left: '12px' }} />
+      </div>
+      <div className='z-0 opacity-25' style={{ marginLeft: '30px', height: '100%', width: '2px', borderLeft: '4px dotted' }}></div>
+    </Col>
+  )
+}
+
+const CreateAirline: React.FC = () => {
+  const [name, setName] = useState('')
+  const navigate = useNavigate()
+
+  const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault()
+    GameController.startGame(name.trim())
+    navigate('/operations')
+  }
+
+  return (
+    <Container fluid className='p-0' id='create-airline'>
+      <Row className='mh-100 vh-100 m-0'>
+        <Col className='d-flex flex-column align-items-center justify-content-center p-4 mh-100 vh-100 position-relative overflow-hidden'>
+          <AirplaneEnginesFill size={360} className='position-absolute opacity-100 text-secondary' style={{ bottom: '-40px', left: '-120px' }} />
+          <h1 className='text-primary fw-bold'>Create New Airline</h1>
+          <Form onSubmit={onSubmitHandler}>
+            <div className='d-flex'>
+              <Form.Control
+                type="text"
+                placeholder='Airline Name'
+                id="name"
+                value={name}
+                onChange={(e) => { setName(e.target.value) }}
+                className='fs-4 text-center rounded-left border-primary'
+                maxLength={20}
+                autoComplete='off' />
+              <Button type="submit" className='rounded-right' disabled={name.trim().length < 3}><ChevronRight size={24} className='text-white' /></Button>
+            </div>
+          </Form>
+          <div className='w-100 d-flex align-items-center justify-content-center py-5'>
+            <div className='border-secondary' style={{ width: '25%', height: '2px', borderTop: '1px solid' }}></div>
+            <span className='fw-bold text-secondary mx-2'>OR</span>
+            <div className='border-secondary' style={{ width: '25%', height: '2px', borderTop: '1px solid' }}></div>
+          </div>
+          <Button className='text-white py-2 px-4' onClick={() => { void GameController.loadDemo() }}><h4 className='fw-bold'>Load Demo Airline</h4></Button>
+        </Col>
+        <Col className='bg-dark text-white p-4 pt-0 position-relative overflow-x-hidden mh-100'>
+          <AirplaneEnginesFill size={360} className='position-absolute opacity-25 rotate-300 z-0' style={{ top: '-40px', right: '-120px' }} />
+          <Row>
+            <Col xs={'auto'} className='position-relative p-0'>
+              <div className='z-0 opacity-25' style={{ marginLeft: '30px', height: '100%', width: '2px', borderLeft: '4px dotted' }}></div>
+            </Col>
+            <Col className='d-flex justify-content-center'>
+              <Badge bg='white' className='m-4 fs-2 text-dark d-flex align-items-center'>
+                <TrophyFill size={24} className='text-badge-gold me-4' />
+                How To Win
+                <TrophyFill size={24} className='text-badge-gold ms-4' />
+              </Badge>
+            </Col>
+          </Row>
+          <Row>
+            <ColPath Icon={Icon1CircleFill} />
+            <Col className='me-5 z-2'>
+              <h2 className='fw-bold'>Get Planes</h2>
+              <p className='fs-6'>Buy or lease planes from the Market. You&apos;ll get new offers each week. Older planes are cheaper, however, they have higher maintenance cost and bring less reputation to the Airline.</p>
+              <img src='/images/create-market.png' alt='Market' className='rounded w-100' style={{ maxWidth: '740px' }} />
+            </Col>
+          </Row>
+          <Row className='mt-4'>
+            <ColPath Icon={Icon2CircleFill} />
+            <Col className='me-5 z-2'>
+              <h2 className='fw-bold'>Sign Contracts</h2>
+              <p className='fs-6'>You&apos;ll sign connections in the Contracts view that refreshes daily. Some flights are simply not profitable, though! The longer the route, the more reputation you gain. Each plane can fly from only one hub.</p>
+              <img src='/images/create-contracts.png' alt='Contracts' className='rounded w-100' style={{ maxWidth: '740px' }} />
+            </Col>
+          </Row>
+          <Row className='mt-4'>
+            <ColPath Icon={Icon3CircleFill} />
+            <Col className='me-5 z-2'>
+              <h2 className='fw-bold'>Complete Missions</h2>
+              <p className='fs-6'>Visit Missions tab to check your next targets and praise your achievements. Can you get them all?</p>
+              <img src='/images/create-missions.png' alt='Missions' className='rounded border w-100' style={{ maxWidth: '740px' }} />
+            </Col>
+          </Row>
+          <Row className='mt-4'>
+            <ColPath Icon={RCircleFill} />
+            <Col className='me-5 z-2'>
+              <h2 className='fw-bold'>Repeat and Grow Your Airline!</h2>
+              <p className='fs-6'>Be aware - contracts expire and leases end, too! Make sure your planes have good utilization. Can you reach the Platinum Airline status?</p>
+              <img src='/images/create-map.png' alt='Destinations Map' className='rounded border w-100' />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </Container>
+  )
+}
+
+export default CreateAirline

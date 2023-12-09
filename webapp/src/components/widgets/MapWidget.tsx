@@ -1,7 +1,7 @@
 import React, { type ReactElement } from 'react'
 import { Card, Col, Form, Row } from 'react-bootstrap'
 
-import { type Controllers } from '../../controllers/GameController'
+import { GameController } from '../../controllers/GameController'
 import { Map } from 'react-bootstrap-icons'
 import { MapContainer, Marker, Polyline, TileLayer } from 'react-leaflet'
 import { GreatCircle } from '../../controllers/helpers/GreatCircle'
@@ -10,11 +10,12 @@ import { type Airport } from '../../models/Airport'
 import { Clock } from '../../controllers/helpers/Clock'
 
 interface Props {
-  Controllers: Controllers
   fullWidth?: boolean
 }
 
-const MapWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+  const Controllers = GameController.getInstance()
+
   const [showAirports, setShowAirports] = React.useState<boolean>(true)
   const [showConnections, setShowConnections] = React.useState<boolean>(false)
   const [showInAir, setShowInAir] = React.useState<boolean>(true)

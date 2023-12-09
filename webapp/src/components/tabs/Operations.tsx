@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { CartCheck, FileEarmarkText, HouseDoor } from 'react-bootstrap-icons'
 import { type Plane } from '../../models/Plane'
@@ -8,16 +8,25 @@ import MarketListItem from '../widgets/listitems/MarketListItem'
 import ContractListItem from '../widgets/listitems/ContractListItem'
 import HangarListItem from '../widgets/listitems/HangarListItem'
 import { type HangarAsset } from '../../controllers/HangarController'
-import { type Controllers } from '../../controllers/GameController'
+import { GameController } from '../../controllers/GameController'
 
-interface Props {
-  assets: HangarAsset[]
-  market: Plane[]
-  contracts: Contract[]
-  Controllers: Controllers
-}
+const Operations: React.FC = () => {
+  const Controllers = GameController.getInstance()
 
-const Operations: React.FC<Props> = ({ assets, market, contracts, Controllers }) => {
+  const [assets, setAssets] = React.useState<HangarAsset[]>([])
+  const [market, setMarket] = React.useState<Plane[]>([])
+  const [contracts, setContracts] = React.useState<Contract[]>([])
+
+  useEffect(() => {
+    setAssets(Controllers.Hangar.getAllAssets())
+    setMarket(Controllers.Market.getAvailablePlanes(Controllers.Clock.playtime))
+    setContracts(Controllers.Contracts.getAvailableContracts(Controllers.Clock.playtime))
+  }, [])
+
+  Controllers.Hangar.registerListener('hangarListPreview', setAssets)
+  Controllers.Market.registerListener('marketListPreview', setMarket)
+  Controllers.Contracts.registerListener('contractsListPreview', setContracts)
+
   return (
     <>
       <ListPreviewWidget<Plane>

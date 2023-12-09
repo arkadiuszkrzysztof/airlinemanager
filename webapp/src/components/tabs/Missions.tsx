@@ -2,16 +2,14 @@ import React from 'react'
 
 import { Award, Trophy } from 'react-bootstrap-icons'
 import ListPreviewWidget from '../widgets/ListPreviewWidget'
-import { type Controllers } from '../../controllers/GameController'
+import { GameController } from '../../controllers/GameController'
 import { type Achievement, type Mission } from '../../controllers/MissionController'
 import MissionListItem from '../widgets/listitems/MissionListItem'
 import AchievementListItem from '../widgets/listitems/AchievementListItem'
 
-interface Props {
-  Controllers: Controllers
-}
+const Missions: React.FC = () => {
+  const Controllers = GameController.getInstance()
 
-const Missions: React.FC<Props> = ({ Controllers }) => {
   const missionsCount = Controllers.Mission.getMissionsCount()
   const achievementsCount = Controllers.Mission.getAchievementsCount()
 

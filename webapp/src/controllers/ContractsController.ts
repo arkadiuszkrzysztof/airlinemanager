@@ -84,7 +84,7 @@ export class ContractsController {
     const connections: string[] = []
 
     const hubs = HangarController.getInstance().getHubs()
-    const numberOfContractsToGenerate = hubs.size * 2 + Math.floor(Math.random() * 5 + 2)
+    const numberOfContractsToGenerate = hubs.size * 2 + Math.floor(Math.random() * 10 + 5)
     const hubAirports = this.airports.filter(airport => hubs.has(airport.IATACode))
 
     for (; contracts.length < numberOfContractsToGenerate;) {
@@ -260,7 +260,7 @@ export class ContractsController {
   public getAvailableContracts (playtime: number): Contract[] {
     const lastRefresh = LocalStorage.getLastContractsRefresh()
 
-    if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.DAY) {
+    if (lastRefresh === -1 || playtime - lastRefresh >= Timeframes.DAY) {
       const newContracts = this.generateContracts().sort((a, b) => b.reputation - a.reputation)
       LocalStorage.setContractsOffers(newContracts)
       LocalStorage.setLastContractsRefresh(playtime - (playtime % Timeframes.DAY))

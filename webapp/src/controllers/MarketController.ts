@@ -33,7 +33,7 @@ export class MarketController {
   getAvailablePlanes (playtime: number): Plane[] {
     const lastRefresh = LocalStorage.getLastMarketRefresh()
 
-    if (lastRefresh === 0 || playtime - lastRefresh >= Timeframes.WEEK) {
+    if (lastRefresh === -1 || playtime - lastRefresh >= Timeframes.WEEK) {
       const newOffers = this.generatePlaneOptions()
       LocalStorage.setMarketOffers(newOffers)
       LocalStorage.setLastMarketRefresh(playtime - playtime % Timeframes.WEEK)
@@ -76,7 +76,7 @@ export class MarketController {
 
     const prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
 
-    const numberOfOptions = Math.ceil(prototypes.length)
+    const numberOfOptions = prototypes.length * 3
     const options: Plane[] = []
 
     for (let i = 0; i < numberOfOptions; i++) {

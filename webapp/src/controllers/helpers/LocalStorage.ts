@@ -25,7 +25,8 @@ enum Keys {
   EVENT_LOG = 'eventLog',
   ACHIEVEMENTS_COMPLETED = 'achievementsCompleted',
   MISSIONS_COMPLETED = 'missionsCompleted',
-  MISSIONS_PROGRESS = 'missionsProgress'
+  MISSIONS_PROGRESS = 'missionsProgress',
+  GAME_ID = 'gameId'
 }
 
 export const LocalStorage = {
@@ -45,14 +46,14 @@ export const LocalStorage = {
   },
   getOfflineTime (): number {
     const offlineTime = localStorage.getItem(Keys.OFFLINE_TIME)
-    return (offlineTime !== null) ? parseInt(offlineTime) : 0
+    return (offlineTime !== null && offlineTime !== '') ? parseInt(offlineTime) : 0
   },
   setOfflineTime (offlineTime: number): void {
     localStorage.setItem(Keys.OFFLINE_TIME, offlineTime.toString())
   },
   getLastMarketRefresh (): number {
     const lastMarketRefresh = localStorage.getItem(Keys.LAST_MARKET_REFRESH)
-    return (lastMarketRefresh !== null) ? parseInt(lastMarketRefresh) : 0
+    return (lastMarketRefresh !== null) ? parseInt(lastMarketRefresh) : -1
   },
   setLastMarketRefresh (lastMarketRefresh: number): void {
     localStorage.setItem(Keys.LAST_MARKET_REFRESH, lastMarketRefresh.toString())
@@ -130,7 +131,7 @@ export const LocalStorage = {
   },
   getLastContractsRefresh (): number {
     const lastContractRefresh = localStorage.getItem(Keys.LAST_CONTRACT_REFRESH)
-    return (lastContractRefresh !== null) ? parseInt(lastContractRefresh) : 0
+    return (lastContractRefresh !== null) ? parseInt(lastContractRefresh) : -1
   },
   setLastContractsRefresh (lastContractRefresh: number): void {
     localStorage.setItem(Keys.LAST_CONTRACT_REFRESH, lastContractRefresh.toString())
@@ -190,5 +191,32 @@ export const LocalStorage = {
   },
   setMissionsProgress (missionsProgress: Record<string, number>): void {
     localStorage.setItem(Keys.MISSIONS_PROGRESS, JSON.stringify(missionsProgress))
+  },
+  getGameId (): string {
+    const gameId = localStorage.getItem(Keys.GAME_ID)
+    return gameId ?? ''
+  },
+  setGameId (gameId: string): void {
+    localStorage.setItem(Keys.GAME_ID, gameId)
+  },
+  getAllAsJSON (): string {
+    const keys = Object.values(Keys)
+    const all: Record<string, string> = {}
+
+    keys.forEach((key, index) => {
+      all[key] = localStorage.getItem(key) ?? ''
+    })
+
+    return JSON.stringify(all)
+  },
+  setAllFromJSON (all: Record<string, string>): void {
+    const keys = Object.keys(all)
+
+    keys.forEach(key => {
+      localStorage.setItem(key, all[key])
+    })
+  },
+  clear (): void {
+    localStorage.clear()
   }
 }

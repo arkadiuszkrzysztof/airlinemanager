@@ -1,7 +1,7 @@
 import React, { type ReactElement } from 'react'
 import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 
-import { type Controllers } from '../../controllers/GameController'
+import { GameController, type Controllers } from '../../controllers/GameController'
 import { CalendarX, ClockHistory, ExclamationTriangle } from 'react-bootstrap-icons'
 import { Clock, Timeframes } from '../../controllers/helpers/Clock'
 import { type HangarAsset } from '../../controllers/HangarController'
@@ -10,7 +10,6 @@ import { type EventLogRecords } from '../../controllers/AirlineController'
 import ScheduleDetailsTooltip from '../tooltips/ScheduleDetailsTooltip'
 
 interface Props {
-  Controllers: Controllers
   fullWidth?: boolean
 }
 
@@ -57,12 +56,14 @@ const getPastEventCountdown = (time: number): ReactElement => {
   )
 }
 
-const NotificationsWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+  const Controllers = GameController.getInstance()
+
   const [expirations] = React.useState(getExpirations(Controllers))
   const [events] = React.useState(getEvents(Controllers))
 
   return (
-    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
+    <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
@@ -77,6 +78,7 @@ const NotificationsWidget: React.FC<Props> = ({ Controllers, fullWidth = false }
                 <CalendarX size={20} className='me-2' />
                 Upcoming expirations
               </div>
+              {expirations.schedules.length === 0 && <h4 className='text-center text-grey-dark mt-2'>No upcoming expirations</h4>}
               {expirations.schedules.map((schedule) => (
                 <Row key={schedule.contract.id} className='mb-2 me-2'>
                   {getUpcomingEventCountdown(schedule.contract.expirationTime)}
@@ -97,6 +99,7 @@ const NotificationsWidget: React.FC<Props> = ({ Controllers, fullWidth = false }
                 <ClockHistory size={20} className='me-2' />
                 Event log
               </div>
+              {events.length === 0 && <h4 className='text-center text-grey-dark mt-2'>No past events</h4>}
               {events.map((event, index) => (
                 <Row key={`${event.playtime}-${index}`} className='mb-2'>
                   {getPastEventCountdown(event.playtime)}

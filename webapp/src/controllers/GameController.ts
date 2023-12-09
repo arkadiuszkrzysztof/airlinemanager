@@ -5,6 +5,8 @@ import { MarketController } from './MarketController'
 import { ContractsController } from './ContractsController'
 import { ScheduleController } from './ScheduleController'
 import { MissionController } from './MissionController'
+import { LocalStorage } from './helpers/LocalStorage'
+import { getRandomCharacters } from './helpers/Helpers'
 
 export interface Controllers {
   Game: GameController
@@ -52,5 +54,45 @@ export class GameController {
       Mission: this.instance.missionController,
       Clock: this.instance.clock
     }
+  }
+
+  private _generateGameId (): string {
+    return `${getRandomCharacters(4, true)}-${getRandomCharacters(4, true)}-${getRandomCharacters(4, true)}`
+  }
+
+  public static isGameStarted (): boolean {
+    return LocalStorage.getGameId() !== ''
+  }
+
+  public static startGame (airlineName: string): void {
+    LocalStorage.setAirlineName(airlineName)
+    LocalStorage.setCash(1000000)
+    LocalStorage.setGameId(GameController.getInstance().Game._generateGameId())
+  }
+
+  public static downloadSaveJSON (): void {
+    const saveJSON = LocalStorage.getAllAsJSON()
+    const blob = new Blob([saveJSON], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.download = `airline-${LocalStorage.getGameId()}.json`
+    link.href = url
+    link.click()
+  }
+
+  public static deleteGame (): void {
+    if (window.confirm('Are you sure you want to delete this game?')) {
+      LocalStorage.clear()
+      window.location.reload()
+    }
+  }
+
+  public static async loadDemo (): Promise<void> {
+    const demoSave = await require('../demo/airline-demo.json')
+    LocalStorage.clear()
+    LocalStorage.setAllFromJSON(demoSave)
+    window.location.reload()
+
+    return demoSave
   }
 }

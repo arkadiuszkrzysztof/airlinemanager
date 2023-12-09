@@ -39,19 +39,17 @@ $grid-breakpoints: (
   xs: 0,
   sm: 576px,
   md: 768px,
-  lg: 992px,
-  xl: 1200px,
-  xxl: 1450px,
-  xxxl: 1700px
+  lg: 1300px,
+  xl: 1500px,
+  xxl: 1800px
 );
 
 $container-max-widths: (
   sm: 540px,
   md: 720px,
-  lg: 960px,
-  xl: 1140px,
-  xxl: 1450px,
-  xxxl: 1600px
+  lg: 1300px,
+  xl: 1500px,
+  xxl: 1800px
 );
 
 $display-font-sizes: (
@@ -68,6 +66,8 @@ $accordion-button-padding-y: 0.5rem;
 $accordion-button-focus-border-color:  rgba(0, 0, 0, 0);
 $accordion-button-focus-box-shadow: none;
 $accordion-button-active-bg: rgba(0, 0, 0, 0);
+
+$input-focus-box-shadow: none;
 
 .hover-bg-info:hover {
   background-color: rgba(233, 216, 165, 1) !important;
@@ -113,12 +113,34 @@ $accordion-button-active-bg: rgba(0, 0, 0, 0);
   border: solid 3px transparent;
 }
 
+#create-airline {
+  ::-webkit-scrollbar {
+    width: 20px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 10px 10px map-get($theme-colors, "dark");
+    border: solid 5px transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 10px 10px map-get($theme-colors, "white");
+    border: solid 5px transparent;
+  }
+}
+
 html {
   font-family: sans-serif;
-  min-width: 768px;
+  min-width: 1300px;
 }
 body {
   margin: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 .mw-50 {
@@ -137,6 +159,11 @@ body {
 
 .mh-300 {
   max-height: 300px;
+  height: 100%;
+}
+
+.mh-350 {
+  max-height: 350px;
   height: 100%;
 }
 
@@ -186,6 +213,10 @@ body {
   transform: rotate(90deg);
 }
 
+.rotate-135 {
+  transform: rotate(135deg);
+}
+
 .rotate-180 {
   transform: rotate(-180deg);
   transition: all 0.3s ease-in-out;
@@ -193,6 +224,10 @@ body {
 
 .rotate-270 {
   transform: rotate(270deg);
+}
+
+.rotate-300 {
+  transform: rotate(300deg);
 }
 
 .pulse-animation {
@@ -233,6 +268,41 @@ body {
   margin: 0 -12px;
 }
 
-.pnlBar {
+.pnl-bar {
   min-width: 100%;
+}
+
+#error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
+.icon-container {
+  box-sizing: content-box;
+  padding: 12px;
+  margin-top: -12px;
+  background-color: map-get($theme-colors, "dark");
+  z-index: 1;
+}
+
+.rounded-left {
+  border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius) !important;
+  border-right: none !important;
+}
+
+.rounded-right {
+  border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0 !important;
+  border-left: none !important;
 }

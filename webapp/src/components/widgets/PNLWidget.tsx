@@ -1,7 +1,7 @@
 import React, { type ReactElement } from 'react'
 import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 
-import { type Controllers } from '../../controllers/GameController'
+import { GameController, type Controllers } from '../../controllers/GameController'
 import { GraphUpArrow } from 'react-bootstrap-icons'
 import { type PNLRecord } from '../../controllers/AirlineController'
 import { Timeframes } from '../../controllers/helpers/Clock'
@@ -10,7 +10,6 @@ import RevenueBreakdownTooltip from '../tooltips/RevenueBreakdownTooltip'
 import CostBreakdownTooltip from '../tooltips/CostBreakdownTooltip'
 
 interface Props {
-  Controllers: Controllers
   fullWidth?: boolean
 }
 
@@ -123,11 +122,13 @@ const formatNetProfit = (value: string, profit: number): ReactElement => {
   }
 }
 
-const PNLWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactElement => {
+const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+  const Controllers = GameController.getInstance()
+
   const [pnlData] = React.useState<PNLChartData>(preparePNLData(Controllers))
 
   return (
-    <Col xs={12} md={11} lg={9} xl={8} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>
+    <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
@@ -143,12 +144,12 @@ const PNLWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactEl
                 <Row className='align-items-end gx-2' style={{ height: '275px' }}>
                   <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
-                      <div className='pnlBar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
+                      <div className='pnl-bar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
                       {Object.keys(record.costs).filter((key) => key !== 'total').map((key, index) => {
                         const value = record.costs[key as keyof typeof record.costs]
 
                         if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={`pnlBar bg-warning-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
+                          return (<div key={`${record.month}-${key}`} className={`pnl-bar bg-warning-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
                         }
 
                         return null
@@ -157,12 +158,12 @@ const PNLWidget: React.FC<Props> = ({ Controllers, fullWidth = false }): ReactEl
                   </OverlayTrigger>
                   <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={record.revenue} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-revenues`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
-                    <div className='pnlBar fw-bold small text-center'>{formatScale(record.revenue.total, true)}</div>
+                    <div className='pnl-bar fw-bold small text-center'>{formatScale(record.revenue.total, true)}</div>
                       {Object.keys(record.revenue).filter((key) => key !== 'total').map((key, index) => {
                         const value = record.revenue[key as keyof typeof record.revenue]
 
                         if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={`pnlBar bg-success-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
+                          return (<div key={`${record.month}-${key}`} className={`pnl-bar bg-success-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
                         }
 
                         return null
