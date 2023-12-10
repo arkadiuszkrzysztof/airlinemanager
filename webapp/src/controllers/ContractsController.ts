@@ -6,6 +6,7 @@ import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { ScheduleController } from './ScheduleController'
 import { getRandomCharacters } from './helpers/Helpers'
+import { AirlineController } from './AirlineController'
 
 export interface CostsBreakdown {
   fuel: number
@@ -106,7 +107,7 @@ export class ContractsController {
       const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
       const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
       const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
-      const reputation = Math.floor((distance * 2 / 10000) * 100) / 100
+      const reputation = Math.floor((distance * 2 / 10000) * AirlineController.getInstance().getTier().record.constraints.reputationGain * 100) / 100
 
       connections.push(connection)
       contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand, false, 0, 0, reputation))
@@ -122,12 +123,14 @@ export class ContractsController {
 
     const contractPlaneCapacity = econonyPassengers + businessPassengers + firstPassengers
 
+    const tier = AirlineController.getInstance().getTier().record
+
     const duration = contract.distance / asset.plane.cruiseSpeed
     const fuelCost = Math.floor(asset.plane.fuelConsumption * duration)
     const maintenanceCost = Math.floor(asset.plane.pricing.maintenance * duration)
     const leasingCost = asset.ownership === 'leased' ? Math.floor(asset.plane.pricing.lease * duration) : 0
-    const passengerFee = (contract.hub.fees.passenger + contract.destination.fees.passenger) * contractPlaneCapacity
-    const landingFee = (contract.hub.fees.landing + contract.destination.fees.landing) * asset.plane.MTOW
+    const passengerFee = Math.floor(contract.hub.fees.passenger * (1 - tier.perks.hubDiscount) + contract.destination.fees.passenger * (1 - tier.perks.destinationDiscount)) * contractPlaneCapacity
+    const landingFee = Math.floor(contract.hub.fees.landing * (1 - tier.perks.hubDiscount) + contract.destination.fees.landing * (1 - tier.perks.destinationDiscount)) * asset.plane.MTOW
 
     return {
       fuel: fuelCost,

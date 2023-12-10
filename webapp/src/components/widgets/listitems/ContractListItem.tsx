@@ -1,6 +1,6 @@
 import React from 'react'
 import { type Contract } from '../../../models/Contract'
-import { Row, Col, OverlayTrigger, Tooltip, Accordion, Badge, Card } from 'react-bootstrap'
+import { Row, Col, OverlayTrigger, Tooltip, Badge, Card } from 'react-bootstrap'
 import { GameController } from '../../../controllers/GameController'
 import { type ContractOption } from '../../../controllers/ContractsController'
 import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
@@ -9,7 +9,6 @@ import { formatCashValue, formatTurnaround, formatUtilization } from '../../../c
 import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import CostBreakdownTooltip from '../../tooltips/CostBreakdownTooltip'
 import RevenueBreakdownTooltip from '../../tooltips/RevenueBreakdownTooltip'
-import ContentToggle from '../../fragments/ContentToggle'
 
 interface Props {
   item: Contract
@@ -57,22 +56,17 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
           <strong>{`${contract.contractDuration / Timeframes.MONTH} months`}</strong>
         </Col>
       </Row>
-      <Accordion key={contract.id} className='mt-2'>
         <Card>
-          <Row className='mx-2 my-2'>
-            <Col xs={4}>Available planes: {contractOptions.filter(c => c.available).length}</Col>
-            <Col xs={4}>Best option: {contractOptions.length > 0
+          <Row className='mx-2 my-2 justify-content-center'>
+            <Col xs={4} className='text-center'>Available planes: <strong>{contractOptions.filter(c => c.available).length}</strong></Col>
+            <Col xs={4} className='text-center'>Best option: {contractOptions.length > 0
               ? <span className={`fw-bold ${contractOptions[0].profit > 0 ? 'text-dark' : 'text-danger'}`}>
                   {formatCashValue(contractOptions[0].profit)}
                 </span>
               : <i>None</i>}
             </Col>
-            <Col xs={4} className='d-flex justify-content-end'>
-              <ContentToggle eventKey="0" iconSize={24} />
-            </Col>
           </Row>
-          <Accordion.Collapse eventKey="0" className='mx-4 mb-2'>
-            <>
+            {contractOptions.length > 0 && <div className='px-2 pb-2'>
               <Row className='small text-end fw-bold text-primary'>
                 <Col xs={2} className='text-start'>Plane</Col>
                 <Col xs={2}>Cost</Col>
@@ -128,10 +122,10 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                   <Col xs={2} className='text-end'>{formatTurnaround(option.totalTime)}</Col>
                 </Row>
               ))}
-            </>
-          </Accordion.Collapse>
+            </div>}
+
         </Card>
-      </Accordion>
+
     </Row>
   )
 }

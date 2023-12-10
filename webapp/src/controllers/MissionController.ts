@@ -20,29 +20,29 @@ export interface Achievement {
 }
 
 const AchievementData: Achievement[] = [
-  { id: 'REP010', type: AchievementType.REPUTATION, label: 'You just made your reputation double digit!', reward: 100000, conditions: { reputation: 10 } },
-  { id: 'REP025', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 25%', reward: 500000, conditions: { reputation: 25 } },
+  { id: 'REP010', type: AchievementType.REPUTATION, label: 'You just made your reputation double digit!', reward: 10000, conditions: { reputation: 10 } },
+  { id: 'REP025', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 25%', reward: 50000, conditions: { reputation: 25 } },
   { id: 'REP050', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 50%', reward: 1000000, conditions: { reputation: 50 } },
   { id: 'REP075', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 75%', reward: 5000000, conditions: { reputation: 75 } },
   { id: 'REP100', type: AchievementType.REPUTATION, label: 'Numero uno - your airline has reputation of 100%!', reward: 10000000, conditions: { reputation: 100 } },
-  { id: 'PLA01', type: AchievementType.FLEET_SIZE, label: 'You\'ve got your first plane!', reward: 50000, conditions: { fleetSize: 1 } },
-  { id: 'PLA05', type: AchievementType.FLEET_SIZE, label: 'You have 5 planes in the hangar!', reward: 500000, conditions: { fleetSize: 5 } },
-  { id: 'PLA10', type: AchievementType.FLEET_SIZE, label: 'You have 10 planes in the hangar!', reward: 1000000, conditions: { fleetSize: 10 } },
-  { id: 'PLA15', type: AchievementType.FLEET_SIZE, label: 'You have 15 planes in the hangar!', reward: 2000000, conditions: { fleetSize: 15 } },
-  { id: 'PLA20', type: AchievementType.FLEET_SIZE, label: 'You have 20 planes in the hangar!', reward: 25000000, conditions: { fleetSize: 20 } },
-  { id: 'PLA25', type: AchievementType.FLEET_SIZE, label: 'That\'s it! You maxed the hangar with 25 planes.', reward: 100000000, conditions: { fleetSize: 25 } },
-  { id: 'PAS001K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered first 1,000 passengers - way to go!', reward: 10000, conditions: { totalPassengers: 1000 } },
-  { id: 'PAS025K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 25,000 passengers!', reward: 10000, conditions: { totalPassengers: 25000 } },
-  { id: 'PAS100K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 100,000 passengers!', reward: 10000, conditions: { totalPassengers: 100000 } },
-  { id: 'PAS500K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 500,000 passengers!', reward: 10000, conditions: { totalPassengers: 500000 } },
-  { id: 'PAS001M', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 1,000,000 passengers off the bat!', reward: 10000, conditions: { totalPassengers: 1000000 } },
-  { id: 'PAS010M', type: AchievementType.TOTAL_PASSENGERS, label: 'Wow - you just delivered 10,000,000 passengers! Just like that.', reward: 10000, conditions: { totalPassengers: 10000000 } },
+  { id: 'PLA01', type: AchievementType.FLEET_SIZE, label: 'You\'ve got your first plane!', reward: 1000, conditions: { fleetSize: 1 } },
+  { id: 'PLA05', type: AchievementType.FLEET_SIZE, label: 'You have 5 planes in the hangar!', reward: 25000, conditions: { fleetSize: 5 } },
+  { id: 'PLA10', type: AchievementType.FLEET_SIZE, label: 'You have 10 planes in the hangar!', reward: 100000, conditions: { fleetSize: 10 } },
+  { id: 'PLA15', type: AchievementType.FLEET_SIZE, label: 'You have 15 planes in the hangar!', reward: 250000, conditions: { fleetSize: 15 } },
+  { id: 'PLA20', type: AchievementType.FLEET_SIZE, label: 'You have 20 planes in the hangar!', reward: 1000000, conditions: { fleetSize: 20 } },
+  { id: 'PLA25', type: AchievementType.FLEET_SIZE, label: 'That\'s it! You maxed the hangar with 25 planes.', reward: 10000000, conditions: { fleetSize: 25 } },
+  { id: 'PAS001K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered first 1,000 passengers - way to go!', reward: 1000, conditions: { totalPassengers: 1000 } },
+  { id: 'PAS025K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 25,000 passengers!', reward: 25000, conditions: { totalPassengers: 25000 } },
+  { id: 'PAS100K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 100,000 passengers!', reward: 100000, conditions: { totalPassengers: 100000 } },
+  { id: 'PAS500K', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 500,000 passengers!', reward: 500000, conditions: { totalPassengers: 500000 } },
+  { id: 'PAS001M', type: AchievementType.TOTAL_PASSENGERS, label: 'Delivered 1,000,000 passengers off the bat!', reward: 1000000, conditions: { totalPassengers: 1000000 } },
+  { id: 'PAS010M', type: AchievementType.TOTAL_PASSENGERS, label: 'Wow - you just delivered 10,000,000 passengers! Just like that.', reward: 10000000, conditions: { totalPassengers: 10000000 } },
   { id: 'PRO100K', type: AchievementType.PROFIT, label: 'Earned first $100,000. Not bad!', reward: 1000, conditions: { profit: 100000 } },
-  { id: 'PRO001M', type: AchievementType.PROFIT, label: 'Earned 1 Million in revenue', reward: 1000, conditions: { profit: 1000000 } },
-  { id: 'PRO010M', type: AchievementType.PROFIT, label: 'Earned 10 Millions in revenue', reward: 1000, conditions: { profit: 10000000 } },
-  { id: 'PRO100M', type: AchievementType.PROFIT, label: 'Earned 100 Millions in revenue', reward: 1000, conditions: { profit: 100000000 } },
-  { id: 'PRO500M', type: AchievementType.PROFIT, label: 'Earned 500 Millions in revenue', reward: 1000, conditions: { profit: 500000000 } },
-  { id: 'PRO001B', type: AchievementType.PROFIT, label: 'Holly cow - you\'ve earned 1 Billion in total revenue!', reward: 1000, conditions: { profit: 1000000000 } }
+  { id: 'PRO001M', type: AchievementType.PROFIT, label: 'Earned 1 Million in revenue', reward: 10000, conditions: { profit: 1000000 } },
+  { id: 'PRO010M', type: AchievementType.PROFIT, label: 'Earned 10 Millions in revenue', reward: 100000, conditions: { profit: 10000000 } },
+  { id: 'PRO100M', type: AchievementType.PROFIT, label: 'Earned 100 Millions in revenue', reward: 250000, conditions: { profit: 100000000 } },
+  { id: 'PRO500M', type: AchievementType.PROFIT, label: 'Earned 500 Millions in revenue', reward: 1000000, conditions: { profit: 500000000 } },
+  { id: 'PRO001B', type: AchievementType.PROFIT, label: 'Holly cow - you\'ve earned 1 Billion in total revenue!', reward: 10000000, conditions: { profit: 1000000000 } }
 ]
 
 export enum MissionType { DESTINATION, VISITS, AIRCRAFT, PASSENGER_CLASS }
@@ -108,21 +108,24 @@ const visitsResolver = (mission: Mission, schedule?: Schedule): boolean => {
 }
 
 const MissionData: Mission[] = [
-  { id: 'DEST-LHR', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to London Heathrow', reward: 100000, resolver: destinationResolver, conditions: { destination: 'LHR', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-CDG', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Paris Charles de Gaulle', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CDG', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-KEF', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-IST', type: MissionType.DESTINATION, label: 'Fly 10,000 passengers to Istanbul', reward: 100000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 10000, currentValue: 0 } },
-  { id: 'DEST-AMS', type: MissionType.DESTINATION, label: 'Fly 10,000 passengers to Amsterdam', reward: 100000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 10000, currentValue: 0 } },
-  { id: 'PLA-A320', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Airbus A320', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: 'A320', expectedValue: 10000, currentValue: 0 } },
-  { id: 'PLA-B787', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Boeing 787', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: '787', expectedValue: 10000, currentValue: 0 } },
   { id: 'PLA-E170', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Embraer 170', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: 'E170', expectedValue: 10000, currentValue: 0 } },
-  { id: 'PLA-B777', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Boeing 777', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: '777', expectedValue: 10000, currentValue: 0 } },
-  { id: 'PAS-BUS', type: MissionType.PASSENGER_CLASS, label: 'Fly 1,000 passengers in business class', reward: 100000, resolver: classResolver, conditions: { class: 'business', expectedValue: 1000, currentValue: 0 } },
-  { id: 'PAS-FIR', type: MissionType.PASSENGER_CLASS, label: 'Fly 100 passengers in first class', reward: 100000, resolver: classResolver, conditions: { class: 'first', expectedValue: 100, currentValue: 0 } },
   { id: 'PAS-ECO', type: MissionType.PASSENGER_CLASS, label: 'Fly 50,000 passengers in economy class', reward: 100000, resolver: classResolver, conditions: { class: 'economy', expectedValue: 50000, currentValue: 0 } },
+  { id: 'VIS-EDI', type: MissionType.VISITS, label: 'Visit Edinburgh 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'EDI', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-CDG', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Paris Charles de Gaulle', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CDG', expectedValue: 1000, currentValue: 0 } },
   { id: 'VIS-KRK', type: MissionType.VISITS, label: 'Visit Krakow 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'KRK', expectedValue: 10, currentValue: 0 } },
-  { id: 'VIS-LIS', type: MissionType.VISITS, label: 'Visit Lisbon 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 10, currentValue: 0 } },
-  { id: 'VIS-EDI', type: MissionType.VISITS, label: 'Visit Edinburgh 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'EDI', expectedValue: 10, currentValue: 0 } }
+  { id: 'DEST-LHR', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to London Heathrow', reward: 100000, resolver: destinationResolver, conditions: { destination: 'LHR', expectedValue: 1000, currentValue: 0 } },
+  { id: 'DEST-KEF', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
+  { id: 'PLA-A320', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Airbus A320', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: 'A320', expectedValue: 10000, currentValue: 0 } },
+  { id: 'VIS-LIS', type: MissionType.VISITS, label: 'Visit Lisbon 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 50, currentValue: 0 } },
+  { id: 'PLA-B787', type: MissionType.AIRCRAFT, label: 'Fly 50,000 passengers with the Boeing 787', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '787', expectedValue: 50000, currentValue: 0 } },
+  { id: 'PAS-BUS', type: MissionType.PASSENGER_CLASS, label: 'Fly 1,000 passengers in business class', reward: 250000, resolver: classResolver, conditions: { class: 'business', expectedValue: 1000, currentValue: 0 } },
+  { id: 'DEST-IST', type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Istanbul', reward: 250000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 100000, currentValue: 0 } },
+  { id: 'PLA-B777', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Boeing 777', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '777', expectedValue: 10000, currentValue: 0 } },
+  { id: 'DEST-AMS', type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Amsterdam', reward: 250000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 100000, currentValue: 0 } },
+  { id: 'PAS-FIR', type: MissionType.PASSENGER_CLASS, label: 'Fly 1000 passengers in first class', reward: 500000, resolver: classResolver, conditions: { class: 'first', expectedValue: 1000, currentValue: 0 } },
+  { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 250,000 passengers with the Boeing 747', reward: 500000, resolver: aircraftResolver, conditions: { aircraft: '747', expectedValue: 250000, currentValue: 0 } },
+  { id: 'VIS-ARN', type: MissionType.VISITS, label: 'Visit Stockholm 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'ARN', expectedValue: 100, currentValue: 0 } },
+  { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 1,000,000 passengers with the Airbus A380', reward: 1000000, resolver: aircraftResolver, conditions: { aircraft: 'A380', expectedValue: 1000000, currentValue: 0 } }
 ]
 
 export class MissionController {

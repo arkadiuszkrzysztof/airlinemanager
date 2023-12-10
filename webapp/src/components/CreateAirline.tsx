@@ -33,7 +33,7 @@ const CreateAirline: React.FC = () => {
       <Row className='mh-100 vh-100 m-0'>
         <Col className='d-flex flex-column align-items-center justify-content-center p-4 mh-100 vh-100 position-relative overflow-hidden'>
           <AirplaneEnginesFill size={360} className='position-absolute opacity-100 text-secondary' style={{ bottom: '-40px', left: '-120px' }} />
-          <h1 className='text-primary fw-bold'>Create New Airline</h1>
+          <h1 className='text-primary fw-bold'>Start New Airline</h1>
           <Form onSubmit={onSubmitHandler}>
             <div className='d-flex'>
               <Form.Control
@@ -81,7 +81,7 @@ const CreateAirline: React.FC = () => {
             <ColPath Icon={Icon2CircleFill} />
             <Col className='me-5 z-2'>
               <h2 className='fw-bold'>Sign Contracts</h2>
-              <p className='fs-6'>You&apos;ll sign connections in the Contracts view that refreshes daily. Some flights are simply not profitable, though! The longer the route, the more reputation you gain. Each plane can fly from only one hub.</p>
+              <p className='fs-6'>You&apos;ll sign connections in the Contracts view that refreshes daily. Some flights are simply not profitable, though! The longer the route, the more reputation you gain. Each plane can fly from one hub only.</p>
               <img src='/images/create-contracts.png' alt='Contracts' className='rounded w-100' style={{ maxWidth: '740px' }} />
             </Col>
           </Row>

@@ -7,6 +7,7 @@ import { ScheduleController } from './ScheduleController'
 import { MissionController } from './MissionController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { getRandomCharacters } from './helpers/Helpers'
+import { Autobind } from './helpers/Autobind'
 
 export interface Controllers {
   Game: GameController
@@ -80,8 +81,10 @@ export class GameController {
     link.click()
   }
 
+  @Autobind
   public static deleteGame (): void {
     if (window.confirm('Are you sure you want to delete this game?')) {
+      this.instance.clock.pauseGame()
       LocalStorage.clear()
       window.location.reload()
     }

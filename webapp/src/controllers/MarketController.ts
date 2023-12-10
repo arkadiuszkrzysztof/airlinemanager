@@ -55,12 +55,14 @@ export class MarketController {
     const calculatePricing = ({ pricing }: Plane, manufactureTime: number): { purchase: number, lease: number, leaseDuration: number, leaseCancellationFee: number, leaseDownpayment: number, maintenance: number } => {
       const age = Math.round((Clock.getInstance().playtime - manufactureTime) / Timeframes.YEAR)
 
+      const tier = this.AirlineController.getTier().record
+
       return {
-        purchase: getDepreciation(pricing.purchase, age),
-        lease: pricing.lease * (1 - age * 2 / 100),
+        purchase: getDepreciation(pricing.purchase, age) * (1 - tier.perks.marketDiscount),
+        lease: (pricing.lease * (1 - age * 2 / 100)) * (1 - tier.perks.marketDiscount),
         leaseDuration: Timeframes.MONTH * Math.floor(Math.random() * 60 + 36),
-        leaseCancellationFee: pricing.leaseCancellationFee * (1 - age * 2 / 100),
-        leaseDownpayment: pricing.leaseDownpayment * (1 - age * 2 / 100),
+        leaseCancellationFee: (pricing.leaseCancellationFee * (1 - age * 2 / 100)) * (1 - tier.perks.marketDiscount),
+        leaseDownpayment: (pricing.leaseDownpayment * (1 - age * 2 / 100)) * (1 - tier.perks.marketDiscount),
         maintenance: age > 5 ? pricing.maintenance * (1 + age * 2 / 100) : pricing.maintenance
       }
     }

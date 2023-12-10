@@ -173,12 +173,14 @@ export class Clock {
     const halftime = this.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
 
     if (
+      schedule.contract.startTime <= this.instance.playtime &&
       schedule.day === this.instance.currentDayOfWeek &&
       this.instance.playtimeFormatted >= schedule.start &&
       this.isCurrentTimeBetween(schedule.start, schedule.end)
     ) {
       inTheAir = true
     } else if (
+      schedule.contract.startTime <= this.instance.playtime &&
       schedule.day === this.instance.previousDayOfWeek &&
       schedule.end < schedule.start &&
       this.isCurrentTimeBetween('00:00', schedule.end)
@@ -212,6 +214,11 @@ export class Clock {
   get previousDayOfWeek (): string {
     const day = (Math.floor(this._playtime / Timeframes.DAY) - 1) % Object.keys(DaysOfWeek).length
     return Object.values(DaysOfWeek)[day]
+  }
+
+  public static getDayBefore (day: DaysOfWeek): string {
+    const dayIndex = Object.values(DaysOfWeek).indexOf(day)
+    return Object.values(DaysOfWeek)[dayIndex === 0 ? 6 : dayIndex - 1]
   }
 
   get nextDayOfWeek (): string {

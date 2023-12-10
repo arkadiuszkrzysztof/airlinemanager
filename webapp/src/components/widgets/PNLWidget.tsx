@@ -60,8 +60,11 @@ const preparePNLData = (Controllers: Controllers): PNLChartData => {
     })
 
   result.scale.step = Math.pow(10, result.maxTotal.toString().length - 1)
-  if (result.maxTotal % result.scale.step < result.scale.step / 2 || Math.ceil(result.maxTotal / result.scale.step) < 3) {
+  const numberOfSteps = Math.ceil(result.maxTotal / result.scale.step)
+  if (numberOfSteps < 3) {
     result.scale.step = result.scale.step / 2
+  } else if (numberOfSteps > 6) {
+    result.scale.step = result.scale.step * 2
   }
 
   result.scale.numberOfSteps = Math.ceil(result.maxTotal / result.scale.step)

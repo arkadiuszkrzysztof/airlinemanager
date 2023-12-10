@@ -3,13 +3,13 @@ import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, Card } fro
 import { type HangarAsset } from '../../../controllers/HangarController'
 import { GameController } from '../../../controllers/GameController'
 import { Clock, DaysOfWeek, Timeframes } from '../../../controllers/helpers/Clock'
-import { AirplaneFill, ArrowLeftRight, CashStack, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
+import { CashStack, ClockFill, PersonFill, Reception0, Reception1, Reception2, Reception3, Reception4, TagFill } from 'react-bootstrap-icons'
 import { formatCashValue, formatUtilization } from '../../../controllers/helpers/Helpers'
-import ScheduleDetailsTooltip from '../../tooltips/ScheduleDetailsTooltip'
 import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import TimetableHoursCol from '../../fragments/TimetableHours'
 import TimetableGrid from '../../fragments/TimetableGrid'
 import ContentToggle from '../../fragments/ContentToggle'
+import ScheduleCalendarItem from '../../fragments/ScheduleCalendarItem'
 
 interface Props {
   item: HangarAsset
@@ -141,32 +141,14 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                   <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                   {Controllers.Schedule
                     .getActiveSchedulesForAsset(asset)
-                    .filter((schedule) => schedule.day === day)
+                    .filter((schedule) => schedule.day === day || (schedule.day === Clock.getDayBefore(day) && schedule.end < schedule.start && schedule.end > '01:00'))
                     .sort((a, b) => (a.start < b.start ? -1 : 1))
                     .map((schedule) =>
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><ScheduleDetailsTooltip schedule={schedule} /></Tooltip>}
+                      <ScheduleCalendarItem
                         key={schedule.contract.id}
-                      >
-                        <div
-                          className='d-flex align-items-center justify-content-center bg-info bg-opacity-75 hover-bg-info rounded cursor-help'
-                          style={{
-                            position: 'absolute',
-                            top: `${Clock.getTimeAt(schedule.start) % Timeframes.DAY / 6 + 20}px`,
-                            width: 'calc(100% - 24px)',
-                            height: `${(schedule.option.totalTime) / 6}px`
-                          }}
-                        >
-                          {schedule.contract.hub.IATACode}
-                          {Clock.flightStatus(schedule).inTheAir
-                            ? Clock.flightStatus(schedule).flightLeg === 'there'
-                              ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
-                              : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
-                            : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
-                          {schedule.contract.destination.IATACode}
-                        </div>
-                      </OverlayTrigger>
+                        schedule={schedule}
+                        tooltipPosition='top'
+                        currentDayOfWeek={day} />
                     )
                   }
                 </Col>

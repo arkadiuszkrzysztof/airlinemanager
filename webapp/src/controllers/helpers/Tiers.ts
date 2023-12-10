@@ -23,9 +23,9 @@ export const Tiers: Record<Tier, TierRecord> = {
   [Tier.PLATINUM]: {
     minReputation: 90,
     constraints: {
-      MTOW: 750,
+      MTOW: 600,
       maxPlanes: 25,
-      reputationGain: 0.2
+      reputationGain: 0.3
     },
     perks: {
       hubDiscount: 0.4,
@@ -36,9 +36,9 @@ export const Tiers: Record<Tier, TierRecord> = {
   [Tier.GOLD]: {
     minReputation: 50,
     constraints: {
-      MTOW: 500,
+      MTOW: 350,
       maxPlanes: 15,
-      reputationGain: 0.4
+      reputationGain: 0.5
     },
     perks: {
       hubDiscount: 0.3,
@@ -49,7 +49,7 @@ export const Tiers: Record<Tier, TierRecord> = {
   [Tier.SILVER]: {
     minReputation: 25,
     constraints: {
-      MTOW: 300,
+      MTOW: 250,
       maxPlanes: 10,
       reputationGain: 0.7
     },
