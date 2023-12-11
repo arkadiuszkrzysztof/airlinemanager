@@ -39,6 +39,10 @@ const CostBreakdownTooltip: React.FC<{ costs: CostsBreakdown, showTotal?: boolea
         <Col xs={7} className='text-start pe-0'>Purchasing planes</Col>
         <Col xs={5} className='text-end'>{costs.purchasing !== undefined && formatCashValue(costs.purchasing)}</Col>
       </Row>}
+      {showTotal && <Row>
+        <Col xs={7} className='text-start pe-0'>Unlocking regions</Col>
+        <Col xs={5} className='text-end'>{costs.unlockingRegions !== undefined && formatCashValue(costs.unlockingRegions)}</Col>
+      </Row>}
       {showTotal && <Row className='fw-bold'>
         <Col xs={7} className='text-start pe-0'>Total</Col>
         <Col xs={5} className='text-end'>{formatCashValue(costs.total)}</Col>

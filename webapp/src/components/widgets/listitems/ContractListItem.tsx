@@ -3,7 +3,7 @@ import { type Contract } from '../../../models/Contract'
 import { Row, Col, OverlayTrigger, Tooltip, Badge, Card } from 'react-bootstrap'
 import { GameController } from '../../../controllers/GameController'
 import { type ContractOption } from '../../../controllers/ContractsController'
-import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, CheckSquare, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
 import { Timeframes } from '../../../controllers/helpers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../../../controllers/helpers/Helpers'
 import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
@@ -11,15 +11,15 @@ import CostBreakdownTooltip from '../../tooltips/CostBreakdownTooltip'
 import RevenueBreakdownTooltip from '../../tooltips/RevenueBreakdownTooltip'
 
 interface Props {
-  item: Contract
+  item: { contract: Contract, options: ContractOption[] }
 }
 
-const ContractListItem: React.FC<Props> = ({ item: contract }) => {
+const ContractListItem: React.FC<Props> = ({ item }) => {
   const Controllers = GameController.getInstance()
-  const contractOptions = Controllers.Contracts.getContractOptions(contract)
+  const { contract, options } = item
 
   return (
-    <Row className={`bg-${contract.accepted ? 'danger bg-opacity-10' : 'grey-light'} rounded mt-2 p-2`}>
+    <Row className={`bg-${contract.accepted ? 'danger bg-opacity-10' : 'grey-light'} ${options.length === 0 ? 'opacity-50 grayscale' : ''} rounded mt-2 p-2`}>
       {contract.accepted &&
         <Row className='mb-4'>
           <Col xs={12} className='d-flex align-items-center justify-content-center'>
@@ -58,46 +58,49 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
       </Row>
         <Card>
           <Row className='mx-2 my-2 justify-content-center'>
-            <Col xs={4} className='text-center'>Available planes: <strong>{contractOptions.filter(c => c.available).length}</strong></Col>
-            <Col xs={4} className='text-center'>Best option: {contractOptions.length > 0
-              ? <span className={`fw-bold ${contractOptions[0].profit > 0 ? 'text-dark' : 'text-danger'}`}>
-                  {formatCashValue(contractOptions[0].profit)}
+            <Col xs={4} className='text-center'>Available planes: <strong>{options.filter(c => c.available).length}</strong></Col>
+            <Col xs={4} className='text-center'>Best option: {options.length > 0
+              ? <span className={`fw-bold ${options[0].profit > 0 ? 'text-dark' : 'text-danger'}`}>
+                  {formatCashValue(options[0].profit)}
                 </span>
               : <i>None</i>}
             </Col>
           </Row>
-            {contractOptions.length > 0 && <div className='px-2 pb-2'>
+            {options.length > 0 && <div className='px-2 pb-2'>
               <Row className='small text-end fw-bold text-primary'>
-                <Col xs={2} className='text-start'>Plane</Col>
-                <Col xs={2}>Cost</Col>
-                <Col xs={2}>Revenue</Col>
-                <Col xs={2}>Profit</Col>
-                <Col xs={2}>Utilization</Col>
-                <Col xs={2}>Turnaround</Col>
+                <Col className='col-10p p-0'></Col>
+                <Col className='col-15p text-start'>Plane</Col>
+                <Col className='col-15p'>Cost</Col>
+                <Col className='col-15p'>Revenue</Col>
+                <Col className='col-15p'>Profit</Col>
+                <Col className='col-15p p-0'>Utilization</Col>
+                <Col className='col-15p p-0'>Turnaround</Col>
               </Row>
-              {contractOptions.map((option: ContractOption) => (
+              {options.map((option: ContractOption) => (
                 <Row key={option.asset.plane.registration} className={`small opacity-${option.available ? '100' : '50'} hover-bg-grey-light`}>
-                  <Col xs={2} className={`pe-0 ${option.available ? ' ps-0' : ''}`}>
-                    <span className='d-flex flex-row align-items-center'>
-                      {option.available &&
-                        <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-success me-1' role='button'>
-                          <CheckSquare size={12} />
-                        </span>
-                      }
-                    <OverlayTrigger
-                        placement="bottom"
-                        overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
-                    >
-                      <span className='cursor-help'>
-                        {option.asset.plane.typeName}
-                        {option.asset.plane.hub !== undefined && <Badge bg={'grey-dark'} className='ms-2'>
-                          {option.asset.plane.hub.IATACode}
-                        </Badge>}
+                  <Col className='col-10p p-0'>
+                    {option.available &&
+                      <span onClick={() => { Controllers.Schedule.acceptContract(contract, option) }} className='text-white px-1 fw-bold bg-primary rounded' role='button'>
+                        Accept
                       </span>
-                    </OverlayTrigger>
+                    }
+                  </Col>
+                  <Col className={`col-15p pe-0 ${option.available ? ' ps-0' : ''}`}>
+                    <span className='d-flex flex-row align-items-center'>
+                      <OverlayTrigger
+                          placement="bottom"
+                          overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={option.asset} /></Tooltip>}
+                      >
+                        <span className='cursor-help'>
+                          {option.asset.plane.typeName}
+                          {option.asset.plane.hub !== undefined && <Badge bg={'grey-dark'} className='ms-2'>
+                            {option.asset.plane.hub.IATACode}
+                          </Badge>}
+                        </span>
+                      </OverlayTrigger>
                     </span>
                   </Col>
-                  <Col xs={2} className='text-end'>
+                  <Col className='col-15p text-end'>
                     <OverlayTrigger
                       placement="bottom"
                       overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={option.cost} /></Tooltip>}
@@ -105,7 +108,7 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                       <span className='cursor-help'>{formatCashValue(option.cost.total)}</span>
                     </OverlayTrigger>
                   </Col>
-                  <Col xs={2} className='text-end'>
+                  <Col className='col-15p text-end'>
                     <OverlayTrigger
                       placement="bottom"
                       overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={option.revenue} /></Tooltip>}
@@ -113,13 +116,13 @@ const ContractListItem: React.FC<Props> = ({ item: contract }) => {
                       <span className='cursor-help'>{formatCashValue(option.revenue.total)}</span>
                     </OverlayTrigger>
                   </Col>
-                  <Col xs={2} className='text-end'>
+                  <Col className='col-15p text-end'>
                     <span className={`fw-bold ${option.profit > 0 ? 'text-dark' : 'text-danger'}`}>
                       {formatCashValue(option.profit)}
                     </span>
                   </Col>
-                  <Col xs={2} className='text-end'>{formatUtilization(option.utilization)}</Col>
-                  <Col xs={2} className='text-end'>{formatTurnaround(option.totalTime)}</Col>
+                  <Col xs={2} className='col-15p text-end'>{formatUtilization(option.utilization)}</Col>
+                  <Col xs={2} className='col-15p text-end'>{formatTurnaround(option.totalTime)}</Col>
                 </Row>
               ))}
             </div>}

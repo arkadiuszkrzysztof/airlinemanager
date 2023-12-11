@@ -3,7 +3,8 @@ import { MissionType, type Mission } from '../../../controllers/MissionControlle
 import { Col, Row } from 'react-bootstrap'
 import { ScheduleController } from '../../../controllers/ScheduleController'
 import { Clock } from '../../../controllers/helpers/Clock'
-import { InfoCircle, Trophy } from 'react-bootstrap-icons'
+import { CashStack, InfoCircle, Trophy } from 'react-bootstrap-icons'
+import { formatCashValue } from '../../../controllers/helpers/Helpers'
 
 interface Props {
   item: { completedAt: number, mission: Mission }
@@ -19,7 +20,8 @@ const MissionListItem: React.FC<Props> = ({ item }) => {
         </Col>
         <Col xs={10} className='mb-2'>
           <div className='fs-4 fw-bold text-primary'>{item.mission.label}</div>
-          <div className='fs-5 mb-2'>Progress: <strong>{item.mission.conditions.currentValue.toLocaleString('en-US')}</strong> out of <strong>{item.mission.conditions.expectedValue.toLocaleString('en-US')}</strong></div>
+          <div className='fs-5'>Progress: <strong>{item.mission.conditions.currentValue.toLocaleString('en-US')}</strong> out of <strong>{item.mission.conditions.expectedValue.toLocaleString('en-US')}</strong></div>
+          <div className='fs-5 mb-2'>Reward at completion: <CashStack size={24} className='text-badge-gold mx-2 mb-1' /><strong>{formatCashValue(item.mission.reward)}</strong></div>
           {(item.mission.type === MissionType.DESTINATION || item.mission.type === MissionType.VISITS) && item.mission.conditions.destination !== undefined &&
             <div><InfoCircle size={16} className='me-2 mb-1' /><i>Active contracts to {item.mission.conditions.destination}: <strong>{ScheduleController.getInstance().getActiveSchedulesForDestination(item.mission.conditions.destination).length}</strong></i></div>}
           {item.mission.type === MissionType.AIRCRAFT && item.mission.conditions.aircraft !== undefined &&

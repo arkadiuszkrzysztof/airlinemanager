@@ -1,5 +1,5 @@
 import { Autobind } from './helpers/Autobind'
-import { Airport, AirportsData, calculateAirportsDistance } from '../models/Airport'
+import { Airport, AirportsData, type Regions, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
 import { Timeframes, DaysOfWeek, Clock } from './helpers/Clock'
 import { type HangarAsset, HangarController } from './HangarController'
@@ -17,6 +17,7 @@ export interface CostsBreakdown {
   cancellationFee?: number
   downpayment?: number
   purchasing?: number
+  unlockingRegions?: number
   total: number
 }
 export interface RevenuesBreakdown {
@@ -48,23 +49,30 @@ export interface ContractOption {
 
 export class ContractsController {
   private static instance: ContractsController
-  private readonly listeners: Record<string, (contracts: Contract[]) => void> = {}
+  private readonly listeners: Record<string, (contracts: Array<{ contract: Contract, options: ContractOption[] }>) => void> = {}
 
-  private readonly airports: Airport[]
+  private readonly airports: Record<keyof typeof Regions, Airport[]>
   private contracts: Contract[]
   private inactiveContracts: Contract[]
 
   private constructor () {
-    this.airports = AirportsData.EU.map(airportData => new Airport(...airportData))
+    this.airports = {
+      NA: AirportsData.NA.map(airportData => new Airport(...['NA' as keyof typeof Regions, ...airportData] as const)),
+      EU: AirportsData.EU.map(airportData => new Airport(...['EU' as keyof typeof Regions, ...airportData] as const)),
+      ASIA: AirportsData.ASIA.map(airportData => new Airport(...['ASIA' as keyof typeof Regions, ...airportData] as const)),
+      LATAM: AirportsData.LATAM.map(airportData => new Airport(...['LATAM' as keyof typeof Regions, ...airportData] as const)),
+      AFRICA: AirportsData.AFRICA.map(airportData => new Airport(...['AFRICA' as keyof typeof Regions, ...airportData] as const)),
+      OCEANIA: AirportsData.OCEANIA.map(airportData => new Airport(...['OCEANIA' as keyof typeof Regions, ...airportData] as const))
+    }
     this.contracts = LocalStorage.getContractsOffers()
     this.inactiveContracts = LocalStorage.getInactiveContracts()
   }
 
-  public registerListener (name: string, listener: (contracts: Contract[]) => void): void {
+  public registerListener (name: string, listener: (contracts: Array<{ contract: Contract, options: ContractOption[] }>) => void): void {
     this.listeners[name] = listener
   }
 
-  private callListeners (contracts: Contract[]): void {
+  private callListeners (contracts: Array<{ contract: Contract, options: ContractOption[] }>): void {
     Object.values(this.listeners).forEach(listener => { listener(contracts) })
   }
 
@@ -76,23 +84,24 @@ export class ContractsController {
     return ContractsController.instance
   }
 
-  public getAirports (): Airport[] {
+  public getAirports (): Record<keyof typeof Regions, Airport[]> {
     return this.airports
   }
 
-  private generateContracts (): Contract[] {
+  private generateContractsForRegion (region: string): Contract[] {
     const contracts: Contract[] = []
     const connections: string[] = []
 
-    const hubs = HangarController.getInstance().getHubs()
+    const hubs = HangarController.getInstance().getHubs(region)
     const numberOfContractsToGenerate = hubs.size * 2 + Math.floor(Math.random() * 10 + 5)
-    const hubAirports = this.airports.filter(airport => hubs.has(airport.IATACode))
+    const hubAirports = this.airports[region as keyof typeof Regions].filter(airport => hubs.has(airport.IATACode))
+    const regionAirports = this.airports[region as keyof typeof Regions]
 
     for (; contracts.length < numberOfContractsToGenerate;) {
       const airport1 = (contracts.length < hubs.size * 2
         ? hubAirports[Math.floor(Math.random() * hubAirports.length)]
-        : this.airports[Math.floor(Math.random() * this.airports.length)])
-      const airport2 = this.airports[Math.floor(Math.random() * this.airports.length)]
+        : regionAirports[Math.floor(Math.random() * regionAirports.length)])
+      const airport2 = regionAirports[Math.floor(Math.random() * regionAirports.length)]
 
       const connection = `${airport1.IATACode}${airport2.IATACode}`
 
@@ -200,7 +209,7 @@ export class ContractsController {
 
     hangarController
       .getAllAssets()
-      .filter(asset => asset.plane.hub === undefined || asset.plane.hub.IATACode === contract.hub.IATACode)
+      .filter(asset => (asset.plane.hub === undefined || asset.plane.hub.IATACode === contract.hub.IATACode) && asset.plane.maxRange >= contract.distance)
       .forEach((asset) => {
         const economy = Math.min(contract.demand.economy, asset.plane.maxSeating.economy)
         const business = Math.min(contract.demand.business, asset.plane.maxSeating.business)
@@ -231,10 +240,21 @@ export class ContractsController {
         const available = this.checkAvailability(contract, option)
         option.available = available
 
-        options.push(option)
+        if (option.available) {
+          options.push(option)
+        }
       })
 
     return options.sort((a, b) => b.profit - a.profit)
+  }
+
+  private getContractsOptionsForAll (): Array<{ contract: Contract, options: ContractOption[] }> {
+    const allContracts = [...this.inactiveContracts.concat(...this.contracts)]
+    const allContractsWithOptions = allContracts.map(contract => ({ contract, options: this.getContractOptions(contract) }))
+
+    return allContractsWithOptions.filter(c => c.contract.accepted)
+      .concat(allContractsWithOptions.filter(c => c.options.length > 0))
+      .concat(allContractsWithOptions.filter(c => c.options.length === 0))
   }
 
   public getContractOffMarket (contract: Contract, wasAccepted: boolean): void {
@@ -245,7 +265,7 @@ export class ContractsController {
       this.contracts = this.contracts.filter(c => c.id !== contract.id)
       LocalStorage.setContractsOffers(this.contracts)
     }
-    this.callListeners([...this.inactiveContracts.concat(...this.contracts)])
+    this.callListeners(this.getContractsOptionsForAll())
   }
 
   public getContractsOffPlane (asset: HangarAsset): void {
@@ -256,22 +276,27 @@ export class ContractsController {
 
     ScheduleController.getInstance().removeActiveSchedulesForAsset(asset)
 
-    this.callListeners([...this.inactiveContracts.concat(...this.contracts)])
+    this.callListeners(this.getContractsOptionsForAll())
   }
 
   @Autobind
-  public getAvailableContracts (playtime: number): Contract[] {
+  public getAvailableContracts (playtime: number): Array<{ contract: Contract, options: ContractOption[] }> {
     const lastRefresh = LocalStorage.getLastContractsRefresh()
 
     if (lastRefresh === -1 || playtime - lastRefresh >= Timeframes.DAY) {
-      const newContracts = this.generateContracts().sort((a, b) => b.reputation - a.reputation)
+      let newContracts: Contract[] = []
+      AirlineController.getInstance().unlockedRegions.forEach(region => {
+        newContracts = newContracts.concat(this.generateContractsForRegion(region))
+      })
+      newContracts = newContracts.sort((a, b) => b.reputation - a.reputation)
+
       LocalStorage.setContractsOffers(newContracts)
       LocalStorage.setLastContractsRefresh(playtime - (playtime % Timeframes.DAY))
-      this.callListeners(this.inactiveContracts.concat(...newContracts))
       this.contracts = newContracts
-      return this.inactiveContracts.concat(...newContracts)
+      this.callListeners(this.getContractsOptionsForAll())
+      return this.getContractsOptionsForAll()
     } else {
-      return this.inactiveContracts.concat(...this.contracts)
+      return this.getContractsOptionsForAll()
     }
   }
 }

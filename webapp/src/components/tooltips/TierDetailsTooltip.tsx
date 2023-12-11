@@ -57,6 +57,27 @@ const TierDetailsTooltip: React.FC = () => {
           ? <Col xs={3} className='text-end text-primary fw-bold'>{formatPercentageValue(nextTier.record.perks.marketDiscount)}</Col>
           : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
       </Row>
+      <Row>
+        <Col xs={6} className='text-start'>Max number of regions</Col>
+        <Col xs={3} className='text-end'>{tier.record.constraints.maxNumberOfRegions}</Col>
+        {nextTier !== undefined
+          ? <Col xs={3} className='text-end text-primary fw-bold'>{nextTier.record.constraints.maxNumberOfRegions}</Col>
+          : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
+      </Row>
+      <Row>
+        <Col xs={6} className='text-start'>Can fly cross-region?</Col>
+        <Col xs={3} className='text-end'>{(tier.record.constraints.canFlyCrossRegion ? 'Yes' : 'No')}</Col>
+        {nextTier !== undefined
+          ? <Col xs={3} className='text-end text-primary fw-bold'>{(nextTier.record.constraints.canFlyCrossRegion ? 'Yes' : 'No')}</Col>
+          : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
+      </Row>
+      <Row>
+        <Col xs={6} className='text-start'>Can order new planes?</Col>
+        <Col xs={3} className='text-end'>{(tier.record.constraints.canOrderNewPlanes ? 'Yes' : 'No')}</Col>
+        {nextTier !== undefined
+          ? <Col xs={3} className='text-end text-primary fw-bold'>{(nextTier.record.constraints.canOrderNewPlanes ? 'Yes' : 'No')}</Col>
+          : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
+      </Row>
     </>
   )
 }

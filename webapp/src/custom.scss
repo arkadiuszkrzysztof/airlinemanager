@@ -192,6 +192,10 @@ body,
   height: 100%;
 }
 
+.widget-full-height {
+  max-height: calc(100vh - 150px);
+}
+
 .rotate-0 {
   transform: rotate(0deg);
   transition: all 0.3s ease-in-out;
@@ -305,4 +309,24 @@ body,
 .rounded-right {
   border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0 !important;
   border-left: none !important;
+}
+.col-10p{
+  flex: 0 0 auto;
+  max-width: 10%;
+}
+.col-15p{
+  flex: 0 0 auto;
+  max-width: 15%;
+}
+.col-20p{
+  flex: 0 0 auto;
+  max-width: 20%;
+}
+.col-25p{
+  flex: 0 0 auto;
+  max-width: 25%;
+}
+
+.grayscale {
+  filter: grayscale(100%);
 }

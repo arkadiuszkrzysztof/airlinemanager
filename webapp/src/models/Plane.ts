@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-spaces */
 import { Clock, Timeframes } from '../controllers/helpers/Clock'
 import { getDepreciation } from '../controllers/helpers/Helpers'
 import { type Airport } from './Airport'
@@ -6,7 +7,9 @@ export type PlaneTuple = [
   familyName: string,
   typeName: string,
   maxSeating: { economy: number, business: number, first: number },
+  crewCount: number,
   MTOW: number,
+  minRunwayLength: number,
   maxRange: number,
   maxFuel: number,
   cruiseSpeed: number,
@@ -25,7 +28,9 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
     plane.familyName,
     plane.typeName,
     plane.maxSeating,
+    plane.crewCount,
     plane.MTOW,
+    plane.minRunwayLength,
     plane.maxRange,
     plane.maxFuel,
     plane.cruiseSpeed,
@@ -41,26 +46,18 @@ export const convertToPlaneTuple = (plane: Plane): PlaneTuple => {
 }
 
 export const PlanesData: PlaneTuple[] = [
-  ['Airbus', 'A320', { economy: 164, business: 0, first: 0 }, 78, 6100, 27000, 829, 3125, { purchase: 98000000, lease: 2200, leaseDuration: 0, leaseCancellationFee: 390000 * 3, leaseDownpayment: 390000, maintenance: 800 }, '', 0, 2],
-  ['Boeing', '787', { economy: 266, business: 24, first: 0 }, 252, 14140, 138700, 903, 5400, { purchase: 239000000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 }, '', 0, 3],
-  ['Embraer', 'E170', { economy: 72, business: 0, first: 0 }, 39, 3900, 9300, 797, 1750, { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 }, '', 0, 1],
-  ['Airbus', 'A350', { economy: 315, business: 54, first: 0 }, 322, 16100, 158800, 903, 7250, { purchase: 366000000, lease: 7000, leaseDuration: 0, leaseCancellationFee: 1250000 * 3, leaseDownpayment: 1250000, maintenance: 2500 }, '', 0, 4],
-  ['Boeing', '777', { economy: 304, business: 42, first: 8 }, 299, 11100, 171000, 892, 7690, { purchase: 375000000, lease: 7100, leaseDuration: 0, leaseCancellationFee: 1300000 * 3, leaseDownpayment: 1300000, maintenance: 2500 }, '', 0, 4]
-  // ['Airbus', 'A330', { economy: 277, business: 0, first: 0 }, 242000, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Airbus', 'A340', { economy: 295, business: 0, first: 0 }, 276500, 13400, 139000, 870, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Airbus', 'A380', { economy: 555, business: 0, first: 0 }, 575000, 15200, 320000, 903, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Boeing', '737', { economy: 189, business: 0, first: 0 }, 79000, 5600, 26000, 830, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Boeing', '747', { economy: 467, business: 0, first: 0 }, 396890, 14815, 216840, 920, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Boeing', '757', { economy: 239, business: 0, first: 0 }, 115680, 7222, 43000, 850, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Boeing', '767', { economy: 375, business: 0, first: 0 }, 186880, 11000, 91000, 850, 6000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Bombardier', 'CRJ', { economy: 50, business: 0, first: 0 }, 36287, 3710, 11000, 780, 1000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Bombardier', 'CSeries', { economy: 133, business: 0, first: 0 }, 60000, 5900, 19000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Embraer', 'E-Jet', { economy: 124, business: 0, first: 0 }, 50000, 3334, 15000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['McDonnell Douglas', 'MD-11', { economy: 410, business: 0, first: 0 }, 286000, 12400, 171000, 890, 6000, { purchase: 100000000, downpayment: 400000, lease: 50000, maintenance: 10000 }, '', 0],
-  // ['McDonnell Douglas', 'MD-80', { economy: 172, business: 0, first: 0 }, 75000, 3334, 19000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['McDonnell Douglas', 'MD-90', { economy: 172, business: 0, first: 0 }, 75000, 3334, 19000, 828, 2500, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Bombardier', 'Dash 8', { economy: 90, business: 0, first: 0 }, 17500, 2130, 6000, 667, 1000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0],
-  // ['Bombardier', 'Q400', { economy: 90, business: 0, first: 0 }, 28600, 2130, 11000, 667, 1000, { purchase: 100000000, lease: 50000, downpayment: 400000, maintenance: 10000 }, '', 0]
+  // family, type         maxSeating                                 crew MTOW  runway  range   maxf    speed   fcon    pricing                                                                                                                                    reg man rep
+  ['Embraer', 'E170',     { economy: 72, business: 0, first: 0 },    4,   39,   1644,   3900,   9300,   797,    1750,   { purchase: 46000000, lease: 1050, leaseDuration: 0, leaseCancellationFee: 175000 * 3, leaseDownpayment: 175000, maintenance: 500 },       '', 0,  1],
+  ['Bombardier', 'Q400',  { economy: 82, business: 0, first: 0 },    4,   30,   1000,   2040,   6500,   556,    1250,   { purchase: 33500000, lease: 780, leaseDuration: 0, leaseCancellationFee: 130000 * 3, leaseDownpayment: 130000, maintenance: 400 },        '', 0,  1],
+  ['Airbus', 'A320',      { economy: 164, business: 0, first: 0 },   6,   78,   2100,   6100,   27000,  829,    3125,   { purchase: 98000000, lease: 2200, leaseDuration: 0, leaseCancellationFee: 390000 * 3, leaseDownpayment: 390000, maintenance: 800 },       '', 0,  2],
+  ['Boeing', '737',       { economy: 193, business: 0, first: 0 },   6,   88,   2500,   6100,   25800,  839,    2500,   { purchase: 129000000, lease: 3100, leaseDuration: 0, leaseCancellationFee: 515000 * 3, leaseDownpayment: 515000, maintenance: 900 },      '', 0,  2],
+  ['Boeing', '787',       { economy: 266, business: 24, first: 0 },  8,   249,  2800,   14140,  138700, 903,    5400,   { purchase: 239000000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 },     '', 0,  3],
+  ['Airbus', 'A330',      { economy: 210, business: 36, first: 0 },  8,   242,  2770,   13450,  139000, 871,    5625,   { purchase: 238500000, lease: 4500, leaseDuration: 0, leaseCancellationFee: 820000 * 3, leaseDownpayment: 820000, maintenance: 1500 },     '', 0,  3],
+  ['Airbus', 'A350',      { economy: 315, business: 54, first: 0 },  10,  322,  2600,   16100,  158800, 903,    7250,   { purchase: 366000000, lease: 7000, leaseDuration: 0, leaseCancellationFee: 1250000 * 3, leaseDownpayment: 1250000, maintenance: 2500 },   '', 0,  4],
+  ['Boeing', '777',       { economy: 304, business: 42, first: 8 },  10,  299,  3230,   11100,  171000, 892,    7690,   { purchase: 375000000, lease: 7100, leaseDuration: 0, leaseCancellationFee: 1300000 * 3, leaseDownpayment: 1300000, maintenance: 2500 },   '', 0,  4],
+  ['Airbus', 'A380',      { economy: 411, business: 92, first: 16 }, 18,  575,  3000,   14800,  323000, 903,    11400,  { purchase: 445000000, lease: 10680, leaseDuration: 0, leaseCancellationFee: 1780000 * 3, leaseDownpayment: 1780000, maintenance: 3800 },  '', 0,  5],
+  ['Boeing', '747',       { economy: 315, business: 78, first: 23 }, 12,  396,  3300,   13500,  205000, 933,    11200,  { purchase: 418000000, lease: 50000, leaseDuration: 0, leaseCancellationFee: 1670000 * 3, leaseDownpayment: 1670000, maintenance: 10000 }, '', 0,  5],
+  ['BAC', 'Concorde',     { economy: 0, business: 72, first: 36 },   6,   185,  3600,   7200,   120000, 2158,   25600,  { purchase: 550000000, lease: 13200, leaseDuration: 0, leaseCancellationFee: 2200000 * 3, leaseDownpayment: 2200000, maintenance: 5500 },  '', 0,  10]
 ]
 
 export class Plane {
@@ -72,7 +69,9 @@ export class Plane {
       business: number
       first: number
     },
+    public readonly crewCount: number,
     public readonly MTOW: number,
+    public readonly minRunwayLength: number,
     public readonly maxRange: number,
     public readonly maxFuel: number,
     public readonly cruiseSpeed: number,

@@ -4,12 +4,15 @@ import './custom.scss'
 import App from './components/App'
 import { RouterProvider, createBrowserRouter, redirect, type LoaderFunction } from 'react-router-dom'
 import ErrorPage from './components/ErrorPage'
-import Operations from './components/tabs/Operations'
+import Market from './components/tabs/Market'
 import Dashboard from './components/tabs/Dashboard'
+import Hangar from './components/tabs/Hangar'
 import Map from './components/tabs/Map'
 import Missions from './components/tabs/Missions'
 import CreateAirline from './components/CreateAirline'
 import { GameController } from './controllers/GameController'
+import Statistics from './components/tabs/Statistics'
+import Manual from './components/tabs/Manual'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -43,8 +46,14 @@ const router = createBrowserRouter([
     loader: createAirlineLoader
   },
   {
-    path: '/operations',
-    element: <App Tab={Operations} />,
+    path: '/market',
+    element: <App Tab={Market} />,
+    errorElement: <ErrorPage />,
+    loader: createAirlineLoader
+  },
+  {
+    path: '/hangar',
+    element: <App Tab={Hangar} />,
     errorElement: <ErrorPage />,
     loader: createAirlineLoader
   },
@@ -57,6 +66,18 @@ const router = createBrowserRouter([
   {
     path: '/map',
     element: <App Tab={Map} />,
+    errorElement: <ErrorPage />,
+    loader: createAirlineLoader
+  },
+  {
+    path: '/statistics',
+    element: <App Tab={Statistics} />,
+    errorElement: <ErrorPage />,
+    loader: createAirlineLoader
+  },
+  {
+    path: '/manual',
+    element: <App Tab={Manual} />,
     errorElement: <ErrorPage />,
     loader: createAirlineLoader
   },

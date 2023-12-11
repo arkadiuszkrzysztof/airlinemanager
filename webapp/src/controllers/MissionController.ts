@@ -1,3 +1,4 @@
+import { Regions } from '../models/Airport'
 import { AirlineController } from './AirlineController'
 import { HangarController } from './HangarController'
 import { type Schedule } from './ScheduleController'
@@ -49,6 +50,7 @@ export enum MissionType { DESTINATION, VISITS, AIRCRAFT, PASSENGER_CLASS }
 
 export interface Mission {
   id: string
+  region?: Regions
   type: MissionType
   label: string
   reward: number
@@ -110,21 +112,21 @@ const visitsResolver = (mission: Mission, schedule?: Schedule): boolean => {
 const MissionData: Mission[] = [
   { id: 'PLA-E170', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Embraer 170', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: 'E170', expectedValue: 10000, currentValue: 0 } },
   { id: 'PAS-ECO', type: MissionType.PASSENGER_CLASS, label: 'Fly 50,000 passengers in economy class', reward: 100000, resolver: classResolver, conditions: { class: 'economy', expectedValue: 50000, currentValue: 0 } },
-  { id: 'VIS-EDI', type: MissionType.VISITS, label: 'Visit Edinburgh 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'EDI', expectedValue: 10, currentValue: 0 } },
-  { id: 'DEST-CDG', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Paris Charles de Gaulle', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CDG', expectedValue: 1000, currentValue: 0 } },
-  { id: 'VIS-KRK', type: MissionType.VISITS, label: 'Visit Krakow 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'KRK', expectedValue: 10, currentValue: 0 } },
-  { id: 'DEST-LHR', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to London Heathrow', reward: 100000, resolver: destinationResolver, conditions: { destination: 'LHR', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-KEF', type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-EDI', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Edinburgh 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'EDI', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-CDG', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Paris Charles de Gaulle', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CDG', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-KRK', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Krakow 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'KRK', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-LHR', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to London Heathrow', reward: 100000, resolver: destinationResolver, conditions: { destination: 'LHR', expectedValue: 1000, currentValue: 0 } },
+  { id: 'DEST-KEF', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
   { id: 'PLA-A320', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Airbus A320', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: 'A320', expectedValue: 10000, currentValue: 0 } },
-  { id: 'VIS-LIS', type: MissionType.VISITS, label: 'Visit Lisbon 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 50, currentValue: 0 } },
+  { id: 'VIS-LIS', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Lisbon 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 50, currentValue: 0 } },
   { id: 'PLA-B787', type: MissionType.AIRCRAFT, label: 'Fly 50,000 passengers with the Boeing 787', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '787', expectedValue: 50000, currentValue: 0 } },
   { id: 'PAS-BUS', type: MissionType.PASSENGER_CLASS, label: 'Fly 1,000 passengers in business class', reward: 250000, resolver: classResolver, conditions: { class: 'business', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-IST', type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Istanbul', reward: 250000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 100000, currentValue: 0 } },
+  { id: 'DEST-IST', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Istanbul', reward: 250000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 100000, currentValue: 0 } },
   { id: 'PLA-B777', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Boeing 777', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '777', expectedValue: 10000, currentValue: 0 } },
-  { id: 'DEST-AMS', type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Amsterdam', reward: 250000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 100000, currentValue: 0 } },
+  { id: 'DEST-AMS', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Amsterdam', reward: 250000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 100000, currentValue: 0 } },
   { id: 'PAS-FIR', type: MissionType.PASSENGER_CLASS, label: 'Fly 1000 passengers in first class', reward: 500000, resolver: classResolver, conditions: { class: 'first', expectedValue: 1000, currentValue: 0 } },
   { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 250,000 passengers with the Boeing 747', reward: 500000, resolver: aircraftResolver, conditions: { aircraft: '747', expectedValue: 250000, currentValue: 0 } },
-  { id: 'VIS-ARN', type: MissionType.VISITS, label: 'Visit Stockholm 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'ARN', expectedValue: 100, currentValue: 0 } },
+  { id: 'VIS-ARN', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Stockholm 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'ARN', expectedValue: 100, currentValue: 0 } },
   { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 1,000,000 passengers with the Airbus A380', reward: 1000000, resolver: aircraftResolver, conditions: { aircraft: 'A380', expectedValue: 1000000, currentValue: 0 } }
 ]
 
@@ -146,6 +148,7 @@ export class MissionController {
     const progress = LocalStorage.getMissionsProgress()
     this._missionsRemaining = MissionData
       .filter((m: Mission) => !this._missionsCompleted.map((mc) => mc.mission.id).includes(m.id))
+      .filter((m: Mission) => m.region === undefined || m.region === AirlineController.getInstance().startingRegion)
       .map((m: Mission) => ({ ...m, conditions: { ...m.conditions, currentValue: progress[m.id] ?? 0 } }))
   }
 

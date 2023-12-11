@@ -6,6 +6,7 @@ import { type Schedule } from './ScheduleController'
 import { formatCashValue } from './helpers/Helpers'
 import { Tier, type TierRecord, Tiers } from './helpers/Tiers'
 import { type Achievement, AchievementType, MissionController, type Mission } from './MissionController'
+import { Regions } from '../models/Airport'
 
 export interface PNLRecord {
   statistics: {
@@ -29,6 +30,7 @@ export interface PNLRecord {
     purchasing: number
     downpayment: number
     cancellationFee: number
+    unlockingRegions: number
   }
 }
 
@@ -36,11 +38,13 @@ export type EventLogRecords = Array<{ playtime: number, origin: EventOrigin, mes
 
 export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Contract', SCHEDULE = 'Schedule', HANGAR = 'Hangar', MISSIONS = 'Missions' }
 
-export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection' }
+export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection', REGION = 'Region' }
 export class AirlineController {
   private static instance: AirlineController
 
   private readonly _name: string
+  private readonly _startingRegion: string
+  private readonly _unlockedRegions: string[]
   private _reputation: Array<{ originId: string, type: ReputationType, reputation: number }>
   private _cash: number
   private readonly _pnl: Record<number, PNLRecord>
@@ -48,6 +52,8 @@ export class AirlineController {
 
   private constructor () {
     this._name = LocalStorage.getAirlineName()
+    this._startingRegion = LocalStorage.getStartingRegion()
+    this._unlockedRegions = LocalStorage.getUnlockedRegions()
     this._reputation = LocalStorage.getReputation()
     this._cash = LocalStorage.getCash()
     this._pnl = LocalStorage.getPNL()
@@ -114,12 +120,13 @@ export class AirlineController {
     LocalStorage.setCash(this._cash)
   }
 
-  get reputation (): { fleet: number, connection: number, totalCapped: number } {
+  get reputation (): { fleet: number, connection: number, region: number, totalCapped: number } {
     const fleet = this._reputation.filter(r => r.type === ReputationType.FLEET).reduce((sum, r) => sum + r.reputation, 0)
     const connection = this._reputation.filter(r => r.type === ReputationType.CONNECTION).reduce((sum, r) => sum + r.reputation, 0)
-    const totalCapped = Math.min(fleet, 50) + Math.min(connection, 50)
+    const region = this._reputation.filter(r => r.type === ReputationType.REGION).reduce((sum, r) => sum + r.reputation, 0)
+    const totalCapped = Math.min(fleet, 40) + Math.min(connection, 40) + Math.min(region, 20)
 
-    return { fleet, connection, totalCapped }
+    return { fleet, connection, region, totalCapped }
   }
 
   get reputationFormatted (): string {
@@ -138,11 +145,36 @@ export class AirlineController {
     return this._name
   }
 
+  get startingRegion (): string {
+    return this._startingRegion
+  }
+
+  get unlockedRegions (): string[] {
+    return [this.startingRegion, ...this._unlockedRegions]
+  }
+
   get PNL (): Record<number, PNLRecord> {
     if (Object.keys(this._pnl).length === 0) {
       this.getThisMonthPNLRecord()
     }
     return this._pnl
+  }
+
+  public unlockRegion (region: string, price: number, reputation: number): void {
+    this._unlockedRegions.push(region)
+    LocalStorage.setUnlockedRegions(this._unlockedRegions)
+
+    const thisMonthPNL = this.getThisMonthPNLRecord()
+
+    thisMonthPNL.costs.unlockingRegions += price
+
+    LocalStorage.setPNL(this._pnl)
+
+    this.gainReputation(region, ReputationType.REGION, reputation)
+
+    this.logEvent(EventOrigin.MISSIONS, `Unlocked ${Regions[region as keyof typeof Regions]} region for ${formatCashValue(price)}`)
+
+    this.spendCash(price)
   }
 
   public buyPlane (plane: Plane): void {
@@ -203,7 +235,7 @@ export class AirlineController {
     const timeThisMonthStart = Clock.getInstance().timeThisMonthStart
 
     this._pnl[timeThisMonthStart] = this._pnl[timeThisMonthStart] ??
-      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0, missions: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0 } }
+      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0, missions: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0, unlockingRegions: 0 } }
 
     return this._pnl[timeThisMonthStart]
   }

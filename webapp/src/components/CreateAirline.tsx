@@ -3,6 +3,7 @@ import { Badge, Col, Container, Row, Button, Form } from 'react-bootstrap'
 import { AirplaneEnginesFill, type Icon, Icon1CircleFill, Icon2CircleFill, Icon3CircleFill, RCircleFill, TrophyFill, ChevronRight } from 'react-bootstrap-icons'
 import { GameController } from '../controllers/GameController'
 import { useNavigate } from 'react-router-dom'
+import { Regions } from '../models/Airport'
 
 const ColPath: React.FC<{ Icon: Icon }> = ({ Icon }) => {
   return (
@@ -20,12 +21,13 @@ const ColPath: React.FC<{ Icon: Icon }> = ({ Icon }) => {
 
 const CreateAirline: React.FC = () => {
   const [name, setName] = useState('')
+  const [region, setRegion] = useState('')
   const navigate = useNavigate()
 
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
-    GameController.startGame(name.trim())
-    navigate('/operations')
+    GameController.startGame(name.trim(), region)
+    navigate('/market')
   }
 
   return (
@@ -33,7 +35,20 @@ const CreateAirline: React.FC = () => {
       <Row className='mh-100 vh-100 m-0'>
         <Col className='d-flex flex-column align-items-center justify-content-center p-4 mh-100 vh-100 position-relative overflow-hidden'>
           <AirplaneEnginesFill size={360} className='position-absolute opacity-100 text-secondary' style={{ bottom: '-40px', left: '-120px' }} />
-          <h1 className='text-primary fw-bold'>Start New Airline</h1>
+          <h1 className='text-primary fw-bold'>Launch New Airline</h1>
+          <div className='py-2'>
+            {Object.keys(Regions).map((key) => (
+              <img
+                key={key}
+                src={`/images/region-${key.toLocaleLowerCase()}.png`}
+                alt={Regions[key as keyof typeof Regions]}
+                className={`rounded m-1 cursor-pointer ${region === key ? 'border border-2 border-primary' : ''}`}
+                style={{ maxWidth: '100px' }}
+                onClick={() => { setRegion(key) }} />
+            ))}
+            {region !== '' && <p className='text-center'>Starting region: <strong>{Regions[region as keyof typeof Regions]}</strong></p>}
+            {region === '' && <p className='text-center'>Select starting region</p>}
+          </div>
           <Form onSubmit={onSubmitHandler}>
             <div className='d-flex'>
               <Form.Control
@@ -43,9 +58,9 @@ const CreateAirline: React.FC = () => {
                 value={name}
                 onChange={(e) => { setName(e.target.value) }}
                 className='fs-4 text-center rounded-left border-primary'
-                maxLength={20}
+                maxLength={24}
                 autoComplete='off' />
-              <Button type="submit" className='rounded-right' disabled={name.trim().length < 3}><ChevronRight size={24} className='text-white' /></Button>
+              <Button type="submit" className='rounded-right' disabled={name.trim().length < 3 || region === ''}><ChevronRight size={24} className='text-white' /></Button>
             </div>
           </Form>
           <div className='w-100 d-flex align-items-center justify-content-center py-5'>

@@ -4,6 +4,7 @@ import { AirlineController } from './AirlineController'
 import { Clock, Timeframes } from './helpers/Clock'
 import { LocalStorage } from './helpers/LocalStorage'
 import { getDepreciation, getRandomCharacters } from './helpers/Helpers'
+import { Tier } from './helpers/Tiers'
 
 export class MarketController {
   private readonly planes: Plane[]
@@ -76,7 +77,11 @@ export class MarketController {
     const tier = this.AirlineController.getTier()
     const constraints = tier.record.constraints
 
-    const prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
+    let prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
+
+    if (tier.name === Tier.BRONZE || tier.name === Tier.SILVER) {
+      prototypes = prototypes.filter(plane => plane.typeName !== 'Concorde')
+    }
 
     const numberOfOptions = prototypes.length * 3
     const options: Plane[] = []
@@ -91,7 +96,9 @@ export class MarketController {
         prototype.familyName,
         prototype.typeName,
         prototype.maxSeating,
+        prototype.crewCount,
         prototype.MTOW,
+        prototype.minRunwayLength,
         prototype.maxRange,
         prototype.maxFuel,
         prototype.cruiseSpeed,

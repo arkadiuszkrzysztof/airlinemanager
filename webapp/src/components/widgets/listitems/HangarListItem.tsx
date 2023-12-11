@@ -1,5 +1,5 @@
 import React, { type ReactElement } from 'react'
-import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Accordion, Card } from 'react-bootstrap'
+import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { type HangarAsset } from '../../../controllers/HangarController'
 import { GameController } from '../../../controllers/GameController'
 import { Clock, DaysOfWeek, Timeframes } from '../../../controllers/helpers/Clock'
@@ -8,7 +8,6 @@ import { formatCashValue, formatUtilization } from '../../../controllers/helpers
 import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import TimetableHoursCol from '../../fragments/TimetableHours'
 import TimetableGrid from '../../fragments/TimetableGrid'
-import ContentToggle from '../../fragments/ContentToggle'
 import ScheduleCalendarItem from '../../fragments/ScheduleCalendarItem'
 
 interface Props {
@@ -61,7 +60,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   return (
     <Row className='bg-grey-light rounded mt-2 p-2'>
       <Col xs={12}>
-        <Row className='justify-content-between'>
+        <Row className='justify-content-between pb-2'>
           <Col xs={'auto'} className='d-flex align-items-center'>
             {asset.plane.hub !== undefined &&
               <Badge bg='dark' className='me-2 fs-5'>{asset.plane.hub.IATACode}</Badge>
@@ -99,65 +98,55 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
         </Row>
       </Col>
       <Col xs={12}>
-        <Accordion className='mt-2'>
-          <Card>
-            <Row className='mx-2 mt-2'>
-              <Col xs={'auto'}>
-                <div className='timetable-hour mw-50'></div>
-              </Col>
-              {Object.values(DaysOfWeek).map((day) =>
-                <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
-                  <div className='text-center fw-bold text-dark'>
-                    {day}
-                  </div>
-                  <div className='text-center text-grey-dark'>
-                    <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Controllers.Schedule.getTotalUseTime(asset, day)}</Tooltip>}>
-                      <span className='cursor-help'>
-                        <ClockFill size={12} className='me-2' />
-                        {getTimeUseIndicator(asset, day)}
-                      </span>
-                    </OverlayTrigger>
-                    <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Average seat utilization:</strong><br />{formatUtilization(Controllers.Schedule.getAverageUtilization(asset, day))}</Tooltip>}>
-                      <span className='cursor-help'>
-                        <PersonFill size={12} className='me-2' />
-                        {getUtilizationIndicator(asset, day)}
-                      </span>
-                    </OverlayTrigger>
-                  </div>
-                </Col>
-              )}
-              <Col xs={'auto'} className='flex-grow-0'>
-                <div className='timetable-hour mw-50'>
-                  <ContentToggle eventKey="0" />
+        <Card>
+          <Row className='mx-2 mt-2'>
+            <Col xs={'auto'}>
+              <div className='timetable-hour mw-50'></div>
+            </Col>
+            {Object.values(DaysOfWeek).map((day) =>
+              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+                <div className='text-center fw-bold text-dark'>
+                  {day}
+                </div>
+                <div className='text-center text-grey-dark'>
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Controllers.Schedule.getTotalUseTime(asset, day)}</Tooltip>}>
+                    <span className='cursor-help'>
+                      <ClockFill size={12} className='me-2' />
+                      {getTimeUseIndicator(asset, day)}
+                    </span>
+                  </OverlayTrigger>
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Average seat utilization:</strong><br />{formatUtilization(Controllers.Schedule.getAverageUtilization(asset, day))}</Tooltip>}>
+                    <span className='cursor-help'>
+                      <PersonFill size={12} className='me-2' />
+                      {getUtilizationIndicator(asset, day)}
+                    </span>
+                  </OverlayTrigger>
                 </div>
               </Col>
-            </Row>
-            <Accordion.Collapse eventKey="0">
-            <Row className='mx-2 mb-2' style={{ height: '300px' }}>
-              <TimetableHoursCol showLabels />
-              {Object.values(DaysOfWeek).map((day) =>
-                <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
-                  <TimetableGrid />
-                  <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
-                  {Controllers.Schedule
-                    .getActiveSchedulesForAsset(asset)
-                    .filter((schedule) => schedule.day === day || (schedule.day === Clock.getDayBefore(day) && schedule.end < schedule.start && schedule.end > '01:00'))
-                    .sort((a, b) => (a.start < b.start ? -1 : 1))
-                    .map((schedule) =>
-                      <ScheduleCalendarItem
-                        key={schedule.contract.id}
-                        schedule={schedule}
-                        tooltipPosition='top'
-                        currentDayOfWeek={day} />
-                    )
-                  }
-                </Col>
-              )}
-              <TimetableHoursCol />
-            </Row>
-        </Accordion.Collapse>
-      </Card>
-      </Accordion>
+            )}
+          </Row>
+          <Row className='mx-2 mb-2' style={{ height: '300px' }}>
+            <TimetableHoursCol showLabels />
+            {Object.values(DaysOfWeek).map((day) =>
+              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+                <TimetableGrid />
+                <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
+                {Controllers.Schedule
+                  .getActiveSchedulesForAsset(asset)
+                  .filter((schedule) => schedule.day === day || (schedule.day === Clock.getDayBefore(day) && schedule.end < schedule.start && schedule.end > '01:00'))
+                  .sort((a, b) => (a.start < b.start ? -1 : 1))
+                  .map((schedule) =>
+                    <ScheduleCalendarItem
+                      key={schedule.contract.id}
+                      schedule={schedule}
+                      tooltipPosition='top'
+                      currentDayOfWeek={day} />
+                  )
+                }
+              </Col>
+            )}
+          </Row>
+        </Card>
       </Col>
     </Row>
   )

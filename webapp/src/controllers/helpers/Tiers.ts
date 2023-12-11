@@ -11,6 +11,9 @@ export interface TierRecord {
     MTOW: number
     maxPlanes: number
     reputationGain: number
+    maxNumberOfRegions: number
+    canFlyCrossRegion: boolean
+    canOrderNewPlanes: boolean
   }
   perks: {
     hubDiscount: number
@@ -25,7 +28,10 @@ export const Tiers: Record<Tier, TierRecord> = {
     constraints: {
       MTOW: 600,
       maxPlanes: 25,
-      reputationGain: 0.3
+      reputationGain: 0.3,
+      maxNumberOfRegions: 6,
+      canFlyCrossRegion: true,
+      canOrderNewPlanes: true
     },
     perks: {
       hubDiscount: 0.4,
@@ -38,7 +44,10 @@ export const Tiers: Record<Tier, TierRecord> = {
     constraints: {
       MTOW: 350,
       maxPlanes: 15,
-      reputationGain: 0.5
+      reputationGain: 0.5,
+      maxNumberOfRegions: 4,
+      canFlyCrossRegion: true,
+      canOrderNewPlanes: true
     },
     perks: {
       hubDiscount: 0.3,
@@ -51,7 +60,10 @@ export const Tiers: Record<Tier, TierRecord> = {
     constraints: {
       MTOW: 250,
       maxPlanes: 10,
-      reputationGain: 0.7
+      reputationGain: 0.7,
+      maxNumberOfRegions: 2,
+      canFlyCrossRegion: false,
+      canOrderNewPlanes: false
     },
     perks: {
       hubDiscount: 0.2,
@@ -64,7 +76,10 @@ export const Tiers: Record<Tier, TierRecord> = {
     constraints: {
       MTOW: 50,
       maxPlanes: 5,
-      reputationGain: 1
+      reputationGain: 1,
+      maxNumberOfRegions: 1,
+      canFlyCrossRegion: false,
+      canOrderNewPlanes: false
     },
     perks: {
       hubDiscount: 0.1,

@@ -42,7 +42,8 @@ const preparePNLData = (Controllers: Controllers): PNLChartData => {
     .sort(([a]: [string, PNLRecord], [b]: [string, PNLRecord]) => parseInt(a) - parseInt(b))
     .slice(-6)
     .forEach(([monthPlaytime, record]: [string, PNLRecord]) => {
-      const totalcosts = record.costs.cancellationFee + record.costs.fuel + record.costs.maintenance + record.costs.downpayment + record.costs.landing + record.costs.leasing + record.costs.passenger + record.costs.purchasing
+      // remove ?? 0
+      const totalcosts = record.costs.cancellationFee + record.costs.fuel + record.costs.maintenance + record.costs.downpayment + record.costs.landing + record.costs.leasing + record.costs.passenger + record.costs.purchasing + (record.costs.unlockingRegions ?? 0)
       const totalRevenue = record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + (record.revenue.missions ?? 0)
 
       result.data.push({
@@ -58,6 +59,10 @@ const preparePNLData = (Controllers: Controllers): PNLChartData => {
       })
       result.maxTotal = Math.floor(Math.max(result.maxTotal, totalcosts, totalRevenue))
     })
+
+  if (result.maxTotal === 0) {
+    result.maxTotal = 1000000
+  }
 
   result.scale.step = Math.pow(10, result.maxTotal.toString().length - 1)
   const numberOfSteps = Math.ceil(result.maxTotal / result.scale.step)
@@ -140,10 +145,10 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2'>
-          <Row className='mx-2 mb-2 position-relative ms-5'>
+          <Row className='mx-2 mb-2 position-relative ms-5 justify-content-center'>
             {getScale(pnlData)}
             {pnlData.data.map((record) => (
-              <Col key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
+              <Col xs={2} key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
                 <Row className='align-items-end gx-2' style={{ height: '275px' }}>
                   <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
                     <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
@@ -152,7 +157,7 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                         const value = record.costs[key as keyof typeof record.costs]
 
                         if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={`pnl-bar bg-warning-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
+                          return (<div key={`${record.month}-${key}`} className={'pnl-bar bg-warning-scale-3'} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
                         }
 
                         return null
@@ -166,7 +171,7 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                         const value = record.revenue[key as keyof typeof record.revenue]
 
                         if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={`pnl-bar bg-success-scale-${8 - index}`} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
+                          return (<div key={`${record.month}-${key}`} className={'pnl-bar bg-success-scale-3'} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
                         }
 
                         return null

@@ -4,18 +4,22 @@ import { AirlineController } from '../../controllers/AirlineController'
 import { Tier, Tiers } from '../../controllers/helpers/Tiers'
 
 const ReputationBreakdownTooltip: React.FC = () => {
-  const { fleet, connection, totalCapped } = AirlineController.getInstance().reputation
+  const { fleet, connection, region, totalCapped } = AirlineController.getInstance().reputation
 
   return (
     <>
       <strong>Reputation breakdown:</strong>
       <Row>
         <Col xs={6} className='text-start'>From planes</Col>
-        <Col xs={6} className='text-end'>{`+${fleet.toFixed(2)}%`}<small>{' / 50%'}</small></Col>
+        <Col xs={6} className='text-end'>{`+${fleet.toFixed(2)}%`}<small>{' / 40%'}</small></Col>
       </Row>
       <Row>
         <Col xs={6} className='text-start'>From contracts</Col>
-        <Col xs={6} className='text-end'>{`+${connection.toFixed(2)}%`}<small>{' / 50%'}</small></Col>
+        <Col xs={6} className='text-end'>{`+${connection.toFixed(2)}%`}<small>{' / 40%'}</small></Col>
+      </Row>
+      <Row>
+        <Col xs={6} className='text-start'>From regions</Col>
+        <Col xs={6} className='text-end'>{`+${region.toFixed(2)}%`}<small>{' / 20%'}</small></Col>
       </Row>
       <Row className='mb-4'>
         <Col xs={6} className='text-start fw-bold'>Total</Col>

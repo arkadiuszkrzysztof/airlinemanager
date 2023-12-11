@@ -6,6 +6,7 @@ import { GameController } from '../../controllers/GameController'
 import { type Achievement, type Mission } from '../../controllers/MissionController'
 import MissionListItem from '../widgets/listitems/MissionListItem'
 import AchievementListItem from '../widgets/listitems/AchievementListItem'
+import RegionsWidget from '../widgets/RegionsWidget'
 
 const Missions: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -15,6 +16,7 @@ const Missions: React.FC = () => {
 
   return (
     <>
+      <RegionsWidget fullWidth />
       <ListPreviewWidget<{ completedAt: number, mission: Mission }>
           Icon={Trophy}
           header={`Missions (${missionsCount.completed}/${missionsCount.total})`}

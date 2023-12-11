@@ -26,7 +26,9 @@ enum Keys {
   ACHIEVEMENTS_COMPLETED = 'achievementsCompleted',
   MISSIONS_COMPLETED = 'missionsCompleted',
   MISSIONS_PROGRESS = 'missionsProgress',
-  GAME_ID = 'gameId'
+  GAME_ID = 'gameId',
+  STARTING_REGION = 'startingRegion',
+  UNLOCKED_REGIONS = 'unlockedRegions'
 }
 
 export const LocalStorage = {
@@ -198,6 +200,20 @@ export const LocalStorage = {
   },
   setGameId (gameId: string): void {
     localStorage.setItem(Keys.GAME_ID, gameId)
+  },
+  getStartingRegion (): string {
+    const startingRegion = localStorage.getItem(Keys.STARTING_REGION)
+    return startingRegion ?? ''
+  },
+  setStartingRegion (startingRegion: string): void {
+    localStorage.setItem(Keys.STARTING_REGION, startingRegion)
+  },
+  getUnlockedRegions (): string[] {
+    const unlockedRegions = localStorage.getItem(Keys.UNLOCKED_REGIONS)
+    return (unlockedRegions !== null) ? JSON.parse(unlockedRegions) : []
+  },
+  setUnlockedRegions (unlockedRegions: string[]): void {
+    localStorage.setItem(Keys.UNLOCKED_REGIONS, JSON.stringify(unlockedRegions))
   },
   getAllAsJSON (): string {
     const keys = Object.values(Keys)

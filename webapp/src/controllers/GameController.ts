@@ -65,8 +65,9 @@ export class GameController {
     return LocalStorage.getGameId() !== ''
   }
 
-  public static startGame (airlineName: string): void {
+  public static startGame (airlineName: string, region: string): void {
     LocalStorage.setAirlineName(airlineName)
+    LocalStorage.setStartingRegion(region)
     LocalStorage.setCash(1000000)
     LocalStorage.setGameId(GameController.getInstance().Game._generateGameId())
   }

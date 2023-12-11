@@ -1,25 +1,65 @@
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { Card, Col, Form, Row } from 'react-bootstrap'
 
+import { Map as MapIcon } from 'react-bootstrap-icons'
 import { GameController } from '../../controllers/GameController'
-import { Map } from 'react-bootstrap-icons'
-import { MapContainer, Marker, Polyline, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Polyline, TileLayer, useMap } from 'react-leaflet'
 import { GreatCircle } from '../../controllers/helpers/GreatCircle'
-import { DivIcon } from 'leaflet'
-import { type Airport } from '../../models/Airport'
+import { type Map, DivIcon } from 'leaflet'
+import { Regions, type Airport } from '../../models/Airport'
 import { Clock } from '../../controllers/helpers/Clock'
+import { AirlineController } from '../../controllers/AirlineController'
 
 interface Props {
   fullWidth?: boolean
 }
 
+const MapConfig: Record<keyof typeof Regions, { center: [number, number], zoom: number }> = {
+  NA: {
+    center: [40, -100],
+    zoom: 4
+  },
+  EU: {
+    center: [55, 10],
+    zoom: 4
+  },
+  ASIA: {
+    center: [30, 100],
+    zoom: 4
+  },
+  LATAM: {
+    center: [-25, -60],
+    zoom: 4
+  },
+  AFRICA: {
+    center: [0, 20],
+    zoom: 4
+  },
+  OCEANIA: {
+    center: [-20, 140],
+    zoom: 4
+  }
+}
+
+let MapReference: Map
+
+const MapController: React.FC = () => {
+  MapReference = useMap()
+  return null
+}
+
 const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
 
-  const [showAirports, setShowAirports] = React.useState<boolean>(true)
-  const [showConnections, setShowConnections] = React.useState<boolean>(false)
-  const [showInAir, setShowInAir] = React.useState<boolean>(true)
-  const [showLabels, setShowLabels] = React.useState<boolean>(true)
+  const [showAirports, setShowAirports] = useState(true)
+  const [showConnections, setShowConnections] = useState(false)
+  const [showInAir, setShowInAir] = useState(true)
+  const [showLabels, setShowLabels] = useState(true)
+  const [zoomedRegion, setZoomedRegion] = useState(Controllers.Airline.startingRegion)
+
+  const config = MapConfig[zoomedRegion as keyof typeof Regions]
+
+  const allAirports = Controllers.Contracts.getAirports()
 
   const getPlaneIcon = (angle: number, registration: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
@@ -31,11 +71,13 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
     })
   }
 
-  const getAirportIcon = (isHub: boolean, IATACode: string, showLabels: boolean): DivIcon => {
+  const getAirportIcon = (isHub: boolean, region: string, IATACode: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
       html: (isHub
         ? '<img src="/images/tower-hub.png">' + (showLabels ? `<p class='bg-primary rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
-        : '<img src="/images/tower-dest.png">' + (showLabels ? `<p class='bg-dark rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
+        : AirlineController.getInstance().unlockedRegions.includes(region)
+          ? '<img src="/images/tower-dest.png">' + (showLabels ? `<p class='bg-dark rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
+          : '<img src="/images/tower-inactive.png">' + (showLabels ? `<p class='bg-grey-dark rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
       ),
       className: 'plane-icon',
       iconSize: [30, 24],
@@ -70,32 +112,46 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
       <Card className='p-0 m-2 border-secondary' >
         <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <Map size={24} className='text-dark me-2' />
+            <MapIcon size={24} className='text-dark me-2' />
             <span className='text-dark fw-bold fs-5'>Destinations Map</span>
           </div>
         </Card.Header>
-        <Card.Body className='d-flex flex-column mh-800 overflow-auto p-0'>
-          <Row className='m-0 p-0' style={{ height: '800px' }}>
-            <Col xs={2} className='bg-dark text-white'>
+        <Card.Body className='d-flex flex-column widget-full-height overflow-auto p-0'>
+          <Row className='m-0 p-0'>
+            <Col xs={2} className='bg-dark text-white p-4'>
               <Form.Switch className='mt-2' id='show-airport-codes' label='Show Airports' checked={showAirports} onChange={() => { setShowAirports(!showAirports) }} />
               <Form.Switch className='mt-2' id='show-in-air' label='Show In-Air' checked={showInAir} onChange={() => { setShowInAir(!showInAir) }} />
               <Form.Switch className='mt-2' id='show-labels' label='Show Labels' checked={showLabels} onChange={() => { setShowLabels(!showLabels) }} />
               <Form.Switch className='mt-2' id='show-connections' label='Show Connections' checked={showConnections} onChange={() => { setShowConnections(!showConnections) }} />
+
+              <p className='pt-4'>Zoom to Region</p>
+              {Object.keys(Regions).map((key) => (
+                <img
+                  key={key}
+                  src={`/images/region-${key.toLocaleLowerCase()}.png`}
+                  alt={Regions[key as keyof typeof Regions]}
+                  className={'rounded m-1 cursor-pointer'}
+                  style={{ maxWidth: '50px' }}
+                  onClick={() => { setZoomedRegion(key); MapReference?.flyTo(MapConfig[key as keyof typeof Regions].center, MapConfig[key as keyof typeof Regions].zoom) }} />
+              ))}
             </Col>
             <Col xs={10}>
-              <Row style={{ height: '800px' }}>
-                <MapContainer center={[55, 10]} zoom={4} scrollWheelZoom={true}>
+              <Row className='widget-full-height' style={{ height: 'calc(100vh - 150px)' }}>
+                <MapContainer center={config.center} zoom={config.zoom} scrollWheelZoom={true}>
+                  <MapController />
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
 
-                  {showAirports && Controllers.Contracts.getAirports().map((airport) => (
-                    <Marker
-                      key={`airport-${airport.IATACode}`}
-                      position={[airport.coordinates.latitude, airport.coordinates.longitude]}
-                      icon={getAirportIcon(Controllers.Hangar.getHubs().has(airport.IATACode), airport.IATACode, showLabels)}>
-                    </Marker>
+                  {showAirports && Object.keys(allAirports).map(region => (
+                    allAirports[region as keyof typeof Regions].map((airport) => (
+                      <Marker
+                        key={`airport-${airport.IATACode}`}
+                        position={[airport.coordinates.latitude, airport.coordinates.longitude]}
+                        icon={getAirportIcon(Controllers.Hangar.getHubs().has(airport.IATACode), region, airport.IATACode, showLabels)}>
+                      </Marker>
+                    ))
                   ))}
 
                   {showConnections && getConnections().map(([hub, destination, connection]) =>

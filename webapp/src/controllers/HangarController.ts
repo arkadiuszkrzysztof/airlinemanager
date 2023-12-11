@@ -58,11 +58,11 @@ export class HangarController {
     this.callListeners([...this.assets])
   }
 
-  getHubs (): Set<string> {
+  getHubs (region?: string): Set<string> {
     const hubs = new Set<string>()
 
     this.assets.forEach((asset) => {
-      if (asset.plane.hub !== undefined) {
+      if (asset.plane.hub !== undefined && (region === undefined || asset.plane.hub.region === region)) {
         hubs.add(asset.plane.hub.IATACode)
       }
     })

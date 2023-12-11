@@ -51,7 +51,7 @@ const App: React.FC<Props> = ({ Tab }) => {
       <Row className='justify-content-center p-2 bg-secondary'>
         <Col xs={2} className='d-flex align-items-center'>
           <AirplaneFill size={12} className='text-primary me-2'/>
-          <span className='text-primary'>Airline Simulator <small className='text-grey-light'>ALPHA</small></span>
+          <span className='text-primary'>Airline Simulator <small className='text-grey-light'>BETA</small></span>
         </Col>
         <Col xs={3} className='d-flex align-items-center'>
           <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-large' style={{ position: 'fixed' }}><TierDetailsTooltip /></Tooltip>}>
@@ -91,9 +91,12 @@ const App: React.FC<Props> = ({ Tab }) => {
         <Col xs={1}></Col>
         <Col xs={10} className='text-center'>
           <NavLink to='/dashboard' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Dashboard</NavLink>
-          <NavLink to='/operations' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Operations</NavLink>
+          <NavLink to='/market' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Market</NavLink>
+          <NavLink to='/hangar' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Hangar</NavLink>
           <NavLink to='/missions' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Missions</NavLink>
-          <NavLink to='/map' className={({ isActive }) => `text-decoration-none text-white ${isActive ? 'fw-bold' : ''}`}>Map</NavLink>
+          <NavLink to='/map' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Map</NavLink>
+          <NavLink to='/statistics' className={({ isActive }) => `text-decoration-none text-white me-4 ${isActive ? 'fw-bold' : ''}`}>Statistics</NavLink>
+          <NavLink to='/manual' className={({ isActive }) => `text-decoration-none text-white ${isActive ? 'fw-bold' : ''}`}>Manual</NavLink>
         </Col>
         <Col xs={1}>
           <FileEarmarkArrowDownFill size={16} className='text-white' role='button' title='Download Save File' onClick={GameController.downloadSaveJSON} />

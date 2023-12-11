@@ -11,18 +11,20 @@ interface Props {
 const MarketListItem: React.FC<Props> = ({ item: plane }) => {
   const Controllers = GameController.getInstance()
 
+  const isHangarFull = (): boolean => {
+    return Controllers.Hangar.getAssetsCount() >= Controllers.Airline.getTier().record.constraints.maxPlanes
+  }
+
   const canBuy = (plane: Plane): boolean => {
-    return Controllers.Hangar.getAssetsCount() < Controllers.Airline.getTier().record.constraints.maxPlanes &&
-      Controllers.Airline.cash >= plane.pricing.purchase
+    return !isHangarFull() && Controllers.Airline.cash >= plane.pricing.purchase
   }
 
   const canLease = (pleane: Plane): boolean => {
-    return Controllers.Hangar.getAssetsCount() < Controllers.Airline.getTier().record.constraints.maxPlanes &&
-      Controllers.Airline.cash >= plane.pricing.leaseDownpayment
+    return !isHangarFull() && Controllers.Airline.cash >= plane.pricing.leaseDownpayment
   }
 
   return (
-    <Row className='bg-grey-light rounded mt-2 p-2'>
+    <Row className={`bg-grey-light rounded mt-2 p-2 ${isHangarFull() ? 'opacity-50 grayscale' : ''}`}>
       <Col xs={6}>
         <div className='d-flex align-items-center'>
           <span className='fs-4 fw-bold text-primary'>{`${plane.familyName} ${plane.typeName}`}</span>
@@ -56,6 +58,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
       <Col xs={6} className='d-flex flex-column justify-content-center'>
         <Button
           variant="dark"
+          className={`${!canBuy(plane) ? 'grayscale' : ''}`}
           onClick={ () => { Controllers.Airline.buyPlane(plane) }}
           disabled={ !canBuy(plane) }
         >
@@ -63,7 +66,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
         </Button>
         <Button
           variant="info"
-          className='mt-2'
+          className={`mt-2 ${!canLease(plane) ? 'grayscale' : ''}`}
           onClick={ () => { Controllers.Airline.leasePlane(plane) }}
           disabled={ !canLease(plane) }
         >
