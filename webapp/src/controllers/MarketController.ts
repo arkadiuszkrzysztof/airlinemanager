@@ -77,11 +77,8 @@ export class MarketController {
     const tier = this.AirlineController.getTier()
     const constraints = tier.record.constraints
 
-    let prototypes = this.planes.filter(plane => constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true)
-
-    if (tier.name === Tier.BRONZE || tier.name === Tier.SILVER) {
-      prototypes = prototypes.filter(plane => plane.typeName !== 'Concorde')
-    }
+    const prototypes = this.planes.filter(plane => (constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true) && plane.typeName !== 'Concorde')
+    const concordePrototype = this.planes.find(plane => plane.typeName === 'Concorde') as Plane
 
     const numberOfOptions = prototypes.length * 3
     const options: Plane[] = []
@@ -90,7 +87,7 @@ export class MarketController {
       const randomIndex = Math.floor(Math.random() * prototypes.length)
       const manufactureTime = Clock.getInstance().playtime - Math.floor(Math.random() * Timeframes.YEAR * 20)
 
-      const prototype = prototypes[randomIndex]
+      const prototype = (tier.name === Tier.PLATINUM && Math.random() > 0.95) ? concordePrototype : prototypes[randomIndex]
 
       options.push(new Plane(
         prototype.familyName,

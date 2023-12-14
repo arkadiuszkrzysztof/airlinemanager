@@ -5,7 +5,7 @@ import TimetableHoursCol from '../fragments/TimetableHours'
 import TimetableGrid from '../fragments/TimetableGrid'
 import { type Schedule } from '../../controllers/ScheduleController'
 import { GameController } from '../../controllers/GameController'
-import { Clock, Timeframes } from '../../controllers/helpers/Clock'
+import { Timeframes } from '../../controllers/helpers/Clock'
 import { CalendarWeek } from 'react-bootstrap-icons'
 import ScheduleCalendarItem from '../fragments/ScheduleCalendarItem'
 
@@ -32,11 +32,12 @@ const FlightsPreviewWidget: React.FC<Props> = ({ fullWidth = false }): ReactElem
         if (!assigned) {
           let available = true
 
-          scheduleBucket.forEach((schedule) => {
-            if (Clock.isTimeBetween(scheduleToAssign.start, schedule.start, schedule.end) ||
-              Clock.isTimeBetween(scheduleToAssign.end, schedule.start, schedule.end) ||
-              Clock.isTimeBetween(schedule.start, scheduleToAssign.start, scheduleToAssign.end) ||
-              Clock.isTimeBetween(schedule.end, scheduleToAssign.start, scheduleToAssign.end)) {
+          const [proposedStart, proposedEnd] = [scheduleToAssign.start, (scheduleToAssign.end < scheduleToAssign.start ? scheduleToAssign.end + Timeframes.WEEK : scheduleToAssign.end)]
+
+          scheduleBucket.forEach(activeSchedule => {
+            const [activeStart, activeEnd] = [activeSchedule.start, (activeSchedule.end < activeSchedule.start ? activeSchedule.end + Timeframes.WEEK : activeSchedule.end)]
+
+            if ((proposedStart >= activeStart && proposedStart <= activeEnd) || (proposedEnd >= activeStart && proposedEnd <= activeEnd) || (proposedStart <= activeStart && proposedEnd >= activeEnd)) {
               available = false
             }
           })

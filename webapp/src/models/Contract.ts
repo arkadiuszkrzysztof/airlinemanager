@@ -1,4 +1,4 @@
-import { Clock, type DaysOfWeek } from '../controllers/helpers/Clock'
+import { Clock } from '../controllers/helpers/Clock'
 import { type Airport } from './Airport'
 
 export type ContractTuple = [
@@ -6,8 +6,7 @@ export type ContractTuple = [
   hub: Airport,
   destination: Airport,
   distance: number,
-  dayOfWeek: DaysOfWeek,
-  departureTime: string,
+  departureTime: number,
   contractDuration: number,
   demand: {
     economy: number
@@ -26,7 +25,6 @@ export const convertToContractTuple = (contract: Contract): ContractTuple => {
     contract.hub,
     contract.destination,
     contract.distance,
-    contract.dayOfWeek,
     contract.departureTime,
     contract.contractDuration,
     contract.demand,
@@ -43,8 +41,7 @@ export class Contract {
     public readonly hub: Airport,
     public readonly destination: Airport,
     public readonly distance: number,
-    public readonly dayOfWeek: DaysOfWeek,
-    public readonly departureTime: string,
+    public readonly departureTime: number,
     public readonly contractDuration: number,
     public readonly demand: { economy: number, business: number, first: number },
     public accepted: boolean = false,
@@ -55,7 +52,7 @@ export class Contract {
 
   public accept (): void {
     this.accepted = true
-    this.startTime = Clock.getTimeClosestDayStart(this.dayOfWeek)
+    this.startTime = Clock.getInstance().tomorrowStartPlaytime
     this.expirationTime = this.startTime + this.contractDuration
   }
 }

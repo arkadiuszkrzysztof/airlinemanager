@@ -51,7 +51,7 @@ const MapController: React.FC = () => {
 const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
 
-  const [showAirports, setShowAirports] = useState(true)
+  const [showAirports, setShowAirports] = useState(false)
   const [showConnections, setShowConnections] = useState(false)
   const [showInAir, setShowInAir] = useState(true)
   const [showLabels, setShowLabels] = useState(true)
@@ -60,6 +60,8 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const config = MapConfig[zoomedRegion as keyof typeof Regions]
 
   const allAirports = Controllers.Contracts.getAirports()
+  const inTheAir = Controllers.Schedule.getActiveSchedules().filter(schedule => Clock.flightStatus(schedule).inTheAir)
+  const inTheAirAirports = inTheAir.map(schedule => schedule.contract.hub.IATACode).concat(inTheAir.map(schedule => schedule.contract.destination.IATACode))
 
   const getPlaneIcon = (angle: number, registration: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
@@ -119,9 +121,9 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
         <Card.Body className='d-flex flex-column widget-full-height overflow-auto p-0'>
           <Row className='m-0 p-0'>
             <Col xs={2} className='bg-dark text-white p-4'>
-              <Form.Switch className='mt-2' id='show-airport-codes' label='Show Airports' checked={showAirports} onChange={() => { setShowAirports(!showAirports) }} />
               <Form.Switch className='mt-2' id='show-in-air' label='Show In-Air' checked={showInAir} onChange={() => { setShowInAir(!showInAir) }} />
               <Form.Switch className='mt-2' id='show-labels' label='Show Labels' checked={showLabels} onChange={() => { setShowLabels(!showLabels) }} />
+              <Form.Switch className='mt-2' id='show-airport-codes' label='Show Airports' checked={showAirports} onChange={() => { setShowAirports(!showAirports) }} />
               <Form.Switch className='mt-2' id='show-connections' label='Show Connections' checked={showConnections} onChange={() => { setShowConnections(!showConnections) }} />
 
               <p className='pt-4'>Zoom to Region</p>
@@ -144,15 +146,25 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
 
-                  {showAirports && Object.keys(allAirports).map(region => (
-                    allAirports[region as keyof typeof Regions].map((airport) => (
-                      <Marker
-                        key={`airport-${airport.IATACode}`}
-                        position={[airport.coordinates.latitude, airport.coordinates.longitude]}
-                        icon={getAirportIcon(Controllers.Hangar.getHubs().has(airport.IATACode), region, airport.IATACode, showLabels)}>
-                      </Marker>
-                    ))
-                  ))}
+                  {[-360, 0, 360].map((offset) => {
+                    return (
+                      (showAirports || showInAir) && Object.keys(allAirports).map(region => (
+                        allAirports[region as keyof typeof Regions].map((airport) => {
+                          if (showAirports || (showInAir && inTheAirAirports.includes(airport.IATACode))) {
+                            return (
+                              <Marker
+                                key={`airport-${airport.IATACode}`}
+                                position={[airport.coordinates.latitude, airport.coordinates.longitude + offset]}
+                                icon={getAirportIcon(Controllers.Hangar.getHubs().filter(hub => hub.IATACode === airport.IATACode).length > 0, region, airport.IATACode, showLabels)}>
+                              </Marker>
+                            )
+                          } else {
+                            return null
+                          }
+                        })
+                      ))
+                    )
+                  })}
 
                   {showConnections && getConnections().map(([hub, destination, connection]) =>
                     <Polyline
@@ -162,7 +174,7 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                       weight={Math.min(connection, 5)} />
                   )}
 
-                  {showInAir && Controllers.Schedule.getActiveSchedules().filter(schedule => Clock.flightStatus(schedule).inTheAir).map((schedule) => {
+                  {showInAir && inTheAir.map((schedule) => {
                     const currentPosition = GreatCircle.getCurrentPoint(schedule)
 
                     return (

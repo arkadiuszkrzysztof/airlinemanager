@@ -57,7 +57,7 @@ export const PlanesData: PlaneTuple[] = [
   ['Boeing', '777',       { economy: 304, business: 42, first: 8 },  10,  299,  3230,   11100,  171000, 892,    7690,   { purchase: 375000000, lease: 7100, leaseDuration: 0, leaseCancellationFee: 1300000 * 3, leaseDownpayment: 1300000, maintenance: 2500 },   '', 0,  4],
   ['Airbus', 'A380',      { economy: 411, business: 92, first: 16 }, 18,  575,  3000,   14800,  323000, 903,    11400,  { purchase: 445000000, lease: 10680, leaseDuration: 0, leaseCancellationFee: 1780000 * 3, leaseDownpayment: 1780000, maintenance: 3800 },  '', 0,  5],
   ['Boeing', '747',       { economy: 315, business: 78, first: 23 }, 12,  396,  3300,   13500,  205000, 933,    11200,  { purchase: 418000000, lease: 50000, leaseDuration: 0, leaseCancellationFee: 1670000 * 3, leaseDownpayment: 1670000, maintenance: 10000 }, '', 0,  5],
-  ['BAC', 'Concorde',     { economy: 0, business: 72, first: 36 },   6,   185,  3600,   7200,   120000, 2158,   25600,  { purchase: 550000000, lease: 13200, leaseDuration: 0, leaseCancellationFee: 2200000 * 3, leaseDownpayment: 2200000, maintenance: 5500 },  '', 0,  10]
+  ['BAC', 'Concorde',     { economy: 0, business: 72, first: 36 },   6,   185,  3600,   7200,   120000, 2158,   25600,  { purchase: 550000000, lease: 13200, leaseDuration: 0, leaseCancellationFee: 2200000 * 3, leaseDownpayment: 2200000, maintenance: 5500 },  '', 0,  7]
 ]
 
 export class Plane {

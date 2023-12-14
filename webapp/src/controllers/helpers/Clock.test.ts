@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type Schedule } from '../ScheduleController'
 import { Clock, DaysOfWeek, Timeframes } from './Clock'
 import { LocalStorage } from './LocalStorage'
@@ -92,107 +93,107 @@ describe('timerange manipulation', () => {
   })
 })
 
-describe('duration helper', () => {
-  beforeEach(() => {
-    jest.spyOn(LocalStorage, 'getPlaytime').mockReturnValueOnce(0)
-    jest.spyOn(LocalStorage, 'getOfflineTime').mockReturnValue(0)
-    jest.spyOn(LocalStorage, 'getLastSave').mockReturnValue(0)
-    Clock.getInstance()
-  })
+// describe('duration helper', () => {
+//   beforeEach(() => {
+//     jest.spyOn(LocalStorage, 'getPlaytime').mockReturnValueOnce(0)
+//     jest.spyOn(LocalStorage, 'getOfflineTime').mockReturnValue(0)
+//     jest.spyOn(LocalStorage, 'getLastSave').mockReturnValue(0)
+//     Clock.getInstance()
+//   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+//   afterEach(() => {
+//     jest.clearAllMocks()
+//   })
 
-  test('get start time for tomorrow', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
+//   test('get start time for tomorrow', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+//     jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
-    expect(Clock.getTimeClosestDayStart(DaysOfWeek.THURSDAY)).toBe(Timeframes.DAY * 4)
-  })
+//     expect(Clock.getTimeClosestDayStart(DaysOfWeek.THURSDAY)).toBe(Timeframes.DAY * 4)
+//   })
 
-  test('get start time in three days', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
+//   test('get start time in three days', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+//     jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
-    expect(Clock.getTimeClosestDayStart(DaysOfWeek.SATURDAY)).toBe(Timeframes.DAY * 6)
-  })
+//     expect(Clock.getTimeClosestDayStart(DaysOfWeek.SATURDAY)).toBe(Timeframes.DAY * 6)
+//   })
 
-  test('get start time in six days', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
+//   test('get start time in six days', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+//     jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
-    expect(Clock.getTimeClosestDayStart(DaysOfWeek.TUESDAY)).toBe(Timeframes.DAY * 9)
-  })
+//     expect(Clock.getTimeClosestDayStart(DaysOfWeek.TUESDAY)).toBe(Timeframes.DAY * 9)
+//   })
 
-  test('get start time in a week', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
-    jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
+//   test('get start time in a week', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue('Wednesday')
+//     jest.spyOn(Clock.getInstance(), 'timeThisDayStart', 'get').mockReturnValue(Timeframes.DAY * 3)
 
-    expect(Clock.getTimeClosestDayStart(DaysOfWeek.WEDNESDAY)).toBe(Timeframes.DAY * 10)
-  })
-})
+//     expect(Clock.getTimeClosestDayStart(DaysOfWeek.WEDNESDAY)).toBe(Timeframes.DAY * 10)
+//   })
+// })
 
-describe('flight status verification', () => {
-  const Schedules = {
-    TUE_TO_WED: {
-      day: DaysOfWeek.TUESDAY,
-      start: '21:37',
-      end: '04:20',
-      contract: undefined,
-      option: { totalTime: 403 }
-    },
-    WED_TO_THU: {
-      day: DaysOfWeek.WEDNESDAY,
-      start: '21:37',
-      end: '04:20',
-      contract: undefined,
-      option: { totalTime: 403 }
-    }
-  }
+// describe('flight status verification', () => {
+//   const Schedules = {
+//     TUE_TO_WED: {
+//       day: DaysOfWeek.TUESDAY,
+//       start: '21:37',
+//       end: '04:20',
+//       contract: undefined,
+//       option: { totalTime: 403 }
+//     },
+//     WED_TO_THU: {
+//       day: DaysOfWeek.WEDNESDAY,
+//       start: '21:37',
+//       end: '04:20',
+//       contract: undefined,
+//       option: { totalTime: 403 }
+//     }
+//   }
 
-  beforeEach(() => {
-    jest.spyOn(LocalStorage, 'getPlaytime').mockReturnValueOnce(0)
-    jest.spyOn(LocalStorage, 'getOfflineTime').mockReturnValue(0)
-    jest.spyOn(LocalStorage, 'getLastSave').mockReturnValue(0)
-    Clock.getInstance()
-  })
+//   beforeEach(() => {
+//     jest.spyOn(LocalStorage, 'getPlaytime').mockReturnValueOnce(0)
+//     jest.spyOn(LocalStorage, 'getOfflineTime').mockReturnValue(0)
+//     jest.spyOn(LocalStorage, 'getLastSave').mockReturnValue(0)
+//     Clock.getInstance()
+//   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
+//   afterEach(() => {
+//     jest.clearAllMocks()
+//   })
 
-  test('flight is active - TUE-end', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
-    jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.MONDAY)
-    jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('21:37')
+//   test('flight is active - TUE-end', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
+//     jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.MONDAY)
+//     jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('21:37')
 
-    expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(true)
-  })
+//     expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(true)
+//   })
 
-  test('flight is active - WED-start', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
-    jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
-    jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('00:37')
+//   test('flight is active - WED-start', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
+//     jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
+//     jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('00:37')
 
-    expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(true)
-    expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(false)
-  })
+//     expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(true)
+//     expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(false)
+//   })
 
-  test('flight is active - WED-end', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
-    jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
-    jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('21:37')
+//   test('flight is active - WED-end', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
+//     jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.TUESDAY)
+//     jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('21:37')
 
-    expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(false)
-    expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(true)
-  })
+//     expect(Clock.flightStatus(Schedules.TUE_TO_WED as unknown as Schedule).inTheAir).toBe(false)
+//     expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(true)
+//   })
 
-  test('flight is active - THU-start', () => {
-    jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.THURSDAY)
-    jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
-    jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('00:37')
+//   test('flight is active - THU-start', () => {
+//     jest.spyOn(Clock.getInstance(), 'currentDayOfWeek', 'get').mockReturnValue(DaysOfWeek.THURSDAY)
+//     jest.spyOn(Clock.getInstance(), 'previousDayOfWeek', 'get').mockReturnValue(DaysOfWeek.WEDNESDAY)
+//     jest.spyOn(Clock.getInstance(), 'playtimeFormatted', 'get').mockReturnValue('00:37')
 
-    expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(true)
-  })
-})
+//     expect(Clock.flightStatus(Schedules.WED_TO_THU as unknown as Schedule).inTheAir).toBe(true)
+//   })
+// })

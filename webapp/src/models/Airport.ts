@@ -22,7 +22,30 @@ export type AirportTuple = [
 
 export const AirportsData: Record<keyof typeof Regions, AirportTuple[]> = {
   NA: [
-    ['JFK', 'New York', 'United States', 'US', { latitude: 40.639722, longitude: -73.778889 }, 4400, 61800000, { landing: 15, passenger: 25 }]
+    ['ATL', 'Atlanta', 'United States', 'US', { latitude: 33.636667, longitude: -84.428056 }, 3776, 110500000, { landing: 15, passenger: 25 }],
+    ['LAX', 'Los Angeles', 'United States', 'US', { latitude: 33.9425, longitude: -118.408056 }, 3939, 88000000, { landing: 15, passenger: 25 }],
+    ['ORD', 'Chicago', 'United States', 'US', { latitude: 41.978611, longitude: -87.904722 }, 3962, 88000000, { landing: 15, passenger: 25 }],
+    ['DFW', 'Dallas', 'United States', 'US', { latitude: 32.896944, longitude: -97.038056 }, 4085, 75000000, { landing: 15, passenger: 25 }],
+    ['DEN', 'Denver', 'United States', 'US', { latitude: 39.861667, longitude: -104.673056 }, 4877, 69000000, { landing: 15, passenger: 25 }],
+    ['JFK', 'New York', 'United States', 'US', { latitude: 40.639722, longitude: -73.778889 }, 4423, 62500000, { landing: 15, passenger: 25 }],
+    ['SFO', 'San Francisco', 'United States', 'US', { latitude: 37.618889, longitude: -122.375 }, 3618, 57500000, { landing: 15, passenger: 25 }],
+    ['SEA', 'Seattle', 'United States', 'US', { latitude: 47.448889, longitude: -122.309444 }, 3627, 51800000, { landing: 15, passenger: 25 }],
+    ['LAS', 'Las Vegas', 'United States', 'US', { latitude: 36.08, longitude: -115.152222 }, 4424, 51700000, { landing: 15, passenger: 25 }],
+    ['MCO', 'Orlando', 'United States', 'US', { latitude: 28.429444, longitude: -81.308889 }, 3659, 50600000, { landing: 15, passenger: 25 }],
+    ['YVR', 'Vancouver', 'Canada', 'CA', { latitude: 49.194722, longitude: -123.183889 }, 3293, 26400000, { landing: 10, passenger: 7.5 }],
+    ['CUN', 'Cancun', 'Mexico', 'MX', { latitude: 21.036667, longitude: -86.876944 }, 3500, 25500000, { landing: 10, passenger: 7.5 }],
+    ['YUL', 'Montreal', 'Canada', 'CA', { latitude: 45.470556, longitude: -73.740833 }, 3353, 20300000, { landing: 10, passenger: 7.5 }],
+    ['YYZ', 'Toronto', 'Canada', 'CA', { latitude: 43.676667, longitude: -79.630556 }, 3389, 50500000, { landing: 10, passenger: 7.5 }],
+    ['MEX', 'Mexico City', 'Mexico', 'MX', { latitude: 19.436111, longitude: -99.071944 }, 3952, 50300000, { landing: 10, passenger: 7.5 }],
+    ['YYC', 'Calgary', 'Canada', 'CA', { latitude: 51.1225, longitude: -114.013333 }, 4267, 18000000, { landing: 10, passenger: 7.5 }],
+    ['GDL', 'Guadalajara', 'Mexico', 'MX', { latitude: 20.521667, longitude: -103.311111 }, 4000, 14800000, { landing: 10, passenger: 7.5 }],
+    ['HNL', 'Honolulu', 'United States', 'US', { latitude: 21.318611, longitude: -157.9225 }, 3753, 21700000, { landing: 15, passenger: 25 }],
+    ['NAS', 'Nassau', 'Bahamas', 'BS', { latitude: 25.038889, longitude: -77.466111 }, 3358, 4100000, { landing: 10, passenger: 7.5 }],
+    ['ABQ', 'Albuquerque', 'United States', 'US', { latitude: 35.039333, longitude: -106.610778 }, 4204, 5500000, { landing: 15, passenger: 25 }],
+    ['MSP', 'Minneapolis', 'United States', 'US', { latitude: 44.881944, longitude: -93.221667 }, 3355, 39500000, { landing: 15, passenger: 25 }],
+    ['SLC', 'Salt Lake City', 'United States', 'US', { latitude: 40.788333, longitude: -111.977778 }, 3658, 26800000, { landing: 15, passenger: 25 }],
+    ['IND', 'Indianapolis', 'United States', 'US', { latitude: 39.717222, longitude: -86.294444 }, 3414, 9500000, { landing: 15, passenger: 25 }],
+    ['MCI', 'Kansas City', 'United States', 'US', { latitude: 39.2975, longitude: -94.713889 }, 3292, 11800000, { landing: 15, passenger: 25 }]
   ],
   EU: [
     ['KRK', 'Krakow', 'Poland', 'PL', { latitude: 50.077778, longitude: 19.784722 }, 2550, 7400000, { landing: 10, passenger: 7.5 }],
@@ -51,6 +74,11 @@ export const AirportsData: Record<keyof typeof Regions, AirportTuple[]> = {
     ['VNO', 'Vilnius', 'Lithuania', 'LT', { latitude: 54.636944, longitude: 25.287778 }, 2515, 4900000, { landing: 10, passenger: 7.5 }]
   ],
   ASIA: [
+    ['PEK', 'Beijing', 'China', 'CN', { latitude: 40.08, longitude: 116.584444 }, 3800, 100000000, { landing: 15, passenger: 25 }],
+    ['DXB', 'Dubai', 'United Arab Emirates', 'AE', { latitude: 25.252778, longitude: 55.364444 }, 4400, 89000000, { landing: 15, passenger: 25 }],
+    ['HND', 'Tokyo', 'Japan', 'JP', { latitude: 35.552222, longitude: 139.779722 }, 2500, 87000000, { landing: 15, passenger: 25 }],
+    ['DEL', 'Delhi', 'India', 'IN', { latitude: 28.566667, longitude: 77.1 }, 4430, 69000000, { landing: 15, passenger: 25 }],
+    ['ICN', 'Seoul', 'South Korea', 'KR', { latitude: 37.469167, longitude: 126.450556 }, 3962, 68000000, { landing: 15, passenger: 25 }]
   ],
   LATAM: [
     ['PTY', 'Panama City', 'Panama', 'PA', { latitude: 9.071389, longitude: -79.383611 }, 3050, 16600000, { landing: 10, passenger: 7.5 }],
@@ -59,6 +87,7 @@ export const AirportsData: Record<keyof typeof Regions, AirportTuple[]> = {
     ['GUA', 'Guatemala City', 'Guatemala', 'GT', { latitude: 14.581667, longitude: -90.526667 }, 2987, 2800000, { landing: 10, passenger: 7.5 }],
     ['BZE', 'Belize City', 'Belize', 'BZ', { latitude: 17.539167, longitude: -88.308333 }, 2950, 1100000, { landing: 10, passenger: 7.5 }],
     ['LIR', 'Liberia', 'Costa Rica', 'CR', { latitude: 10.593056, longitude: -85.545556 }, 2750, 1400000, { landing: 10, passenger: 7.5 }]
+    // kuba dominikana portoryko jamajka
   ],
   AFRICA: [
     ['CAI', 'Cairo', 'Egypt', 'EG', { latitude: 30.121944, longitude: 31.405556 }, 4000, 20000000, { landing: 10, passenger: 7.5 }],

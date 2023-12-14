@@ -1,3 +1,4 @@
+import { type Airport } from '../models/Airport'
 import { type Plane } from '../models/Plane'
 import { ContractsController } from './ContractsController'
 import { LocalStorage } from './helpers/LocalStorage'
@@ -58,12 +59,12 @@ export class HangarController {
     this.callListeners([...this.assets])
   }
 
-  getHubs (region?: string): Set<string> {
-    const hubs = new Set<string>()
+  getHubs (region?: string): Airport[] {
+    const hubs: Airport[] = []
 
     this.assets.forEach((asset) => {
-      if (asset.plane.hub !== undefined && (region === undefined || asset.plane.hub.region === region)) {
-        hubs.add(asset.plane.hub.IATACode)
+      if (asset.plane.hub !== undefined && (region === undefined || asset.plane.hub.region === region) && hubs.filter(hub => asset.plane.hub?.IATACode === hub.IATACode).length === 0) {
+        hubs.push(asset.plane.hub)
       }
     })
 

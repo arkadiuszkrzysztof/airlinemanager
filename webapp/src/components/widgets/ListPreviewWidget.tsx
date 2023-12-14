@@ -16,8 +16,10 @@ interface ListPreviewProps<U> {
 
 const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, wrapItems = false, FilterSection }: ListPreviewProps<U>): ReactElement => {
   const [filteredItems, setFilteredItems] = useState<U[]>([])
+  const [allItems, setAllItems] = useState<U[]>([])
 
   useEffect(() => {
+    setAllItems(items)
     setFilteredItems(items)
   }, [items])
 
@@ -32,7 +34,7 @@ const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, full
           <span className='text-primary fs-6'>{subheader}</span>
         </Card.Header>
         <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'widget-full-height' : 'mh-350'} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`}>
-          {FilterSection != null && <FilterSection items={items} filter={(newItems: U[]) => { setFilteredItems(newItems) }} />}
+          {FilterSection != null && <FilterSection items={allItems} filter={(newItems: U[]) => { setFilteredItems(newItems) }} />}
           {filteredItems.map((item, index) => (
             <Component key={`list-preview-${index}`} item={item} />
           ))}

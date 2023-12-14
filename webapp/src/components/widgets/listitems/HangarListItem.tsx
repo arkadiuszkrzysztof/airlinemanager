@@ -25,7 +25,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     return totalProfit
   }
 
-  const getTimeUseIndicator = (asset: HangarAsset, day: DaysOfWeek): ReactElement => {
+  const getTimeUseIndicator = (asset: HangarAsset, day: string): ReactElement => {
     const totalTime = Controllers.Schedule.getTotalUseTime(asset, day)
 
     if (totalTime >= '12:00') {
@@ -41,7 +41,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     }
   }
 
-  const getUtilizationIndicator = (asset: HangarAsset, day: DaysOfWeek): ReactElement => {
+  const getUtilizationIndicator = (asset: HangarAsset, day: string): ReactElement => {
     const averageUtilization = Controllers.Schedule.getAverageUtilization(asset, day)
 
     if (averageUtilization >= 85) {
@@ -103,7 +103,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
             <Col xs={'auto'}>
               <div className='timetable-hour mw-50'></div>
             </Col>
-            {Object.values(DaysOfWeek).map((day) =>
+            {DaysOfWeek.map((day) =>
               <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
                 <div className='text-center fw-bold text-dark'>
                   {day}
@@ -127,13 +127,12 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
           </Row>
           <Row className='mx-2 mb-2' style={{ height: '300px' }}>
             <TimetableHoursCol showLabels />
-            {Object.values(DaysOfWeek).map((day) =>
+            {DaysOfWeek.map((day) =>
               <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
                 <TimetableGrid />
                 <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                 {Controllers.Schedule
-                  .getActiveSchedulesForAsset(asset)
-                  .filter((schedule) => schedule.day === day || (schedule.day === Clock.getDayBefore(day) && schedule.end < schedule.start && schedule.end > '01:00'))
+                  .getTodaySchedulesForAsset(asset, day)
                   .sort((a, b) => (a.start < b.start ? -1 : 1))
                   .map((schedule) =>
                     <ScheduleCalendarItem

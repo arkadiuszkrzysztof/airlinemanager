@@ -9,15 +9,15 @@ export enum Timeframes {
   YEAR = 483840
 }
 
-export enum DaysOfWeek {
-  MONDAY = 'Monday',
-  TUESDAY = 'Tuesday',
-  WEDNESDAY = 'Wednesday',
-  THURSDAY = 'Thursday',
-  FRIDAY = 'Friday',
-  SATURDAY = 'Saturday',
-  SUNDAY = 'Sunday'
-}
+export const DaysOfWeek = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday'
+]
 
 export class Clock {
   private static instance: Clock
@@ -75,15 +75,15 @@ export class Clock {
     return `${(newHours < 0 ? newHours + 24 : newHours).toString().padStart(2, '0')}:${(newMinutes < 0 ? newMinutes % 60 + 60 : newMinutes % 60).toString().padStart(2, '0')}`
   }
 
-  public static getTimeClosestDayStart (day: DaysOfWeek): number {
-    const thisDayStart = this.instance.timeThisDayStart
-    const thisDayIndex = Object.values(DaysOfWeek).indexOf(this.instance.currentDayOfWeek as DaysOfWeek)
+  // public static getTimeClosestDayStart (day: DaysOfWeek): number {
+  //   const thisDayStart = this.instance.timeThisDayStart
+  //   const thisDayIndex = Object.values(DaysOfWeek).indexOf(this.instance.currentDayOfWeek as DaysOfWeek)
 
-    const closestDayIndex = Object.values(DaysOfWeek).indexOf(day)
-    const closestDayStart = thisDayStart + (closestDayIndex <= thisDayIndex ? closestDayIndex + 7 - thisDayIndex : closestDayIndex - thisDayIndex) * Timeframes.DAY
+  //   const closestDayIndex = Object.values(DaysOfWeek).indexOf(day)
+  //   const closestDayStart = thisDayStart + (closestDayIndex <= thisDayIndex ? closestDayIndex + 7 - thisDayIndex : closestDayIndex - thisDayIndex) * Timeframes.DAY
 
-    return closestDayStart
-  }
+  //   return closestDayStart
+  // }
 
   public static getTimeAt (time: string, when: 'yesterday' | 'today' | 'tomorrow' = 'today'): number {
     const [hours, minutes] = time.split(':')
@@ -170,25 +170,19 @@ export class Clock {
     let inTheAir = false
     let flightLeg: 'there' | 'back' = 'there'
 
-    const halftime = this.addToTime(schedule.start, Math.floor(schedule.option.totalTime / 2))
+    if (schedule.contract.startTime > this.instance.playtime) {
+      return { inTheAir, flightLeg }
+    }
 
-    if (
-      schedule.contract.startTime <= this.instance.playtime &&
-      schedule.day === this.instance.currentDayOfWeek &&
-      this.instance.playtimeFormatted >= schedule.start &&
-      this.isCurrentTimeBetween(schedule.start, schedule.end)
-    ) {
-      inTheAir = true
-    } else if (
-      schedule.contract.startTime <= this.instance.playtime &&
-      schedule.day === this.instance.previousDayOfWeek &&
-      schedule.end < schedule.start &&
-      this.isCurrentTimeBetween('00:00', schedule.end)
-    ) {
+    const thisWeekStartPlaytime = this.instance.thisWeekStartPlaytime
+    const [scheduleStart, scheduleEnd] = [thisWeekStartPlaytime + schedule.start, thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end)]
+    const halftime = scheduleStart + Math.floor(schedule.option.totalTime / 2)
+
+    if (scheduleStart <= this.instance.playtime && scheduleEnd >= this.instance.playtime) {
       inTheAir = true
     }
 
-    if (this.instance.playtimeFormatted > halftime) {
+    if (this.instance.playtime > halftime) {
       flightLeg = 'back'
     }
 
@@ -206,25 +200,10 @@ export class Clock {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
 
-  get currentDayOfWeek (): string {
-    const day = Math.floor(this._playtime / Timeframes.DAY) % Object.keys(DaysOfWeek).length
-    return Object.values(DaysOfWeek)[day]
-  }
-
-  get previousDayOfWeek (): string {
-    const day = (Math.floor(this._playtime / Timeframes.DAY) - 1) % Object.keys(DaysOfWeek).length
-    return Object.values(DaysOfWeek)[day]
-  }
-
-  public static getDayBefore (day: DaysOfWeek): string {
-    const dayIndex = Object.values(DaysOfWeek).indexOf(day)
-    return Object.values(DaysOfWeek)[dayIndex === 0 ? 6 : dayIndex - 1]
-  }
-
-  get nextDayOfWeek (): string {
-    const day = (Math.floor(this._playtime / Timeframes.DAY) + 1) % Object.keys(DaysOfWeek).length
-    return Object.values(DaysOfWeek)[day]
-  }
+  // public static getDayBefore (day: DaysOfWeek): string {
+  //   const dayIndex = Object.values(DaysOfWeek).indexOf(day)
+  //   return Object.values(DaysOfWeek)[dayIndex === 0 ? 6 : dayIndex - 1]
+  // }
 
   get timeThisDayStart (): number {
     return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
@@ -260,5 +239,73 @@ export class Clock {
     const minutes = this._playtime % HOUR
 
     return `${years}y ${months}m ${weeks}w ${days}d ${hours}h ${minutes}m`
+  }
+
+  // NEW METHODS
+  get todayStartPlaytime (): number {
+    return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
+  }
+
+  get tomorrowStartPlaytime (): number {
+    return this.todayStartPlaytime + Timeframes.DAY
+  }
+
+  get thisWeekStartPlaytime (): number {
+    return Math.floor(this._playtime / Timeframes.WEEK) * Timeframes.WEEK
+  }
+
+  get thisMonthStartPlaytime (): number {
+    return Math.floor(this._playtime / Timeframes.MONTH) * Timeframes.MONTH
+  }
+
+  get currentDayOfWeek (): string {
+    const day = Math.floor(this._playtime / Timeframes.DAY) % DaysOfWeek.length
+    return DaysOfWeek[day]
+  }
+
+  get previousDayOfWeek (): string {
+    const day = (Math.floor(this._playtime / Timeframes.DAY) - 1) % DaysOfWeek.length
+    return DaysOfWeek[day]
+  }
+
+  get nextDayOfWeek (): string {
+    const day = (Math.floor(this._playtime / Timeframes.DAY) + 1) % DaysOfWeek.length
+    return DaysOfWeek[day]
+  }
+
+  public static getDayOfWeek (playtime: number): string {
+    const day = Math.floor(playtime / Timeframes.DAY) % Object.keys(DaysOfWeek).length
+    return Object.values(DaysOfWeek)[day]
+  }
+
+  public getPlaytimeForDay (day: string, absolute: boolean = false): number {
+    const dayIndex = DaysOfWeek.indexOf(day)
+
+    return (absolute ? this.thisWeekStartPlaytime : 0) + (dayIndex * Timeframes.DAY)
+  }
+
+  public static formatPlaytime (playtime: number, options?: { minutes?: boolean, hours?: boolean, days?: boolean, weeks?: boolean, months?: boolean, years?: boolean }): string {
+    const { HOUR, DAY, WEEK, MONTH, YEAR } = Timeframes
+    const years = Math.floor(playtime / YEAR)
+    const months = Math.floor((playtime % YEAR) / MONTH)
+    const weeks = Math.floor((playtime % MONTH) / WEEK)
+    const days = Math.floor((playtime % WEEK) / DAY)
+    const hours = Math.floor((playtime % DAY) / HOUR)
+    const minutes = playtime % HOUR
+
+    if (options == null) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+    } else {
+      const formattedPlaytime = [
+        (options?.years ?? `${years}y`),
+        (options?.months ?? `${months}m`),
+        (options?.weeks ?? `${weeks}w`),
+        (options?.days ?? `${days}d`),
+        (options?.hours ?? `${hours}h`),
+        (options?.minutes ?? `${minutes}m`)
+      ].join(' ')
+
+      return formattedPlaytime
+    }
   }
 }

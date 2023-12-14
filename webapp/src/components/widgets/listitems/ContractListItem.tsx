@@ -4,11 +4,12 @@ import { Row, Col, OverlayTrigger, Tooltip, Badge, Card } from 'react-bootstrap'
 import { GameController } from '../../../controllers/GameController'
 import { type ContractOption } from '../../../controllers/ContractsController'
 import { AirplaneFill, ArrowLeftRight, CalendarWeekFill, ExclamationSquareFill, PersonFill, PinMapFill, StarFill } from 'react-bootstrap-icons'
-import { Timeframes } from '../../../controllers/helpers/Clock'
+import { Clock, Timeframes } from '../../../controllers/helpers/Clock'
 import { formatCashValue, formatTurnaround, formatUtilization } from '../../../controllers/helpers/Helpers'
 import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import CostBreakdownTooltip from '../../tooltips/CostBreakdownTooltip'
 import RevenueBreakdownTooltip from '../../tooltips/RevenueBreakdownTooltip'
+import TurnaroundBreakdownTooltip from '../../tooltips/TurnaroundBreakdownTooltip'
 
 interface Props {
   item: { contract: Contract, options: ContractOption[] }
@@ -40,7 +41,7 @@ const ContractListItem: React.FC<Props> = ({ item }) => {
         </Col>
         <Col className='d-flex align-items-center'>
           <AirplaneFill size={20} className='text-grey-dark me-2 rotate-60' />
-          <span><strong>{`${contract.dayOfWeek}s`}</strong>{' at '}<strong>{contract.departureTime}</strong></span>
+          <span><strong>{`${Clock.getDayOfWeek(contract.departureTime)}s`}</strong>{' at '}<strong>{Clock.formatPlaytime(contract.departureTime)}</strong></span>
           <StarFill size={16} className='text-badge-gold ms-4 me-2' />
           <span className='fw-bold'>{` +${contract.reputation.toFixed(2)}%`}</span>
         </Col>
@@ -122,7 +123,14 @@ const ContractListItem: React.FC<Props> = ({ item }) => {
                     </span>
                   </Col>
                   <Col xs={2} className='col-15p text-end'>{formatUtilization(option.utilization)}</Col>
-                  <Col xs={2} className='col-15p text-end'>{formatTurnaround(option.totalTime)}</Col>
+                  <Col xs={2} className='col-15p text-end'>
+                    <OverlayTrigger
+                        placement="bottom"
+                        overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><TurnaroundBreakdownTooltip option={option} /></Tooltip>}
+                      >
+                      <span className='cursor-help'>{formatTurnaround(option.totalTime)}</span>
+                    </OverlayTrigger>
+                  </Col>
                 </Row>
               ))}
             </div>}

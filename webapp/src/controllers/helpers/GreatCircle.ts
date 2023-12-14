@@ -1,5 +1,5 @@
 import { type Schedule } from '../ScheduleController'
-import { Clock } from './Clock'
+import { Clock, Timeframes } from './Clock'
 
 export interface Coordinates {
   latitude: number
@@ -41,22 +41,25 @@ export const GreatCircle = {
       longitude: λ3 * 180 / Math.PI
     }
   },
-  getPathPoints (pointA: Coordinates, pointB: Coordinates): Coordinates[] {
-    const midpoints: Coordinates[] = []
+  getPathPoints (pointA: Coordinates, pointB: Coordinates, numberOfPoints: 9 | 17 | 33 | 65 = 65): Coordinates[] {
+    const midpoints: Coordinates[] = new Array(numberOfPoints)
 
-    const midpoint = this.calculateMidpoint(pointA, pointB)
-    const midpointS = this.calculateMidpoint(pointA, midpoint)
-    const midpointE = this.calculateMidpoint(midpoint, pointB)
+    const calculate = (a: number, b: number): void => {
+      if (a < b && Math.floor((b - a) / 2) > 0) {
+        const mid = this.calculateMidpoint(midpoints[a], midpoints[b])
+        midpoints[Math.floor((b - a) / 2) + a] = mid
+        calculate(a, Math.floor((b - a) / 2) + a)
+        calculate(Math.floor((b - a) / 2) + a, b)
+      }
+    }
 
-    midpoints.push(pointA)
-    midpoints.push(this.calculateMidpoint(pointA, midpointS))
-    midpoints.push(midpointS)
-    midpoints.push(this.calculateMidpoint(midpointS, midpoint))
-    midpoints.push(midpoint)
-    midpoints.push(this.calculateMidpoint(midpoint, midpointE))
-    midpoints.push(midpointE)
-    midpoints.push(this.calculateMidpoint(midpointE, pointB))
-    midpoints.push(pointB)
+    midpoints[0] = pointA
+    midpoints[numberOfPoints - 1] = pointB
+
+    calculate(0, numberOfPoints - 1)
+
+    const longitude = (midpoints[numberOfPoints - 2].longitude > 180 ? pointB.longitude + 360 : midpoints[numberOfPoints - 2].longitude < -180 ? pointB.longitude - 360 : pointB.longitude)
+    midpoints[numberOfPoints - 1] = { ...pointB, longitude }
 
     return midpoints
   },
@@ -78,8 +81,10 @@ export const GreatCircle = {
     return azimuth
   },
   getCurrentPoint (schedule: Schedule): { coordinates: Coordinates, angle: number } {
+    const clock = Clock.getInstance()
+
     const points = this.getPathPoints(schedule.contract.hub.coordinates, schedule.contract.destination.coordinates)
-    const startTime = Clock.getTimeAt(schedule.start, schedule.day === Clock.getInstance().previousDayOfWeek ? 'yesterday' : 'today')
+    const startTime = clock.getPlaytimeForDay(Clock.getDayOfWeek(schedule.start)) + clock.thisWeekStartPlaytime + (schedule.start % Timeframes.DAY)
 
     const progress = Math.abs(Clock.getInstance().playtime - startTime) / schedule.option.totalTime
 

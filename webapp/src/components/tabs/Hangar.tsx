@@ -5,6 +5,7 @@ import ListPreviewWidget from '../widgets/ListPreviewWidget'
 import HangarListItem from '../widgets/listitems/HangarListItem'
 import { type HangarAsset } from '../../controllers/HangarController'
 import { GameController } from '../../controllers/GameController'
+import HangarFilter from '../fragments/HangarFilter'
 
 const Operations: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -24,6 +25,7 @@ const Operations: React.FC = () => {
           header={`Hangar (${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
           Component={HangarListItem}
           items={assets.sort((a, b) => (b.plane.acquisitionTime ?? 0) - (a.plane.acquisitionTime ?? 0))}
+          FilterSection={HangarFilter}
           fullWidth
           fullHeight
         />

@@ -1,7 +1,7 @@
 import { Autobind } from './helpers/Autobind'
 import { Airport, AirportsData, type Regions, calculateAirportsDistance } from '../models/Airport'
 import { Contract } from '../models/Contract'
-import { Timeframes, DaysOfWeek, Clock } from './helpers/Clock'
+import { Timeframes } from './helpers/Clock'
 import { type HangarAsset, HangarController } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { ScheduleController } from './ScheduleController'
@@ -88,38 +88,63 @@ export class ContractsController {
     return this.airports
   }
 
-  private generateContractsForRegion (region: string): Contract[] {
-    const contracts: Contract[] = []
-    const connections: string[] = []
+  public getAllAirports (): Airport[] {
+    return Object.values(this.airports).flat()
+  }
 
-    const hubs = HangarController.getInstance().getHubs(region)
-    const numberOfContractsToGenerate = hubs.size * 2 + Math.floor(Math.random() * 10 + 5)
-    const hubAirports = this.airports[region as keyof typeof Regions].filter(airport => hubs.has(airport.IATACode))
+  private getNewContract (airport1: Airport, airport2: Airport): Contract {
+    const id = `${airport1.IATACode}${airport2.IATACode}-${getRandomCharacters(4, true)}`
+    const distance = calculateAirportsDistance(airport1, airport2)
+    const departureTime = Math.floor(Math.random() * Timeframes.WEEK)
+    const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
+    const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
+    const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
+    const reputation = Math.floor((distance * 2 / 10000) * AirlineController.getInstance().getTier().record.constraints.reputationGain * 100) / 100
+
+    return new Contract(id, airport1, airport2, distance, departureTime, contractDuration, demand, false, 0, 0, reputation)
+  }
+
+  private generateRegionalContracts (region: string): Contract[] {
+    const contracts: Contract[] = []
+
+    const hubAirports = HangarController.getInstance().getHubs(region)
     const regionAirports = this.airports[region as keyof typeof Regions]
+    const numberOfContractsToGenerate = hubAirports.length * 2 + Math.floor(Math.random() * 10 + 5)
 
     for (; contracts.length < numberOfContractsToGenerate;) {
-      const airport1 = (contracts.length < hubs.size * 2
+      const airport1 = (contracts.length < hubAirports.length * 2
         ? hubAirports[Math.floor(Math.random() * hubAirports.length)]
         : regionAirports[Math.floor(Math.random() * regionAirports.length)])
       const airport2 = regionAirports[Math.floor(Math.random() * regionAirports.length)]
 
-      const connection = `${airport1.IATACode}${airport2.IATACode}`
-
-      if (airport1 === airport2 || connections.includes(connection)) {
+      if (airport1.IATACode === airport2.IATACode) {
         continue
       }
 
-      const id = `${airport1.IATACode}${airport2.IATACode}-${getRandomCharacters(4, true)}`
-      const distance = calculateAirportsDistance(airport1, airport2)
-      const dayOfWeek = Object.values(DaysOfWeek)[Math.floor(Math.random() * Object.values(DaysOfWeek).length)]
-      const departureTime = `${Math.floor(Math.random() * 20 + 2).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`
-      const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
-      const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
-      const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
-      const reputation = Math.floor((distance * 2 / 10000) * AirlineController.getInstance().getTier().record.constraints.reputationGain * 100) / 100
+      contracts.push(this.getNewContract(airport1, airport2))
+    }
 
-      connections.push(connection)
-      contracts.push(new Contract(id, airport1, airport2, distance, dayOfWeek, departureTime, contractDuration, demand, false, 0, 0, reputation))
+    return contracts
+  }
+
+  private generateCrossRegionContracts (): Contract[] {
+    const contracts: Contract[] = []
+
+    const hubAirports = HangarController.getInstance().getHubs().filter(hub => hub.passengers > 10000000)
+    const destinationAirports = this.getAllAirports().filter(airport => airport.passengers > 10000000 && AirlineController.getInstance().unlockedRegions.includes(airport.region))
+    const numberOfContractsToGenerate = hubAirports.length * 2 + Math.floor(Math.random() * 10 + 5)
+
+    for (; contracts.length < numberOfContractsToGenerate;) {
+      const airport1 = (contracts.length < hubAirports.length * 2
+        ? hubAirports[Math.floor(Math.random() * hubAirports.length)]
+        : destinationAirports[Math.floor(Math.random() * destinationAirports.length)])
+      const airport2 = destinationAirports[Math.floor(Math.random() * destinationAirports.length)]
+
+      if (airport1.IATACode === airport2.IATACode || airport1.region === airport2.region) {
+        continue
+      }
+
+      contracts.push(this.getNewContract(airport1, airport2))
     }
 
     return contracts
@@ -142,10 +167,10 @@ export class ContractsController {
     const landingFee = Math.floor(contract.hub.fees.landing * (1 - tier.perks.hubDiscount) + contract.destination.fees.landing * (1 - tier.perks.destinationDiscount)) * asset.plane.MTOW
 
     return {
-      fuel: fuelCost,
-      maintenance: maintenanceCost,
-      leasing: leasingCost,
-      landing: landingFee,
+      fuel: fuelCost * 2,
+      maintenance: maintenanceCost * 2,
+      leasing: leasingCost * 2,
+      landing: landingFee * 2,
       passenger: passengerFee,
       total: Math.floor(fuelCost + maintenanceCost + leasingCost + landingFee) * 2 + passengerFee
     }
@@ -181,26 +206,36 @@ export class ContractsController {
     return { flightTime, boardingTime, totalTime: (flightTime + boardingTime) * 2 }
   }
 
-  private checkAvailability (contract: Contract, option: ContractOption): boolean {
-    if (option.asset.plane.hub !== undefined && contract.hub.IATACode !== option.asset.plane.hub.IATACode) return false
-
-    let available = true
-
-    const schedule = ScheduleController.getInstance().draftSchedule(contract, option)
-    const activeSchedules = ScheduleController.getInstance()
-      .getActiveSchedulesForAsset(option.asset)
-      .filter(schedule => schedule.day === contract.dayOfWeek)
+  public canAssignSchedule (activeSchedules: Array<{ start: number, end: number }>, proposedSchedule: { start: number, end: number }): boolean {
+    const [proposedStart, proposedEnd] = [proposedSchedule.start, (proposedSchedule.end < proposedSchedule.start ? proposedSchedule.end + Timeframes.WEEK : proposedSchedule.end)]
+    let canAssignSchedule = true
 
     activeSchedules.forEach(activeSchedule => {
-      if (Clock.isTimeBetween(schedule.start, activeSchedule.start, activeSchedule.end) ||
-        Clock.isTimeBetween(schedule.end, activeSchedule.start, activeSchedule.end) ||
-        Clock.isTimeBetween(activeSchedule.start, schedule.start, schedule.end) ||
-        Clock.isTimeBetween(activeSchedule.end, schedule.start, schedule.end)) {
-        available = false
+      const [activeStart, activeEnd] = [activeSchedule.start, (activeSchedule.end < activeSchedule.start ? activeSchedule.end + Timeframes.WEEK : activeSchedule.end)]
+
+      if (
+        (proposedStart >= activeStart && proposedStart <= activeEnd) ||
+        (proposedEnd >= activeStart && proposedEnd <= activeEnd) ||
+        (proposedStart <= activeStart && proposedEnd >= activeEnd) ||
+        (activeSchedule.end < activeSchedule.start && proposedStart <= activeEnd % Timeframes.WEEK) ||
+        (proposedSchedule.end < proposedSchedule.start && activeStart <= proposedEnd % Timeframes.WEEK)
+      ) {
+        canAssignSchedule = false
       }
     })
 
-    return available
+    return canAssignSchedule
+  }
+
+  public isPlaneAvailable (contract: Contract, option: ContractOption): boolean {
+    if (option.asset.plane.hub !== undefined && contract.hub.IATACode !== option.asset.plane.hub.IATACode) {
+      return false
+    }
+
+    const proposedSchedule = ScheduleController.getInstance().draftSchedule(contract, option)
+    const activeSchedules = ScheduleController.getInstance().getActiveSchedulesForAsset(option.asset)
+
+    return this.canAssignSchedule(activeSchedules, proposedSchedule)
   }
 
   public getContractOptions (contract: Contract): ContractOption[] {
@@ -237,7 +272,7 @@ export class ContractsController {
           available: true
         }
 
-        const available = this.checkAvailability(contract, option)
+        const available = this.isPlaneAvailable(contract, option)
         option.available = available
 
         if (option.available) {
@@ -286,8 +321,13 @@ export class ContractsController {
     if (lastRefresh === -1 || playtime - lastRefresh >= Timeframes.DAY) {
       let newContracts: Contract[] = []
       AirlineController.getInstance().unlockedRegions.forEach(region => {
-        newContracts = newContracts.concat(this.generateContractsForRegion(region))
+        newContracts = newContracts.concat(this.generateRegionalContracts(region))
       })
+
+      if (AirlineController.getInstance().getTier().record.constraints.canFlyCrossRegion) {
+        newContracts = newContracts.concat(this.generateCrossRegionContracts())
+      }
+
       newContracts = newContracts.sort((a, b) => b.reputation - a.reputation)
 
       LocalStorage.setContractsOffers(newContracts)

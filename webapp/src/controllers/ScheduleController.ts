@@ -1,6 +1,6 @@
 import { Autobind } from './helpers/Autobind'
 import { type Contract } from '../models/Contract'
-import { Clock, Timeframes, type DaysOfWeek } from './helpers/Clock'
+import { Clock, Timeframes } from './helpers/Clock'
 import { ContractsController, type ContractOption } from './ContractsController'
 import { HangarController, type HangarAsset } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
@@ -8,9 +8,8 @@ import { AirlineController, EventOrigin, ReputationType } from './AirlineControl
 import { AchievementType, MissionController } from './MissionController'
 
 export interface Schedule {
-  day: DaysOfWeek
-  start: string
-  end: string
+  start: number
+  end: number
   contract: Contract
   option: ContractOption
 }
@@ -58,33 +57,47 @@ export class ScheduleController {
     LocalStorage.setActiveSchedules(this.activeSchedules)
   }
 
-  public getTodaySchedules (): Schedule[] {
+  public getTodaySchedules (day?: string): Schedule[] {
+    const clock = Clock.getInstance()
+
+    const startPlaytime = day !== undefined ? clock.getPlaytimeForDay(day) : clock.todayStartPlaytime % Timeframes.WEEK
+    const endPlaytime = day !== undefined ? clock.getPlaytimeForDay(day) + Timeframes.DAY : clock.tomorrowStartPlaytime % Timeframes.WEEK
+
     return this.activeSchedules.filter(schedule =>
-      schedule.day === Clock.getInstance().currentDayOfWeek ||
-      (schedule.day === Clock.getInstance().previousDayOfWeek && schedule.end < schedule.start && schedule.end > '01:00'))
+      (schedule.start >= startPlaytime && schedule.start < endPlaytime) ||
+      (schedule.end >= startPlaytime && schedule.end < endPlaytime) ||
+      ((schedule.end < schedule.start ? schedule.start - Timeframes.WEEK : schedule.start) < startPlaytime && schedule.end >= endPlaytime))
   }
 
-  public getTotalUseTime (asset: HangarAsset, day: DaysOfWeek): string {
-    const totalTime = this.getActiveSchedulesForAsset(asset)
-      .filter((schedule) => schedule.day === day)
-      .reduce((sum, schedule) => sum + schedule.option.totalTime, 0)
-
-    return `${Math.floor(totalTime / 60).toString().padStart(2, '0')}:${(totalTime % 60).toString().padStart(2, '0')}`
+  public getTodaySchedulesForAsset (asset: HangarAsset, day?: string): Schedule[] {
+    return this.getTodaySchedules(day).filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
   }
 
-  public getAverageUtilization (asset: HangarAsset, day: DaysOfWeek): number {
-    const activeSchedules = this.getActiveSchedulesForAsset(asset).filter((schedule) => schedule.day === day)
-    const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
+  // BROKEN - remove / refactor this
+  public getTotalUseTime (asset: HangarAsset, day: string): string {
+    // const totalTime = this.getActiveSchedulesForAsset(asset)
+    //   .filter((schedule) => schedule)
+    //   .reduce((sum, schedule) => sum + schedule.option.totalTime, 0)
 
-    return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
+    // return `${Math.floor(totalTime / 60).toString().padStart(2, '0')}:${(totalTime % 60).toString().padStart(2, '0')}`
+    return ''
+  }
+
+  // BROKEN - remove / refactor this
+  public getAverageUtilization (asset: HangarAsset, day: string): number {
+    // const activeSchedules = this.getActiveSchedulesForAsset(asset).filter((schedule) => schedule)
+    // const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
+
+    // return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
+    return 0
   }
 
   public draftSchedule (contract: Contract, option: ContractOption): Schedule {
-    const start = Clock.addToTime(contract.departureTime, -option.boardingTime)
-    const end = Clock.addToTime(start, Math.floor(option.totalTime))
+    let start = contract.departureTime - option.boardingTime
+    start = start < 0 ? start + Timeframes.WEEK : start % Timeframes.WEEK
+    const end = (start + option.totalTime) % Timeframes.WEEK
 
     const schedule = {
-      day: contract.dayOfWeek,
       start,
       end,
       contract,
@@ -97,7 +110,8 @@ export class ScheduleController {
   public acceptContract (contract: Contract, option: ContractOption): void {
     const schedule = this.draftSchedule(contract, option)
 
-    const wasPreviouslyAccepted = schedule.contract.accepted
+    ContractsController.getInstance().getContractOffMarket(contract, schedule.contract.accepted)
+
     schedule.contract.accept()
     schedule.option.asset.plane.setHub(schedule.contract.hub)
     HangarController.getInstance().saveAssets()
@@ -105,9 +119,7 @@ export class ScheduleController {
     this.activeSchedules.push(schedule)
     LocalStorage.setActiveSchedules(this.activeSchedules)
 
-    ContractsController.getInstance().getContractOffMarket(contract, wasPreviouslyAccepted)
-
-    AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${schedule.contract.dayOfWeek}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
+    AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${Clock.getDayOfWeek(schedule.contract.departureTime)}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
 
     AirlineController.getInstance().gainReputation(contract.id, ReputationType.CONNECTION, contract.reputation)
 
@@ -134,7 +146,7 @@ export class ScheduleController {
     if (lastRegistration === 0 || playtime - lastRegistration >= Timeframes.DAY) {
       ScheduleController.getInstance().getTodaySchedules().forEach(schedule => {
         this.scheduleEvents.push({
-          executionTime: Clock.getTimeAt(schedule.end, schedule.end < schedule.start ? 'tomorrow' : 'today'),
+          executionTime: Clock.getInstance().thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end),
           schedule
         })
         console.log(`Event scheduled: Flight ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode}`)
@@ -160,7 +172,7 @@ export class ScheduleController {
       if (event.schedule.contract.expirationTime <= playtime) {
         this.expireContract(event.schedule)
 
-        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} for plane ${event.schedule.option.asset.plane.registration} on ${event.schedule.contract.dayOfWeek}s expired`)
+        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} for plane ${event.schedule.option.asset.plane.registration} on ${Clock.getDayOfWeek(event.schedule.contract.departureTime)}s expired`)
       }
     })
 
