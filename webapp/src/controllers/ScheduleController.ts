@@ -63,33 +63,39 @@ export class ScheduleController {
     const startPlaytime = day !== undefined ? clock.getPlaytimeForDay(day) : clock.todayStartPlaytime % Timeframes.WEEK
     const endPlaytime = day !== undefined ? clock.getPlaytimeForDay(day) + Timeframes.DAY : clock.tomorrowStartPlaytime % Timeframes.WEEK
 
-    return this.activeSchedules.filter(schedule =>
-      (schedule.start >= startPlaytime && schedule.start < endPlaytime) ||
-      (schedule.end >= startPlaytime && schedule.end < endPlaytime) ||
-      ((schedule.end < schedule.start ? schedule.start - Timeframes.WEEK : schedule.start) < startPlaytime && schedule.end >= endPlaytime))
+    return this.getActiveSchedules().filter(schedule =>
+      !ContractsController.getInstance().canAssignSchedule([{ start: startPlaytime, end: endPlaytime }], schedule))
   }
 
   public getTodaySchedulesForAsset (asset: HangarAsset, day?: string): Schedule[] {
     return this.getTodaySchedules(day).filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
   }
 
-  // BROKEN - remove / refactor this
-  public getTotalUseTime (asset: HangarAsset, day: string): string {
-    // const totalTime = this.getActiveSchedulesForAsset(asset)
-    //   .filter((schedule) => schedule)
-    //   .reduce((sum, schedule) => sum + schedule.option.totalTime, 0)
+  public getTotalUseTime (asset: HangarAsset, day: string): number {
+    const startPlaytime = Clock.getInstance().getPlaytimeForDay(day)
+    const endPlaytime = Clock.getInstance().getPlaytimeForDay(day) + Timeframes.DAY
 
-    // return `${Math.floor(totalTime / 60).toString().padStart(2, '0')}:${(totalTime % 60).toString().padStart(2, '0')}`
-    return ''
+    return this.getTodaySchedulesForAsset(asset, day).reduce((sum, schedule) => {
+      const [scheduleStart, scheduleEnd] = [schedule.start, schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end]
+
+      if (startPlaytime <= scheduleStart && scheduleStart <= endPlaytime) {
+        return sum + Math.min(schedule.option.totalTime, endPlaytime - scheduleStart)
+      } else if ((startPlaytime <= scheduleEnd && scheduleEnd <= endPlaytime)) {
+        return sum + Math.min(schedule.option.totalTime, scheduleEnd - startPlaytime)
+      } else if (schedule.end < schedule.start && schedule.end >= startPlaytime && schedule.end <= endPlaytime) {
+        return sum + Math.min(schedule.option.totalTime, schedule.end - startPlaytime)
+      } else if (startPlaytime > scheduleStart && scheduleEnd > endPlaytime) {
+        return sum + Timeframes.DAY
+      }
+      return sum
+    }, 0)
   }
 
-  // BROKEN - remove / refactor this
   public getAverageUtilization (asset: HangarAsset, day: string): number {
-    // const activeSchedules = this.getActiveSchedulesForAsset(asset).filter((schedule) => schedule)
-    // const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
+    const activeSchedules = this.getTodaySchedulesForAsset(asset, day)
+    const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
 
-    // return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
-    return 0
+    return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
   }
 
   public draftSchedule (contract: Contract, option: ContractOption): Schedule {
@@ -186,5 +192,30 @@ export class ScheduleController {
         HangarController.getInstance().removeAsset(asset)
       }
     })
+  }
+
+  public static flightStatus = (schedule: Schedule): { inTheAir: boolean, flightLeg: 'there' | 'back' } => {
+    const clock = Clock.getInstance()
+    let inTheAir = false
+    let flightLeg: 'there' | 'back' = 'there'
+
+    if (schedule.contract.startTime > clock.playtime) {
+      return { inTheAir, flightLeg }
+    }
+
+    const thisWeekStartPlaytime = clock.thisWeekStartPlaytime
+    const [scheduleStart, scheduleEnd] = [thisWeekStartPlaytime + schedule.start, thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end)]
+    const halftime = scheduleStart + Math.floor(schedule.option.totalTime / 2)
+
+    if ((scheduleStart <= clock.playtime && scheduleEnd >= clock.playtime) ||
+    (scheduleStart - Timeframes.WEEK <= clock.playtime && scheduleEnd - Timeframes.WEEK >= clock.playtime)) {
+      inTheAir = true
+    }
+
+    if (clock.playtime > halftime || (scheduleStart - Timeframes.WEEK <= clock.playtime && scheduleEnd - Timeframes.WEEK >= clock.playtime && clock.playtime > halftime - Timeframes.WEEK)) {
+      flightLeg = 'back'
+    }
+
+    return { inTheAir, flightLeg }
   }
 }

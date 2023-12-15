@@ -7,8 +7,8 @@ import { MapContainer, Marker, Polyline, TileLayer, useMap } from 'react-leaflet
 import { GreatCircle } from '../../controllers/helpers/GreatCircle'
 import { type Map, DivIcon } from 'leaflet'
 import { Regions, type Airport } from '../../models/Airport'
-import { Clock } from '../../controllers/helpers/Clock'
 import { AirlineController } from '../../controllers/AirlineController'
+import { ScheduleController } from '../../controllers/ScheduleController'
 
 interface Props {
   fullWidth?: boolean
@@ -41,6 +41,13 @@ const MapConfig: Record<keyof typeof Regions, { center: [number, number], zoom: 
   }
 }
 
+const WORLD = 'WORLD'
+
+const WorldMapConfig: { center: [number, number], zoom: number } = {
+  center: [0, 0],
+  zoom: 2
+}
+
 let MapReference: Map
 
 const MapController: React.FC = () => {
@@ -50,18 +57,18 @@ const MapController: React.FC = () => {
 
 const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
+  const startingRegion = Controllers.Airline.getTier().record.constraints.canFlyCrossRegion ? WORLD : Controllers.Airline.startingRegion
 
   const [showAirports, setShowAirports] = useState(false)
   const [showConnections, setShowConnections] = useState(false)
   const [showInAir, setShowInAir] = useState(true)
   const [showLabels, setShowLabels] = useState(true)
-  const [zoomedRegion, setZoomedRegion] = useState(Controllers.Airline.startingRegion)
+  const [zoomedRegion, setZoomedRegion] = useState(startingRegion)
 
-  const config = MapConfig[zoomedRegion as keyof typeof Regions]
+  const config = zoomedRegion === WORLD ? WorldMapConfig : MapConfig[zoomedRegion as keyof typeof Regions]
 
   const allAirports = Controllers.Contracts.getAirports()
-  const inTheAir = Controllers.Schedule.getActiveSchedules().filter(schedule => Clock.flightStatus(schedule).inTheAir)
-  const inTheAirAirports = inTheAir.map(schedule => schedule.contract.hub.IATACode).concat(inTheAir.map(schedule => schedule.contract.destination.IATACode))
+  const inTheAir = Controllers.Schedule.getActiveSchedules().filter(schedule => ScheduleController.flightStatus(schedule).inTheAir)
 
   const getPlaneIcon = (angle: number, registration: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
@@ -109,6 +116,15 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
     return connections
   }
 
+  const AirportMarker: React.FC<{ airport: Airport, offset: number, coordinates: [number, number] }> = ({ airport, offset, coordinates }) => {
+    return (
+      <Marker
+        position={[coordinates[0], coordinates[1] + offset]}
+        icon={getAirportIcon(Controllers.Hangar.getHubs().filter(hub => hub.IATACode === airport.IATACode).length > 0, airport.region, airport.IATACode, showLabels)}>
+      </Marker>
+    )
+  }
+
   return (
     <Col xs={12} md={11} xxl={10} xxxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 border-secondary' >
@@ -127,6 +143,12 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
               <Form.Switch className='mt-2' id='show-connections' label='Show Connections' checked={showConnections} onChange={() => { setShowConnections(!showConnections) }} />
 
               <p className='pt-4'>Zoom to Region</p>
+              <img
+                src={'/images/region-world.png'}
+                alt={'World'}
+                className={'rounded m-1 cursor-pointer'}
+                style={{ maxWidth: '100px' }}
+                onClick={() => { setZoomedRegion(WORLD); MapReference?.flyTo(WorldMapConfig.center, WorldMapConfig.zoom) }} />
               {Object.keys(Regions).map((key) => (
                 <img
                   key={key}
@@ -148,20 +170,10 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
 
                   {[-360, 0, 360].map((offset) => {
                     return (
-                      (showAirports || showInAir) && Object.keys(allAirports).map(region => (
-                        allAirports[region as keyof typeof Regions].map((airport) => {
-                          if (showAirports || (showInAir && inTheAirAirports.includes(airport.IATACode))) {
-                            return (
-                              <Marker
-                                key={`airport-${airport.IATACode}`}
-                                position={[airport.coordinates.latitude, airport.coordinates.longitude + offset]}
-                                icon={getAirportIcon(Controllers.Hangar.getHubs().filter(hub => hub.IATACode === airport.IATACode).length > 0, region, airport.IATACode, showLabels)}>
-                              </Marker>
-                            )
-                          } else {
-                            return null
-                          }
-                        })
+                      showAirports && Object.keys(allAirports).map(region => (
+                        allAirports[region as keyof typeof Regions].map((airport) => (
+                          <AirportMarker key={`airport-${airport.IATACode}`} airport={airport} coordinates={[airport.coordinates.latitude, airport.coordinates.longitude]} offset={offset} />
+                        ))
                       ))
                     )
                   })}
@@ -176,12 +188,15 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
 
                   {showInAir && inTheAir.map((schedule) => {
                     const currentPosition = GreatCircle.getCurrentPoint(schedule)
+                    const pathPoints = GreatCircle.getPathPoints(schedule.contract.hub.coordinates, schedule.contract.destination.coordinates).map(point => [point.latitude, point.longitude])
 
                     return (
                       <React.Fragment key={schedule.contract.id}>
+                        <AirportMarker key={`airport-${schedule.contract.hub.IATACode}`} airport={schedule.contract.hub} coordinates={pathPoints[0] as [number, number]} offset={0} />
+                        <AirportMarker key={`airport-${schedule.contract.destination.IATACode}`} airport={schedule.contract.destination} coordinates={pathPoints[pathPoints.length - 1] as [number, number]} offset={0} />
                         <Polyline
                           key={schedule.contract.id}
-                          positions={GreatCircle.getPathPoints(schedule.contract.hub.coordinates, schedule.contract.destination.coordinates).map(point => [point.latitude, point.longitude])}
+                          positions={pathPoints as Array<[number, number]>}
                           color="#D58C3A"
                           weight={2}/>
                         <Marker

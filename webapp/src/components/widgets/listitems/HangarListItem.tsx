@@ -28,13 +28,13 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   const getTimeUseIndicator = (asset: HangarAsset, day: string): ReactElement => {
     const totalTime = Controllers.Schedule.getTotalUseTime(asset, day)
 
-    if (totalTime >= '12:00') {
+    if (totalTime >= 12 * Timeframes.HOUR) {
       return <Reception4 size={12} className='me-2 text-secondary' />
-    } else if (totalTime >= '8:00') {
+    } else if (totalTime >= 8 * Timeframes.HOUR) {
       return <Reception3 size={12} className='me-2 text-info' />
-    } else if (totalTime >= '04:00') {
+    } else if (totalTime >= 4 * Timeframes.HOUR) {
       return <Reception2 size={12} className='me-2 text-info' />
-    } else if (totalTime > '00:00') {
+    } else if (totalTime > 0) {
       return <Reception1 size={12} className='me-2 text-danger' />
     } else {
       return <Reception0 size={12} className='me-2 text-danger' />
@@ -104,12 +104,12 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
               <div className='timetable-hour mw-50'></div>
             </Col>
             {DaysOfWeek.map((day) =>
-              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'warning bg-opacity-10' : 'body'}`}>
                 <div className='text-center fw-bold text-dark'>
                   {day}
                 </div>
                 <div className='text-center text-grey-dark'>
-                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Controllers.Schedule.getTotalUseTime(asset, day)}</Tooltip>}>
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Clock.formatPlaytime(Controllers.Schedule.getTotalUseTime(asset, day), { minutes: true, hours: true, days: true })}</Tooltip>}>
                     <span className='cursor-help'>
                       <ClockFill size={12} className='me-2' />
                       {getTimeUseIndicator(asset, day)}
@@ -128,7 +128,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
           <Row className='mx-2 mb-2' style={{ height: '300px' }}>
             <TimetableHoursCol showLabels />
             {DaysOfWeek.map((day) =>
-              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'grey-light' : 'body'}`}>
+              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'warning bg-opacity-10' : 'body'}`}>
                 <TimetableGrid />
                 <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                 {Controllers.Schedule

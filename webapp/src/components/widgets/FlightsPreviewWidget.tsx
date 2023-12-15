@@ -8,6 +8,7 @@ import { GameController } from '../../controllers/GameController'
 import { Timeframes } from '../../controllers/helpers/Clock'
 import { CalendarWeek } from 'react-bootstrap-icons'
 import ScheduleCalendarItem from '../fragments/ScheduleCalendarItem'
+import { ContractsController } from '../../controllers/ContractsController'
 
 interface Props {
   fullWidth?: boolean
@@ -30,17 +31,7 @@ const FlightsPreviewWidget: React.FC<Props> = ({ fullWidth = false }): ReactElem
 
       buckets.forEach((scheduleBucket) => {
         if (!assigned) {
-          let available = true
-
-          const [proposedStart, proposedEnd] = [scheduleToAssign.start, (scheduleToAssign.end < scheduleToAssign.start ? scheduleToAssign.end + Timeframes.WEEK : scheduleToAssign.end)]
-
-          scheduleBucket.forEach(activeSchedule => {
-            const [activeStart, activeEnd] = [activeSchedule.start, (activeSchedule.end < activeSchedule.start ? activeSchedule.end + Timeframes.WEEK : activeSchedule.end)]
-
-            if ((proposedStart >= activeStart && proposedStart <= activeEnd) || (proposedEnd >= activeStart && proposedEnd <= activeEnd) || (proposedStart <= activeStart && proposedEnd >= activeEnd)) {
-              available = false
-            }
-          })
+          const available = ContractsController.getInstance().canAssignSchedule(scheduleBucket, scheduleToAssign)
 
           if (available) {
             scheduleBucket.push(scheduleToAssign)

@@ -1,4 +1,3 @@
-import { type Schedule } from '../ScheduleController'
 import { LocalStorage } from './LocalStorage'
 
 export enum Timeframes {
@@ -67,31 +66,6 @@ export class Clock {
     this.listeners[name] = listener
   }
 
-  public static addToTime (time: string, delta: number): string {
-    const [hours, minutes] = time.split(':')
-    const newMinutes = parseInt(minutes) + delta
-    const newHours = (parseInt(hours) + Math.floor(newMinutes / 60)) % 24
-
-    return `${(newHours < 0 ? newHours + 24 : newHours).toString().padStart(2, '0')}:${(newMinutes < 0 ? newMinutes % 60 + 60 : newMinutes % 60).toString().padStart(2, '0')}`
-  }
-
-  // public static getTimeClosestDayStart (day: DaysOfWeek): number {
-  //   const thisDayStart = this.instance.timeThisDayStart
-  //   const thisDayIndex = Object.values(DaysOfWeek).indexOf(this.instance.currentDayOfWeek as DaysOfWeek)
-
-  //   const closestDayIndex = Object.values(DaysOfWeek).indexOf(day)
-  //   const closestDayStart = thisDayStart + (closestDayIndex <= thisDayIndex ? closestDayIndex + 7 - thisDayIndex : closestDayIndex - thisDayIndex) * Timeframes.DAY
-
-  //   return closestDayStart
-  // }
-
-  public static getTimeAt (time: string, when: 'yesterday' | 'today' | 'tomorrow' = 'today'): number {
-    const [hours, minutes] = time.split(':')
-    const delta = (when === 'tomorrow' ? Timeframes.DAY : when === 'yesterday' ? -Timeframes.DAY : 0)
-
-    return parseInt(hours) * 60 + parseInt(minutes) + this.instance.timeThisDayStart + delta
-  }
-
   public static getFormattedTimeUntil (time: number): string {
     const { HOUR, DAY, MONTH, YEAR } = Timeframes
 
@@ -129,64 +103,10 @@ export class Clock {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
 
-  public static isTimeBetween (time: string, start: string, end: string): boolean {
-    if (end < start) {
-      if ((start <= time && end <= time) ||
-        (start >= time && end >= time)) {
-        return true
-      } else {
-        return false
-      }
-    } else {
-      if (start <= time && end >= time) {
-        return true
-      } else {
-        return false
-      }
-    }
-  }
-
-  public static isCurrentTimeBetween (start: string, end: string): boolean {
-    const time = this.instance.playtimeFormatted
-    return this.isTimeBetween(time, start, end)
-  }
-
-  public static sumUpTimes (times: string[]): string {
-    const minutes = times.reduce((sum, time) => {
-      const [hours, minutes] = time.split(':')
-      return sum + parseInt(hours) * 60 + parseInt(minutes)
-    }, 0)
-
-    return `${Math.floor(minutes / 60).toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}`
-  }
-
   public static formatPlaytimeInYearsAndMonths (playtime: number): string {
     const years = Math.floor(playtime / Timeframes.YEAR)
     const months = Math.floor((playtime % Timeframes.YEAR) / Timeframes.MONTH)
     return (years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}` : `${months} ${months === 1 ? 'month' : 'months'}`)
-  }
-
-  public static flightStatus = (schedule: Schedule): { inTheAir: boolean, flightLeg: 'there' | 'back' } => {
-    let inTheAir = false
-    let flightLeg: 'there' | 'back' = 'there'
-
-    if (schedule.contract.startTime > this.instance.playtime) {
-      return { inTheAir, flightLeg }
-    }
-
-    const thisWeekStartPlaytime = this.instance.thisWeekStartPlaytime
-    const [scheduleStart, scheduleEnd] = [thisWeekStartPlaytime + schedule.start, thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end)]
-    const halftime = scheduleStart + Math.floor(schedule.option.totalTime / 2)
-
-    if (scheduleStart <= this.instance.playtime && scheduleEnd >= this.instance.playtime) {
-      inTheAir = true
-    }
-
-    if (this.instance.playtime > halftime) {
-      flightLeg = 'back'
-    }
-
-    return { inTheAir, flightLeg }
   }
 
   get playtime (): number {
@@ -199,11 +119,6 @@ export class Clock {
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   }
-
-  // public static getDayBefore (day: DaysOfWeek): string {
-  //   const dayIndex = Object.values(DaysOfWeek).indexOf(day)
-  //   return Object.values(DaysOfWeek)[dayIndex === 0 ? 6 : dayIndex - 1]
-  // }
 
   get timeThisDayStart (): number {
     return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
@@ -243,7 +158,7 @@ export class Clock {
 
   // NEW METHODS
   get todayStartPlaytime (): number {
-    return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
+    return Math.floor(this.playtime / Timeframes.DAY) * Timeframes.DAY
   }
 
   get tomorrowStartPlaytime (): number {
@@ -251,25 +166,25 @@ export class Clock {
   }
 
   get thisWeekStartPlaytime (): number {
-    return Math.floor(this._playtime / Timeframes.WEEK) * Timeframes.WEEK
+    return Math.floor(this.playtime / Timeframes.WEEK) * Timeframes.WEEK
   }
 
   get thisMonthStartPlaytime (): number {
-    return Math.floor(this._playtime / Timeframes.MONTH) * Timeframes.MONTH
+    return Math.floor(this.playtime / Timeframes.MONTH) * Timeframes.MONTH
   }
 
   get currentDayOfWeek (): string {
-    const day = Math.floor(this._playtime / Timeframes.DAY) % DaysOfWeek.length
+    const day = Math.floor(this.playtime / Timeframes.DAY) % DaysOfWeek.length
     return DaysOfWeek[day]
   }
 
   get previousDayOfWeek (): string {
-    const day = (Math.floor(this._playtime / Timeframes.DAY) - 1) % DaysOfWeek.length
+    const day = (Math.floor(this.playtime / Timeframes.DAY) - 1) % DaysOfWeek.length
     return DaysOfWeek[day]
   }
 
   get nextDayOfWeek (): string {
-    const day = (Math.floor(this._playtime / Timeframes.DAY) + 1) % DaysOfWeek.length
+    const day = (Math.floor(this.playtime / Timeframes.DAY) + 1) % DaysOfWeek.length
     return DaysOfWeek[day]
   }
 
@@ -297,12 +212,12 @@ export class Clock {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
     } else {
       const formattedPlaytime = [
-        (options?.years ?? `${years}y`),
-        (options?.months ?? `${months}m`),
-        (options?.weeks ?? `${weeks}w`),
-        (options?.days ?? `${days}d`),
-        (options?.hours ?? `${hours}h`),
-        (options?.minutes ?? `${minutes}m`)
+        (options?.years !== undefined ? `${years}y` : ''),
+        (options?.months !== undefined ? `${months}m` : ''),
+        (options?.weeks !== undefined ? `${weeks}w` : ''),
+        (options?.days !== undefined ? `${days}d` : ''),
+        (options?.hours !== undefined ? `${hours}h` : ''),
+        (options?.minutes !== undefined ? `${minutes}m` : '')
       ].join(' ')
 
       return formattedPlaytime

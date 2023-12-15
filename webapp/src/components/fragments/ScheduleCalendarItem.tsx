@@ -1,9 +1,9 @@
 import React, { type ReactElement } from 'react'
-import { type Schedule } from '../../controllers/ScheduleController'
+import { ScheduleController, type Schedule } from '../../controllers/ScheduleController'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import ScheduleDetailsTooltip from '../tooltips/ScheduleDetailsTooltip'
 import { AirplaneFill, ArrowLeftRight, CaretDownFill, CaretUpFill } from 'react-bootstrap-icons'
-import { Clock, Timeframes } from '../../controllers/helpers/Clock'
+import { Timeframes } from '../../controllers/helpers/Clock'
 import { GameController } from '../../controllers/GameController'
 
 interface Props {
@@ -15,13 +15,10 @@ interface Props {
 const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, tooltipPosition }): ReactElement => {
   const Controllers = GameController.getInstance()
 
-  const startPlaytime = currentDayOfWeek !== undefined ? Controllers.Clock.getPlaytimeForDay(currentDayOfWeek) : Controllers.Clock.todayStartPlaytime % Timeframes.WEEK
-  const endPlaytime = currentDayOfWeek !== undefined ? Controllers.Clock.getPlaytimeForDay(currentDayOfWeek) + Timeframes.DAY : Controllers.Clock.tomorrowStartPlaytime % Timeframes.WEEK
+  currentDayOfWeek = currentDayOfWeek ?? Controllers.Clock.currentDayOfWeek
 
-  // this.activeSchedules.filter(schedule =>
-  //   (schedule.start >= startPlaytime && schedule.start < endPlaytime) ||
-  //   (schedule.end >= startPlaytime && schedule.end < endPlaytime) ||
-  //   (schedule.start < startPlaytime && schedule.end >= endPlaytime))
+  const startPlaytime = Controllers.Clock.getPlaytimeForDay(currentDayOfWeek)
+  const endPlaytime = Controllers.Clock.getPlaytimeForDay(currentDayOfWeek) + Timeframes.DAY
 
   const spillsToNextDay = (schedule: Schedule): boolean => {
     const [activeStart, activeEnd] = [schedule.start, (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end)]
@@ -79,8 +76,8 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
         }}
       >
         {schedule.contract.hub.IATACode}
-        {Clock.flightStatus(schedule).inTheAir
-          ? Clock.flightStatus(schedule).flightLeg === 'there'
+        {ScheduleController.flightStatus(schedule).inTheAir
+          ? ScheduleController.flightStatus(schedule).flightLeg === 'there'
             ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
             : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
           : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
