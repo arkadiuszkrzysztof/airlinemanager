@@ -22,14 +22,14 @@ const Missions: React.FC = () => {
           header={`Missions (${missionsCount.completed}/${missionsCount.total})`}
           Component={MissionListItem}
           items={Controllers.Mission.getCurrentAndCompletedMissions()}
-          fullHeight
+          maxHeight={'calc(100vh - 450px)'}
         />
         <ListPreviewWidget<{ completedAt: number, achievement: Achievement }>
           Icon={Award}
           header={`Achievements (${achievementsCount.completed}/${achievementsCount.total})`}
           Component={AchievementListItem}
           items={Controllers.Mission.getUnlockedAchievements()}
-          fullHeight
+          maxHeight={'calc(100vh - 450px)'}
           wrapItems
         />
     </>

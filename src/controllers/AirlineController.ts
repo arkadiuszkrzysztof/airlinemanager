@@ -47,6 +47,7 @@ export enum EventOrigin { AIRLINE = 'Airline', MARKET = 'Market', CONTRACT = 'Co
 export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection', REGION = 'Region' }
 export class AirlineController {
   private static instance: AirlineController
+  private readonly pnlListeners: Record<string, (pnl: Record<number, PNLRecord>) => void> = {}
 
   private readonly _name: string
   private readonly _startingRegion: string
@@ -64,6 +65,14 @@ export class AirlineController {
     this._cash = LocalStorage.getCash()
     this._pnl = LocalStorage.getPNL()
     this._eventLog = LocalStorage.getEventLog()
+  }
+
+  public registerPNLListener (key: string, listener: (pnl: Record<number, PNLRecord>) => void): void {
+    this.pnlListeners[key] = listener
+  }
+
+  private callPNLListeners (pnl: Record<number, PNLRecord>): void {
+    Object.values(this.pnlListeners).forEach(listener => { listener(pnl) })
   }
 
   public static getInstance (): AirlineController {
@@ -258,6 +267,8 @@ export class AirlineController {
 
     LocalStorage.setPNL(this._pnl)
 
+    this.callPNLListeners(this._pnl)
+
     this.gainReputation(plane.registration, ReputationType.FLEET, plane.reputation)
 
     this.logEvent(EventOrigin.MARKET, `Leased ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${plane.leaseDuration} with ${formatCashValue(plane.pricing.leaseDownpayment)} downpayment`)
@@ -272,6 +283,8 @@ export class AirlineController {
     thisMonthPNL.costs.cancellationFee += plane.pricing.leaseCancellationFee
 
     LocalStorage.setPNL(this._pnl)
+
+    this.callPNLListeners(this._pnl)
 
     this.loseReputation(plane.registration)
 
@@ -288,6 +301,8 @@ export class AirlineController {
 
     LocalStorage.setPNL(this._pnl)
 
+    this.callPNLListeners(this._pnl)
+
     this.gainReputation(plane.registration, ReputationType.FLEET, plane.reputation)
 
     this.logEvent(EventOrigin.MARKET, `Purchased ${plane.familyName} ${plane.typeName} (${plane.registration}) for ${formatCashValue(plane.pricing.purchase)}`)
@@ -302,6 +317,8 @@ export class AirlineController {
     thisMonthPNL.revenue.selling += plane.sellPrice
 
     LocalStorage.setPNL(this._pnl)
+
+    this.callPNLListeners(this._pnl)
 
     this.loseReputation(plane.registration)
 
@@ -333,6 +350,8 @@ export class AirlineController {
 
     LocalStorage.setPNL(this._pnl)
 
+    this.callPNLListeners(this._pnl)
+
     this.gainCash(schedule.option.profit)
 
     MissionController.getInstance().notifyAchievements(AchievementType.PROFIT)
@@ -344,6 +363,8 @@ export class AirlineController {
     thisMonthPNL.revenue.missions += achievement.reward
     LocalStorage.setPNL(this._pnl)
 
+    this.callPNLListeners(this._pnl)
+
     this.logEvent(EventOrigin.MISSIONS, `Earned achievement "${achievement.label}" with ${formatCashValue(achievement.reward)} reward`)
 
     this.gainCash(achievement.reward)
@@ -353,6 +374,8 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
     thisMonthPNL.revenue.missions += mission.reward
     LocalStorage.setPNL(this._pnl)
+
+    this.callPNLListeners(this._pnl)
 
     this.logEvent(EventOrigin.MISSIONS, `Completed mission "${mission.label}" with ${formatCashValue(mission.reward)} reward`)
 

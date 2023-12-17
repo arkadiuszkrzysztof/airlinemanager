@@ -9,6 +9,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, 
 import { formatScale } from '../../controllers/helpers/Helpers'
 
 interface Props {
+  data: Record<number, PNLRecord>
   fullWidth?: boolean
 }
 
@@ -71,13 +72,12 @@ const formatTooltipLabels = (value: any, name: any): [string, string] => {
   return [formatScale(value, true), Labels[name as keyof typeof Labels]]
 }
 
-const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+const PNLWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement => {
   const [chartData, setChartData] = React.useState<PNLChartData>([])
-  const Controllers = GameController.getInstance()
 
   useEffect(() => {
-    setChartData(preparePNLData(Controllers.Airline.PNL))
-  }, [])
+    setChartData(preparePNLData(data))
+  }, [data])
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
@@ -89,7 +89,7 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
-            <h4 className='text-center pt-2'>Total Revenue: <span className='text-primary fw-bold'>{`${formatScale(getTotalRevenue(Controllers.Airline.PNL), true)}`}</span></h4>
+            <h4 className='text-center pt-2'>Total Revenue: <span className='text-primary fw-bold'>{`${formatScale(getTotalRevenue(data), true)}`}</span></h4>
             <ResponsiveContainer width={'100%'} height={'100%'}>
               <BarChart
                 width={500}
@@ -106,12 +106,12 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value: any, _: number) => formatScale(value)}/>
                 <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
-                <Bar dataKey="operationsCosts" stackId="a" fill="#D3832C" />
-                <Bar dataKey="marketCosts" stackId="a" fill="#D89648" />
-                <Bar dataKey="missionsCosts" stackId="a" fill="#DDA864"><LabelList dataKey="totalCosts" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
-                <Bar dataKey="ticketsRevenue" stackId="b" fill="#37A7A5" />
-                <Bar dataKey="marketRevenue" stackId="b" fill="#54B4AE" />
-                <Bar dataKey="missionsRevenue" stackId="b" fill="#71C1B8"><LabelList dataKey="totalRevenue" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+                <Bar isAnimationActive={false} dataKey="operationsCosts" stackId="a" fill="#D3832C" />
+                <Bar isAnimationActive={false} dataKey="marketCosts" stackId="a" fill="#D89648" />
+                <Bar isAnimationActive={false} dataKey="missionsCosts" stackId="a" fill="#DDA864"><LabelList dataKey="totalCosts" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+                <Bar isAnimationActive={false} dataKey="ticketsRevenue" stackId="b" fill="#37A7A5" />
+                <Bar isAnimationActive={false} dataKey="marketRevenue" stackId="b" fill="#54B4AE" />
+                <Bar isAnimationActive={false} dataKey="missionsRevenue" stackId="b" fill="#71C1B8"><LabelList dataKey="totalRevenue" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
               </BarChart>
             </ResponsiveContainer>
         </Card.Body>

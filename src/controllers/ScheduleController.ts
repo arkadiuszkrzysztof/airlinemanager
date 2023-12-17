@@ -71,7 +71,7 @@ export class ScheduleController {
     return this.getTodaySchedules(day).filter(schedule => schedule.option.asset.plane.registration === asset.plane.registration)
   }
 
-  public getTotalUseTime (asset: HangarAsset, day: string): number {
+  public getUseTimeForAsset (asset: HangarAsset, day: string): number {
     const startPlaytime = Clock.getInstance().getPlaytimeForDay(day)
     const endPlaytime = Clock.getInstance().getPlaytimeForDay(day) + Timeframes.DAY
 
@@ -91,11 +91,30 @@ export class ScheduleController {
     }, 0)
   }
 
-  public getAverageUtilization (asset: HangarAsset, day: string): number {
+  public getAverageUtilizationForAsset (asset: HangarAsset, day: string): number {
     const activeSchedules = this.getTodaySchedulesForAsset(asset, day)
     const totalUtilization = activeSchedules.reduce((sum, schedule) => sum + schedule.option.utilization, 0)
 
     return (activeSchedules.length > 0 ? Math.floor(totalUtilization / activeSchedules.length) : 0)
+  }
+
+  public getWeeklyAverageUseTime (): number {
+    if (this.getActiveSchedules().length === 0) return 0
+
+    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.totalTime, 0) / HangarController.getInstance().getAssetsCount()
+  }
+
+  public getWeeklyAverageUtilization (): number {
+    if (this.getActiveSchedules().length === 0) return 0
+    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.utilization, 0) / this.getActiveSchedules().length
+  }
+
+  public getWeeklyRevenue (): number {
+    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.revenue.total, 0)
+  }
+
+  public getWeeklyCost (): number {
+    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.cost.total, 0)
   }
 
   public draftSchedule (contract: Contract, option: ContractOption): Schedule {

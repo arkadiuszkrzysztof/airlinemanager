@@ -26,7 +26,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   }
 
   const getTimeUseIndicator = (asset: HangarAsset, day: string): ReactElement => {
-    const totalTime = Controllers.Schedule.getTotalUseTime(asset, day)
+    const totalTime = Controllers.Schedule.getUseTimeForAsset(asset, day)
 
     if (totalTime >= 12 * Timeframes.HOUR) {
       return <Reception4 size={12} className='me-2 text-secondary' />
@@ -42,7 +42,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   }
 
   const getUtilizationIndicator = (asset: HangarAsset, day: string): ReactElement => {
-    const averageUtilization = Controllers.Schedule.getAverageUtilization(asset, day)
+    const averageUtilization = Controllers.Schedule.getAverageUtilizationForAsset(asset, day)
 
     if (averageUtilization >= 85) {
       return <Reception4 size={12} className='text-secondary' />
@@ -109,13 +109,13 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                   {day}
                 </div>
                 <div className='text-center text-grey-dark'>
-                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Clock.formatPlaytime(Controllers.Schedule.getTotalUseTime(asset, day), { minutes: true, hours: true, days: true })}</Tooltip>}>
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total time in use:</strong><br />{Clock.formatPlaytime(Controllers.Schedule.getUseTimeForAsset(asset, day), { minutes: true, hours: true, days: true })}</Tooltip>}>
                     <span className='cursor-help'>
                       <ClockFill size={12} className='me-2' />
                       {getTimeUseIndicator(asset, day)}
                     </span>
                   </OverlayTrigger>
-                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Average seat utilization:</strong><br />{formatUtilization(Controllers.Schedule.getAverageUtilization(asset, day))}</Tooltip>}>
+                  <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Average seat utilization:</strong><br />{formatUtilization(Controllers.Schedule.getAverageUtilizationForAsset(asset, day))}</Tooltip>}>
                     <span className='cursor-help'>
                       <PersonFill size={12} className='me-2' />
                       {getUtilizationIndicator(asset, day)}

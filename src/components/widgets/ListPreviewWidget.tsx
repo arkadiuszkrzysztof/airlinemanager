@@ -10,11 +10,12 @@ interface ListPreviewProps<U> {
   Icon?: React.FC<IconProps>
   fullWidth?: boolean
   fullHeight?: boolean
+  maxHeight?: string
   wrapItems?: boolean
   FilterSection?: React.FC<{ items: U[], filter: (items: U[]) => void }>
 }
 
-const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, wrapItems = false, FilterSection }: ListPreviewProps<U>): ReactElement => {
+const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, maxHeight, wrapItems = false, FilterSection }: ListPreviewProps<U>): ReactElement => {
   const [filteredItems, setFilteredItems] = useState<U[]>([])
   const [allItems, setAllItems] = useState<U[]>([])
 
@@ -33,7 +34,7 @@ const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, full
           </div>
           <span className='text-primary fs-6'>{subheader}</span>
         </Card.Header>
-        <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'widget-full-height' : 'mh-350'} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`}>
+        <Card.Body className={`d-flex overflow-auto pt-0 pb-2 ${fullHeight ? 'widget-full-height' : (maxHeight !== undefined ? '' : 'mh-350')} ${wrapItems ? 'flex-row flex-wrap' : 'flex-column'}`} style={{ maxHeight: (maxHeight ?? '') }}>
           {FilterSection != null && <FilterSection items={allItems} filter={(newItems: U[]) => { setFilteredItems(newItems) }} />}
           {filteredItems.map((item, index) => (
             <Component key={`list-preview-${index}`} item={item} />

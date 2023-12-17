@@ -109,31 +109,31 @@ describe('getTodaySchedules', () => {
 
 describe('getTotalUseTime', () => {
   test('schedules for MON', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[0])).toBe(2140)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[0])).toBe(2140)
   })
 
   test('schedules for TUE', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[1])).toBe(1560)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[1])).toBe(1560)
   })
 
   test('schedules for WED', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[2])).toBe(0)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[2])).toBe(0)
   })
 
   test('schedules for THU', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[3])).toBe(2020)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[3])).toBe(2020)
   })
 
   test('schedules for FRI', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[4])).toBe(4080)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[4])).toBe(4080)
   })
 
   test('schedules for SAT', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[5])).toBe(2140)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[5])).toBe(2140)
   })
 
   test('schedules for SUN', () => {
-    expect(ScheduleController.getInstance().getTotalUseTime(asset as any, DaysOfWeek[6])).toBe(1570)
+    expect(ScheduleController.getInstance().getUseTimeForAsset(asset as any, DaysOfWeek[6])).toBe(1570)
   })
 })
 

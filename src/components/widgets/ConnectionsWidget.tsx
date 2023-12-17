@@ -9,6 +9,7 @@ import { Timeframes } from '../../controllers/helpers/Clock'
 import { formatScale } from '../../controllers/helpers/Helpers'
 
 interface Props {
+  data: Record<number, PNLRecord>
   fullWidth?: boolean
 }
 
@@ -42,13 +43,12 @@ const formatTooltipLabels = (value: any, name: any): [string, string] => {
   return [formatScale(value, true), Labels[name as keyof typeof Labels]]
 }
 
-const ConnectionsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+const ConnectionsWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement => {
   const [chartData, setChartData] = React.useState<ConnectionsChartData>([])
-  const Controllers = GameController.getInstance()
 
   useEffect(() => {
-    setChartData(prepareConnectionsData(Controllers.Airline.PNL))
-  }, [])
+    setChartData(prepareConnectionsData(data))
+  }, [data])
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
@@ -78,8 +78,8 @@ const ConnectionsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
             <YAxis yAxisId="right" orientation="right" tickFormatter={(value: any) => formatScale(value, true)} label={{ value: 'Distance (km)', style: { textAnchor: 'middle' }, angle: -90, position: 'right', offset: 0 }} />
             <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
             <Legend formatter={(value: any, name: any) => formatTooltipLabels(undefined, value)} />
-            <Line yAxisId="left" type="monotone" dataKey="flights" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line yAxisId="right" type="monotone" dataKey="distance" stroke="#82ca9d" activeDot={{ r: 8 }} />
+            <Line isAnimationActive={false} yAxisId="left" type="monotone" dataKey="flights" stroke="#8884d8" activeDot={{ r: 8 }} />
+            <Line isAnimationActive={false} yAxisId="right" type="monotone" dataKey="distance" stroke="#82ca9d" activeDot={{ r: 8 }} />
           </LineChart>
         </ResponsiveContainer>
         </Card.Body>

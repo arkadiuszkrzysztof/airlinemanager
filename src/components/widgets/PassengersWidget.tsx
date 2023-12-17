@@ -9,6 +9,7 @@ import { Timeframes } from '../../controllers/helpers/Clock'
 import { formatScale } from '../../controllers/helpers/Helpers'
 
 interface Props {
+  data: Record<number, PNLRecord>
   fullWidth?: boolean
 }
 
@@ -49,13 +50,12 @@ const formatTooltipLabels = (value: any, name: any): [string, string] => {
   return [value, Labels[name as keyof typeof Labels]]
 }
 
-const PassengersWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+const PassengersWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement => {
   const [chartData, setChartData] = React.useState<PassengersChartData>([])
-  const Controllers = GameController.getInstance()
 
   useEffect(() => {
-    setChartData(preparePassengersData(Controllers.Airline.PNL))
-  }, [])
+    setChartData(preparePassengersData(data))
+  }, [data])
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
@@ -67,7 +67,7 @@ const PassengersWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement 
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
-            <h4 className='text-center pt-2'>Total Passengers: <span className='text-primary fw-bold'>{`${formatScale(getTotalPassengers(Controllers.Airline.PNL), true)}`}</span></h4>
+            <h4 className='text-center pt-2'>Total Passengers: <span className='text-primary fw-bold'>{`${formatScale(getTotalPassengers(data), true)}`}</span></h4>
           <ResponsiveContainer width={'100%'} height={'100%'}>
             <AreaChart
               width={500}
