@@ -20,7 +20,7 @@ const ContractListItem: React.FC<Props> = ({ item }) => {
   const { contract, options } = item
 
   return (
-    <Row className={`bg-${contract.accepted ? 'danger bg-opacity-10' : 'grey-light'} ${options.length === 0 ? 'opacity-50 grayscale' : ''} rounded mt-2 p-2`}>
+    <Row className={`bg-${contract.accepted ? 'danger bg-opacity-10' : 'grey-light'} ${options.length === 0 && !contract.accepted ? 'opacity-50 grayscale' : ''} rounded mt-2 p-2`}>
       {contract.accepted &&
         <Row className='mb-4'>
           <Col xs={12} className='d-flex align-items-center justify-content-center'>

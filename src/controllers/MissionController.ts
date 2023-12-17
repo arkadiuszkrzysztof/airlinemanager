@@ -72,8 +72,7 @@ const updateProgress = (mission: Mission): void => {
 
 const destinationResolver = (mission: Mission, schedule?: Schedule): boolean => {
   if (schedule !== undefined && schedule.contract.destination.IATACode === mission.conditions.destination) {
-    // remove the ?? 300 when the records are migrated
-    mission.conditions.currentValue += (schedule.option.numberOfPassengers.total ?? 300)
+    mission.conditions.currentValue += schedule.option.numberOfPassengers.total
     updateProgress(mission)
   }
 
@@ -82,8 +81,7 @@ const destinationResolver = (mission: Mission, schedule?: Schedule): boolean => 
 
 const aircraftResolver = (mission: Mission, schedule?: Schedule): boolean => {
   if (schedule !== undefined && schedule.option.asset.plane.typeName === mission.conditions.aircraft) {
-    // remove the ?? 300 when the records are migrated
-    mission.conditions.currentValue += (schedule.option.numberOfPassengers.total ?? 300)
+    mission.conditions.currentValue += schedule.option.numberOfPassengers.total
     updateProgress(mission)
   }
 
@@ -92,8 +90,7 @@ const aircraftResolver = (mission: Mission, schedule?: Schedule): boolean => {
 
 const classResolver = (mission: Mission, schedule?: Schedule): boolean => {
   if (schedule !== undefined && mission.conditions.class !== undefined) {
-    // remove the ?? 0 when the records are migrated
-    mission.conditions.currentValue += (schedule.option.numberOfPassengers[mission.conditions.class] ?? 0)
+    mission.conditions.currentValue += schedule.option.numberOfPassengers[mission.conditions.class]
     updateProgress(mission)
   }
 

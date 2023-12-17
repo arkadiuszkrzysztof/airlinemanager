@@ -16,13 +16,13 @@ const Market: React.FC = () => {
 
   const [market, setMarket] = React.useState<Plane[]>([])
   const [contracts, setContracts] = React.useState<Array<{ contract: Contract, options: ContractOption[] }>>([])
-  const [, setAssets] = React.useState<HangarAsset[]>([])
+  const [assets, setAssets] = React.useState<HangarAsset[]>([])
 
   useEffect(() => {
     setMarket(Controllers.Market.getAvailablePlanes(Controllers.Clock.playtime))
     setContracts(Controllers.Contracts.getAvailableContracts(Controllers.Clock.playtime))
     setAssets(Controllers.Hangar.getAllAssets())
-  }, [])
+  }, [assets])
 
   Controllers.Market.registerListener('marketListPreview', setMarket)
   Controllers.Contracts.registerListener('contractsListPreview', setContracts)

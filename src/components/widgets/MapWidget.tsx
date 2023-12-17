@@ -57,7 +57,7 @@ const MapController: React.FC = () => {
 
 const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
-  const startingRegion = Controllers.Airline.getTier().record.constraints.canFlyCrossRegion ? WORLD : Controllers.Airline.startingRegion
+  const startingRegion = Controllers.Airline.getTier().record.constraints.canFlyCrossRegion && AirlineController.getInstance().unlockedRegions.length > 1 ? WORLD : Controllers.Airline.startingRegion
 
   const [showAirports, setShowAirports] = useState(false)
   const [showConnections, setShowConnections] = useState(false)

@@ -2,7 +2,7 @@ import React, { type ReactElement } from 'react'
 import { ScheduleController, type Schedule } from '../../controllers/ScheduleController'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import ScheduleDetailsTooltip from '../tooltips/ScheduleDetailsTooltip'
-import { AirplaneFill, ArrowLeftRight, CaretDownFill, CaretUpFill } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight } from 'react-bootstrap-icons'
 import { Timeframes } from '../../controllers/helpers/Clock'
 import { GameController } from '../../controllers/GameController'
 
@@ -82,8 +82,6 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
             : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
           : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
         {schedule.contract.destination.IATACode}
-        {spillsToNextDay(schedule) && <CaretDownFill size={16} className='text-warning ms-2'/>}
-        {spillsFromPreviousDay(schedule) && <CaretUpFill size={16} className='text-warning ms-2'/>}
       </div>
     </OverlayTrigger>
   )

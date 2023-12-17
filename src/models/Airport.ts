@@ -116,6 +116,9 @@ export const AirportsData: Record<keyof typeof Regions, AirportTuple[]> = {
     ['LUN', 'Lusaka', 'Zambia', 'ZM', { latitude: -15.331667, longitude: 28.434167 }, 3962, 1400000, { landing: 10, passenger: 7.5 }]
   ],
   OCEANIA: [
+    ['SYD', 'Sydney', 'Australia', 'AU', { latitude: -33.946111, longitude: 151.177222 }, 3962, 44000000, { landing: 15, passenger: 25 }],
+    ['MEL', 'Melbourne', 'Australia', 'AU', { latitude: -37.673333, longitude: 144.843333 }, 3658, 37000000, { landing: 15, passenger: 25 }],
+    ['BNE', 'Brisbane', 'Australia', 'AU', { latitude: -27.384167, longitude: 153.1175 }, 3800, 23000000, { landing: 15, passenger: 25 }]
   ]
 }
 

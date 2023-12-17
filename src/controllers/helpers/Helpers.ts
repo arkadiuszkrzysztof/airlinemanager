@@ -29,3 +29,17 @@ export const formatUtilization = (utilization: number): string => {
 export const formatPercentageValue = (value: number): string => {
   return `${Math.floor(value * 100)}%`
 }
+
+export const formatScale = (value: number, showDecimal: boolean = false): string => {
+  if (value >= 1000000 && Math.floor(value / 1000000) < 10 && showDecimal) {
+    return `${(Math.floor(value / 100000) / 10).toFixed(1)}M`
+  } else if (value >= 1000000) {
+    return `${Math.floor(value / 1000000)}M`
+  } else if (value >= 1000 && Math.floor(value / 1000) < 10 && showDecimal) {
+    return `${(Math.floor(value / 100) / 10).toFixed(1)}K`
+  } else if (value >= 1000) {
+    return `${Math.floor(value / 1000)}K`
+  } else {
+    return `${Math.floor(value)}`
+  }
+}

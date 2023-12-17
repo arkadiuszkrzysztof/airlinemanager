@@ -1,139 +1,83 @@
-import React, { type ReactElement } from 'react'
-import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
+import React, { useEffect, type ReactElement } from 'react'
+import { Card, Col } from 'react-bootstrap'
 
-import { GameController, type Controllers } from '../../controllers/GameController'
+import { GameController } from '../../controllers/GameController'
 import { GraphUpArrow } from 'react-bootstrap-icons'
 import { type PNLRecord } from '../../controllers/AirlineController'
 import { Timeframes } from '../../controllers/helpers/Clock'
-import type { CostsBreakdown, RevenuesBreakdown } from '../../controllers/ContractsController'
-import RevenueBreakdownTooltip from '../tooltips/RevenueBreakdownTooltip'
-import CostBreakdownTooltip from '../tooltips/CostBreakdownTooltip'
+import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { formatScale } from '../../controllers/helpers/Helpers'
 
 interface Props {
   fullWidth?: boolean
 }
 
-interface PNLChartData {
-  data: Array<{
-    month: string
-    costs: CostsBreakdown
-    revenue: RevenuesBreakdown
-  }>
-  maxTotal: number
-  scale: {
-    step: number
-    numberOfSteps: number
-    max: number
-  }
-}
+type PNLChartData = Array<{
+  month: string
+  operationsCosts: number
+  marketCosts: number
+  missionsCosts: number
+  totalCosts: number
+  ticketsRevenue: number
+  marketRevenue: number
+  missionsRevenue: number
+  totalRevenue: number
+}>
 
-const preparePNLData = (Controllers: Controllers): PNLChartData => {
-  const result: PNLChartData = {
-    data: [],
-    maxTotal: 0,
-    scale: {
-      step: 0,
-      numberOfSteps: 0,
-      max: 0
-    }
-  }
+const preparePNLData = (data: Record<number, PNLRecord>, duration: number = 6): PNLChartData => {
+  const Controllers = GameController.getInstance()
+  const result: PNLChartData = []
 
-  Object.entries(Controllers.Airline.PNL)
+  Object.entries(data)
     .sort(([a]: [string, PNLRecord], [b]: [string, PNLRecord]) => parseInt(a) - parseInt(b))
-    .slice(-6)
+    .slice(-duration)
     .forEach(([monthPlaytime, record]: [string, PNLRecord]) => {
-      // remove ?? 0
-      const totalcosts = record.costs.cancellationFee + record.costs.fuel + record.costs.maintenance + record.costs.downpayment + record.costs.landing + record.costs.leasing + record.costs.passenger + record.costs.purchasing + (record.costs.unlockingRegions ?? 0)
-      const totalRevenue = record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + (record.revenue.missions ?? 0)
+      const operationsCosts = record.costs.fuel + record.costs.maintenance + record.costs.landing + record.costs.passenger
+      const marketCosts = record.costs.cancellationFee + record.costs.downpayment + record.costs.leasing + record.costs.purchasing
+      const missionsCosts = record.costs.unlockingRegions
+      const ticketsRevenue = record.revenue.business + record.revenue.economy + record.revenue.first
+      const marketRevenue = record.revenue.selling
+      const missionsRevenue = record.revenue.missions
 
-      result.data.push({
-        month: (Controllers.Clock.playtime - parseInt(monthPlaytime) < Timeframes.MONTH ? 'Current Month' : `Last -${Math.floor((Controllers.Clock.playtime - parseInt(monthPlaytime)) / Timeframes.MONTH)}`),
-        costs: {
-          ...record.costs,
-          total: totalcosts
-        },
-        revenue: {
-          ...record.revenue,
-          total: totalRevenue
-        }
+      result.push({
+        month: (Controllers.Clock.playtime - parseInt(monthPlaytime) < Timeframes.MONTH ? 'Current Month' : `Previous -${Math.floor((Controllers.Clock.playtime - parseInt(monthPlaytime)) / Timeframes.MONTH)}`),
+        operationsCosts,
+        marketCosts,
+        missionsCosts,
+        totalCosts: operationsCosts + marketCosts + missionsCosts,
+        ticketsRevenue,
+        marketRevenue,
+        missionsRevenue,
+        totalRevenue: ticketsRevenue + marketRevenue + missionsRevenue
       })
-      result.maxTotal = Math.floor(Math.max(result.maxTotal, totalcosts, totalRevenue))
     })
-
-  if (result.maxTotal === 0) {
-    result.maxTotal = 1000000
-  }
-
-  result.scale.step = Math.pow(10, result.maxTotal.toString().length - 1)
-  const numberOfSteps = Math.ceil(result.maxTotal / result.scale.step)
-  if (numberOfSteps < 3) {
-    result.scale.step = result.scale.step / 2
-  } else if (numberOfSteps > 6) {
-    result.scale.step = result.scale.step * 2
-  }
-
-  result.scale.numberOfSteps = Math.ceil(result.maxTotal / result.scale.step)
-  result.scale.max = result.scale.step * result.scale.numberOfSteps
 
   return result
 }
 
-const formatScale = (value: number, showDecimal: boolean = false): string => {
-  if (value >= 1000000 && Math.floor(value / 1000000) < 10 && showDecimal) {
-    return `${(Math.floor(value / 100000) / 10).toFixed(1)}M`
-  } else if (value >= 1000000) {
-    return `${Math.floor(value / 1000000)}M`
-  } else if (value >= 1000 && Math.floor(value / 1000) < 10 && showDecimal) {
-    return `${(Math.floor(value / 100) / 10).toFixed(1)}K`
-  } else if (value >= 1000) {
-    return `${Math.floor(value / 1000)}K`
-  } else {
-    return `${Math.floor(value)}`
-  }
+const getTotalRevenue = (data: Record<number, PNLRecord>): number => {
+  let total = 0
+
+  Object.entries(data).forEach(([_, record]: [string, PNLRecord]) => {
+    total += record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + record.revenue.missions
+  })
+
+  return total
 }
 
-const getScale = (pnlData: PNLChartData): ReactElement[] => {
-  const content: ReactElement[] = []
+const formatTooltipLabels = (value: any, name: any): [string, string] => {
+  const Labels = { operationsCosts: 'Operations Costs', marketCosts: 'Market Costs', missionsCosts: 'Missions Costs', ticketsRevenue: 'Tickets Revenue', marketRevenue: 'Market Revenue', missionsRevenue: 'Missions Revenue' }
 
-  for (let i = 0; i <= pnlData.scale.numberOfSteps; i++) {
-    content.push(
-      <div key={`scale-${i}`} className='position-absolute start-0 border-top' style={{ bottom: `${(i * pnlData.scale.step) / pnlData.scale.max * 250 + 50}px` }}>
-        {i > 0 && <span className='position-absolute small text-grey-dark fw-bold' style={{ marginLeft: '-50px', marginTop: '-12px' }}>{`$${formatScale(i * pnlData.scale.step)}`}</span>}
-      </div>
-    )
-  }
-
-  return content
-}
-
-const formatNetProfit = (value: string, profit: number): ReactElement => {
-  if (profit > 0) {
-    return (
-      <span className='text-success'>
-        <span className='me-1'>+</span>
-        {value}
-      </span>
-    )
-  } else if (profit < 0) {
-    return (
-      <span className='text-danger'>
-        <span className='me-1'>-</span>
-        {value}
-      </span>
-    )
-  } else {
-    return (
-      <span className='text-grey-dark'>
-        {value}
-      </span>
-    )
-  }
+  return [formatScale(value, true), Labels[name as keyof typeof Labels]]
 }
 
 const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
+  const [chartData, setChartData] = React.useState<PNLChartData>([])
   const Controllers = GameController.getInstance()
 
-  const [pnlData] = React.useState<PNLChartData>(preparePNLData(Controllers))
+  useEffect(() => {
+    setChartData(preparePNLData(Controllers.Airline.PNL))
+  }, [])
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
@@ -144,60 +88,32 @@ const PNLWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
             <span className='text-dark fw-bold fs-5'>Profit & Loss</span>
           </div>
         </Card.Header>
-        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2'>
-          <Row className='mx-2 mb-2 position-relative ms-5 justify-content-center'>
-            {getScale(pnlData)}
-            {pnlData.data.map((record) => (
-              <Col xs={2} key={`${record.month}-graphs`} style={{ zIndex: 2 }}>
-                <Row className='align-items-end gx-2' style={{ height: '275px' }}>
-                  <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={record.costs} showTotal /></Tooltip>}>
-                    <Col key={`${record.month}-costs`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
-                      <div className='pnl-bar fw-bold small text-center'>{formatScale(record.costs.total, true)}</div>
-                      {Object.keys(record.costs).filter((key) => key !== 'total').map((key, index) => {
-                        const value = record.costs[key as keyof typeof record.costs]
-
-                        if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={'pnl-bar bg-warning-scale-3'} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
-                        }
-
-                        return null
-                      })}
-                    </Col>
-                  </OverlayTrigger>
-                  <OverlayTrigger placement="top" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={record.revenue} showTotal /></Tooltip>}>
-                    <Col key={`${record.month}-revenues`} className='d-flex flex-wrap align-items-stretch justify-content-end cursor-help'>
-                    <div className='pnl-bar fw-bold small text-center'>{formatScale(record.revenue.total, true)}</div>
-                      {Object.keys(record.revenue).filter((key) => key !== 'total').map((key, index) => {
-                        const value = record.revenue[key as keyof typeof record.revenue]
-
-                        if (value !== undefined && value !== 0) {
-                          return (<div key={`${record.month}-${key}`} className={'pnl-bar bg-success-scale-3'} style={{ height: `${Math.round(value / pnlData.scale.max * 250)}px` }}></div>)
-                        }
-
-                        return null
-                      })}
-                    </Col>
-                  </OverlayTrigger>
-                </Row>
-                <Row className='justify-content-center small fw-bold' style={{ height: '50px' }}>
-                  <Col className='d-flex flex-column'>
-                      <Row>
-                        <Col xs={12} className='m-0 p-0 text-center'>
-                          {record.month}
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col xs={12} className='m-0 p-0 text-center fs-5'>
-                          {formatNetProfit(formatScale(Math.abs(record.revenue.total - record.costs.total), true), record.revenue.total - record.costs.total)}
-                        </Col>
-                      </Row>
-                  </Col>
-                </Row>
-              </Col>
-            )
-
-            )}
-          </Row>
+        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
+            <h4 className='text-center pt-2'>Total Revenue: <span className='text-primary fw-bold'>{`${formatScale(getTotalRevenue(Controllers.Airline.PNL), true)}`}</span></h4>
+            <ResponsiveContainer width={'100%'} height={'100%'}>
+              <BarChart
+                width={500}
+                height={200}
+                data={chartData}
+                margin={{
+                  top: 20,
+                  right: 0,
+                  left: 0,
+                  bottom: 0
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis tickFormatter={(value: any, _: number) => formatScale(value)}/>
+                <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
+                <Bar dataKey="operationsCosts" stackId="a" fill="#D3832C" />
+                <Bar dataKey="marketCosts" stackId="a" fill="#D89648" />
+                <Bar dataKey="missionsCosts" stackId="a" fill="#DDA864"><LabelList dataKey="totalCosts" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+                <Bar dataKey="ticketsRevenue" stackId="b" fill="#37A7A5" />
+                <Bar dataKey="marketRevenue" stackId="b" fill="#54B4AE" />
+                <Bar dataKey="missionsRevenue" stackId="b" fill="#71C1B8"><LabelList dataKey="totalRevenue" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+              </BarChart>
+            </ResponsiveContainer>
         </Card.Body>
       </Card>
     </Col>

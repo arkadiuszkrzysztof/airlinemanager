@@ -20,6 +20,7 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.20.0",
     "react-scripts": "^5.0.1",
+    "recharts": "^2.10.3",
     "sass": "^1.69.5"
   },
   "scripts": {

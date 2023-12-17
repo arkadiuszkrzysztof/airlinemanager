@@ -12,7 +12,13 @@ export interface PNLRecord {
   statistics: {
     numberOfFlights: number
     numberOfPlanes: number
-    totalPassengers: number
+    totalDistance: number
+    visitedRegions: Record<keyof typeof Regions, number>
+    totalPassengers: {
+      economy: number
+      business: number
+      first: number
+    }
   }
   revenue: {
     economy: number
@@ -235,7 +241,11 @@ export class AirlineController {
     const timeThisMonthStart = Clock.getInstance().timeThisMonthStart
 
     this._pnl[timeThisMonthStart] = this._pnl[timeThisMonthStart] ??
-      { statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalPassengers: 0 }, revenue: { economy: 0, business: 0, first: 0, selling: 0, missions: 0 }, costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0, unlockingRegions: 0 } }
+      {
+        statistics: { numberOfFlights: 0, numberOfPlanes: 0, totalDistance: 0, visitedRegions: { NA: 0, EU: 0, ASIA: 0, LATAM: 0, AFRICA: 0, OCEANIA: 0 }, totalPassengers: { economy: 0, business: 0, first: 0 } },
+        revenue: { economy: 0, business: 0, first: 0, selling: 0, missions: 0 },
+        costs: { fuel: 0, maintenance: 0, leasing: 0, landing: 0, passenger: 0, purchasing: 0, downpayment: 0, cancellationFee: 0, unlockingRegions: 0 }
+      } satisfies PNLRecord
 
     return this._pnl[timeThisMonthStart]
   }
@@ -304,7 +314,12 @@ export class AirlineController {
     const thisMonthPNL = this.getThisMonthPNLRecord()
 
     thisMonthPNL.statistics.numberOfFlights += 1
-    thisMonthPNL.statistics.totalPassengers += schedule.option.numberOfPassengers.total
+    thisMonthPNL.statistics.totalDistance += schedule.contract.distance * 2
+    thisMonthPNL.statistics.visitedRegions[schedule.contract.hub.region as keyof typeof Regions] += 1
+    thisMonthPNL.statistics.visitedRegions[schedule.contract.destination.region as keyof typeof Regions] += 1
+    thisMonthPNL.statistics.totalPassengers.economy += schedule.option.numberOfPassengers.economy
+    thisMonthPNL.statistics.totalPassengers.business += schedule.option.numberOfPassengers.business
+    thisMonthPNL.statistics.totalPassengers.first += schedule.option.numberOfPassengers.first
 
     thisMonthPNL.revenue.economy += schedule.option.revenue.economy
     thisMonthPNL.revenue.business += schedule.option.revenue.business
@@ -345,12 +360,10 @@ export class AirlineController {
   }
 
   public getTotalProfit (): number {
-    // remove isNaN check when all records have been migrated
-    return Object.values(this._pnl).reduce((sum, record) => sum + record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + (isNaN(record.revenue.missions) ? 0 : record.revenue.missions), 0)
+    return Object.values(this._pnl).reduce((sum, record) => sum + record.revenue.business + record.revenue.economy + record.revenue.first + record.revenue.selling + record.revenue.missions, 0)
   }
 
   public getTotalPassengers (): number {
-    // remove isNaN check when all records have been migrated
-    return Object.values(this._pnl).reduce((sum, record) => sum + (isNaN(record.statistics.totalPassengers) ? 0 : record.statistics.totalPassengers), 0)
+    return Object.values(this._pnl).reduce((sum, record) => sum + record.statistics.totalPassengers.economy + record.statistics.totalPassengers.business + record.statistics.totalPassengers.first, 0)
   }
 }

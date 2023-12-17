@@ -154,7 +154,7 @@ export const LocalStorage = {
   },
   getLastScheduleEventsRegistration (): number {
     const lastScheduleEventsRegistration = localStorage.getItem(Keys.LAST_SCHEDULE_EVENTS_REGISTRATION)
-    return (lastScheduleEventsRegistration !== null) ? parseInt(lastScheduleEventsRegistration) : 0
+    return (lastScheduleEventsRegistration !== null) ? parseInt(lastScheduleEventsRegistration) : -1
   },
   setLastScheduleEventsRegistration (lastScheduleEventsRegistration: number): void {
     localStorage.setItem(Keys.LAST_SCHEDULE_EVENTS_REGISTRATION, lastScheduleEventsRegistration.toString())

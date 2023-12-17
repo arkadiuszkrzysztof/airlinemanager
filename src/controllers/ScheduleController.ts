@@ -116,14 +116,16 @@ export class ScheduleController {
   public acceptContract (contract: Contract, option: ContractOption): void {
     const schedule = this.draftSchedule(contract, option)
 
-    ContractsController.getInstance().getContractOffMarket(contract, schedule.contract.accepted)
+    const wasAccepted = schedule.contract.accepted
 
     schedule.contract.accept()
     schedule.option.asset.plane.setHub(schedule.contract.hub)
-    HangarController.getInstance().saveAssets()
-
     this.activeSchedules.push(schedule)
     LocalStorage.setActiveSchedules(this.activeSchedules)
+
+    HangarController.getInstance().saveAssets()
+
+    ContractsController.getInstance().getContractOffMarket(contract, wasAccepted)
 
     AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Accepted ${contract.hub.IATACode}-${contract.destination.IATACode} contract for plane ${schedule.option.asset.plane.registration} on ${Clock.getDayOfWeek(schedule.contract.departureTime)}s for the next ${contract.contractDuration / Timeframes.MONTH} months`)
 
@@ -146,17 +148,24 @@ export class ScheduleController {
 
   @Autobind
   public registerAndExecuteEvents (playtime: number): void {
+    const clock = Clock.getInstance()
     const lastRegistration = LocalStorage.getLastScheduleEventsRegistration()
 
-    // Register flights for the entire day as events
-    if (lastRegistration === 0 || playtime - lastRegistration >= Timeframes.DAY) {
-      ScheduleController.getInstance().getTodaySchedules().forEach(schedule => {
-        this.scheduleEvents.push({
-          executionTime: Clock.getInstance().thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end),
-          schedule
+    // Register flights starting today as events
+    if (lastRegistration === -1 || playtime - lastRegistration >= Timeframes.DAY) {
+      const startPlaytime = clock.todayStartPlaytime % Timeframes.WEEK
+      const endPlaytime = clock.tomorrowStartPlaytime % Timeframes.WEEK
+
+      ScheduleController.getInstance()
+        .getTodaySchedules()
+        .filter(schedule => schedule.start >= startPlaytime && schedule.start <= endPlaytime)
+        .forEach(schedule => {
+          this.scheduleEvents.push({
+            executionTime: clock.thisWeekStartPlaytime + (schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end),
+            schedule
+          })
+          console.log(`Event scheduled: Flight ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode}`)
         })
-        console.log(`Event scheduled: Flight ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode}`)
-      })
 
       LocalStorage.setLastScheduleEventsRegistration(playtime - playtime % Timeframes.DAY)
       LocalStorage.setScheduleEvents(this.scheduleEvents)

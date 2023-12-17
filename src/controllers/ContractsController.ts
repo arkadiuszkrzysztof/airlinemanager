@@ -183,11 +183,20 @@ export class ContractsController {
     const businessTicketsRevenue = Math.floor(passengers.business * 150 * duration * 2) + passengers.business * 20 * 2
     const firsTicketRevenue = Math.floor(passengers.first * 300 * duration * 2) + passengers.first * 30 * 2
 
-    return {
-      economy: economyTicketsRevenue,
-      business: businessTicketsRevenue,
-      first: firsTicketRevenue,
-      total: economyTicketsRevenue + businessTicketsRevenue + firsTicketRevenue
+    if (asset.plane.typeName === 'Concorde') {
+      return {
+        economy: economyTicketsRevenue,
+        business: businessTicketsRevenue * 4,
+        first: firsTicketRevenue * 4,
+        total: economyTicketsRevenue + businessTicketsRevenue * 4 + firsTicketRevenue * 4
+      }
+    } else {
+      return {
+        economy: economyTicketsRevenue,
+        business: businessTicketsRevenue,
+        first: firsTicketRevenue,
+        total: economyTicketsRevenue + businessTicketsRevenue + firsTicketRevenue
+      }
     }
   }
 
@@ -288,8 +297,8 @@ export class ContractsController {
     const allContractsWithOptions = allContracts.map(contract => ({ contract, options: this.getContractOptions(contract) }))
 
     return allContractsWithOptions.filter(c => c.contract.accepted)
-      .concat(allContractsWithOptions.filter(c => c.options.length > 0))
-      .concat(allContractsWithOptions.filter(c => c.options.length === 0))
+      .concat(allContractsWithOptions.filter(c => c.options.length > 0 && !c.contract.accepted))
+      .concat(allContractsWithOptions.filter(c => c.options.length === 0 && !c.contract.accepted))
   }
 
   public getContractOffMarket (contract: Contract, wasAccepted: boolean): void {
@@ -324,7 +333,7 @@ export class ContractsController {
         newContracts = newContracts.concat(this.generateRegionalContracts(region))
       })
 
-      if (AirlineController.getInstance().getTier().record.constraints.canFlyCrossRegion) {
+      if (AirlineController.getInstance().getTier().record.constraints.canFlyCrossRegion && AirlineController.getInstance().unlockedRegions.length > 1) {
         newContracts = newContracts.concat(this.generateCrossRegionContracts())
       }
 
