@@ -13,6 +13,7 @@ import CreateAirline from './components/CreateAirline'
 import { GameController } from './controllers/GameController'
 import Statistics from './components/tabs/Statistics'
 import Manual from './components/tabs/Manual'
+import Settings from './components/tabs/Settings'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -78,6 +79,12 @@ const router = createBrowserRouter([
   {
     path: '/manual',
     element: <App Tab={Manual} />,
+    errorElement: <ErrorPage />,
+    loader: createAirlineLoader
+  },
+  {
+    path: '/settings',
+    element: <App Tab={Settings} />,
     errorElement: <ErrorPage />,
     loader: createAirlineLoader
   },

@@ -29,11 +29,11 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     const totalTime = Controllers.Schedule.getUseTimeForAsset(asset, day)
 
     if (totalTime >= 12 * Timeframes.HOUR) {
-      return <Reception4 size={12} className='me-2 text-secondary' />
+      return <Reception4 size={12} className='me-2 text-success' />
     } else if (totalTime >= 8 * Timeframes.HOUR) {
-      return <Reception3 size={12} className='me-2 text-info' />
+      return <Reception3 size={12} className='me-2 text-warning' />
     } else if (totalTime >= 4 * Timeframes.HOUR) {
-      return <Reception2 size={12} className='me-2 text-info' />
+      return <Reception2 size={12} className='me-2 text-warning' />
     } else if (totalTime > 0) {
       return <Reception1 size={12} className='me-2 text-danger' />
     } else {
@@ -45,11 +45,11 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
     const averageUtilization = Controllers.Schedule.getAverageUtilizationForAsset(asset, day)
 
     if (averageUtilization >= 85) {
-      return <Reception4 size={12} className='text-secondary' />
+      return <Reception4 size={12} className='text-success' />
     } else if (averageUtilization >= 70) {
-      return <Reception3 size={12} className='text-info' />
+      return <Reception3 size={12} className='text-warning' />
     } else if (averageUtilization >= 50) {
-      return <Reception2 size={12} className='text-info' />
+      return <Reception2 size={12} className='text-warning' />
     } else if (averageUtilization > 20) {
       return <Reception1 size={12} className='text-danger' />
     } else {
@@ -58,12 +58,12 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   }
 
   return (
-    <Row className='bg-grey-light rounded mt-2 p-2'>
+    <Row className='bg-light bg-opacity-75 item-shadow rounded my-2 mx-1 p-2'>
       <Col xs={12}>
-        <Row className='justify-content-between pb-2'>
+        <Row className='justify-content-between pt-2 pb-3'>
           <Col xs={'auto'} className='d-flex align-items-center'>
             {asset.plane.hub !== undefined &&
-              <Badge bg='dark' className='me-2 fs-5'>{asset.plane.hub.IATACode}</Badge>
+              <Badge bg='secondary' className='me-2 fs-5'>{asset.plane.hub.IATACode}</Badge>
             }
             <OverlayTrigger
                 placement="top"
@@ -72,19 +72,19 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
               <span className='fs-5 fw-bold text-primary cursor-help'>{`${asset.plane.familyName} ${asset.plane.typeName}`}</span>
             </OverlayTrigger>
             <TagFill size={20} className='text-grey-dark ms-4 me-2' />
-            <span className='text-grey-dark'>{asset.plane.registration}</span>
-            <Badge bg={asset.ownership === 'owned' ? 'dark' : 'light'} className='mx-4'>
+            <span>{asset.plane.registration}</span>
+            <Badge bg={asset.ownership === 'owned' ? 'success-light' : 'info-light'} className='mx-4'>
               {asset.ownership.toUpperCase()}
             </Badge>
             <CashStack size={20} className='text-grey-dark me-2' />
-            <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-dark' : 'text-danger'}`}>
+            <span className={`fw-bold mx-1 ${weeklyProfit() > 0 ? 'text-success' : 'text-danger'}`}>
               {formatCashValue(weeklyProfit())}
             </span>
             per week
           </Col>
           <Col xs={'auto'} className='d-flex align-items-center justify-content-end'>
             {asset.ownership === 'leased' && asset.plane.leaseExpirationTime !== undefined &&
-              <span className='fw-bold text-grey-dark me-2'>Lease ends in {Clock.getFormattedTimeUntil(asset.plane.leaseExpirationTime)}</span>
+              <span className='me-2'>Lease ends in {Clock.getFormattedTimeUntil(asset.plane.leaseExpirationTime)}</span>
             }
             {asset.ownership === 'owned'
               ? <Button variant='outline-primary' size='sm' className='me-2' onClick={() => { Controllers.Airline.sellPlane(asset) }}>
@@ -98,13 +98,13 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
         </Row>
       </Col>
       <Col xs={12}>
-        <Card>
+        <Card className='bg-white'>
           <Row className='mx-2 mt-2'>
             <Col xs={'auto'}>
               <div className='timetable-hour mw-50'></div>
             </Col>
             {DaysOfWeek.map((day) =>
-              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'warning bg-opacity-10' : 'body'}`}>
+              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'body'}`}>
                 <div className='text-center fw-bold text-dark'>
                   {day}
                 </div>
@@ -126,11 +126,11 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
             )}
           </Row>
           <Row className='mx-2 mb-2' style={{ height: '300px' }}>
-            <TimetableHoursCol showLabels />
+            <TimetableHoursCol />
             {DaysOfWeek.map((day) =>
-              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'warning bg-opacity-10' : 'body'}`}>
+              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'body'}`}>
                 <TimetableGrid />
-                <div className='position-absolute bg-warning opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
+                <div className='position-absolute bg-danger opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                 {Controllers.Schedule
                   .getTodaySchedulesForAsset(asset, day)
                   .sort((a, b) => (a.start < b.start ? -1 : 1))

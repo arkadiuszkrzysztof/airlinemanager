@@ -37,10 +37,10 @@ const canUnlock = (region: string): boolean => {
 const RegionsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow mb-4' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <Map size={24} className='text-dark me-2' />
+            <Map size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>World Regions</span>
           </div>
         </Card.Header>
@@ -48,19 +48,19 @@ const RegionsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => 
           <Row className='mx-2 mb-2 position-relative'>
             {Object.keys(Regions).map((key) => (
               <Col key={key} xs={2} className='text-center'>
-                <div className={`border pt-1 mt-3 bg-grey-light rounded ${isUnlocked(key) ? '' : canUnlock(key) ? 'cursor-pointer' : 'grayscale opacity-50'}`} onClick={() => { unlockRegion(key) }}>
+                <div className={`pt-1 mt-1 rounded ${isUnlocked(key) ? '' : canUnlock(key) ? 'cursor-pointer item-shadow bg-secondary bg-opacity-75' : 'item-shadow bg-secondary bg-opacity-75 grayscale opacity-50'}`} onClick={() => { unlockRegion(key) }}>
                   <img
                     src={`/images/region-${key.toLocaleLowerCase()}.png`}
                     alt={Regions[key as keyof typeof Regions]}
-                    className={'rounded m-1'}
+                    className={`rounded m-1 ${isUnlocked(key) && 'item-shadow'}`}
                     style={{ maxWidth: '100px' }}
                     onClick={() => { unlockRegion(key) }} />
-                  <p className='text-center mb-0 fw-bold text-secondary'>{Regions[key as keyof typeof Regions]}</p>
-                  {!isUnlocked(key) && <p className='text-center mb-0'>Unlock for <strong>{formatCashValue(UnlockPrice[key as keyof typeof UnlockPrice])}</strong></p>}
+                  <p className='text-center mb-0 fw-bold text-dark'>{Regions[key as keyof typeof Regions]}</p>
+                  {!isUnlocked(key) && <p className='text-center mb-0'>Unlock for <strong className='text-danger'>{formatCashValue(UnlockPrice[key as keyof typeof UnlockPrice])}</strong></p>}
                   {!isUnlocked(key) && <p className='text-center mb-2 d-flex align-items-center justify-content-center'>
                     <StarFill size={16} className='text-badge-gold ms-4 me-2' />
                     <span className='fw-bold'>{` +${RegionReputationGain.toFixed(2)}%`}</span></p>}
-                  {isUnlocked(key) && <p className='text-center mb-2 text-primary fw-bold'>Unlocked</p>}
+                  {isUnlocked(key) && <p className='text-center mb-2 text-success fw-bold'>Unlocked</p>}
                 </div>
               </Col>
             ))}

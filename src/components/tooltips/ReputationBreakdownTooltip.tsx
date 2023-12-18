@@ -22,8 +22,8 @@ const ReputationBreakdownTooltip: React.FC = () => {
         <Col xs={6} className='text-end'>{`+${region.toFixed(2)}%`}<small>{' / 20%'}</small></Col>
       </Row>
       <Row className='mb-4'>
-        <Col xs={6} className='text-start fw-bold'>Total</Col>
-        <Col xs={6} className='text-end fw-bold'>{`${totalCapped.toFixed(2)}%`}<small>{' / 100%'}</small></Col>
+        <Col xs={5} className='text-start fw-bold'>Total</Col>
+        <Col xs={7} className='text-end fw-bold'>{`${totalCapped.toFixed(2)}%`}<small>{' / 100%'}</small></Col>
       </Row>
 
       <strong>Tiers minimum reputation:</strong>

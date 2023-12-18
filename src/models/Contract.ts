@@ -1,4 +1,3 @@
-import { Clock } from '../controllers/helpers/Clock'
 import { type Airport } from './Airport'
 
 export type ContractTuple = [
@@ -49,10 +48,4 @@ export class Contract {
     public expirationTime: number = 0,
     public readonly reputation: number = 0
   ) {}
-
-  public accept (): void {
-    this.accepted = true
-    this.startTime = Clock.getInstance().tomorrowStartPlaytime
-    this.expirationTime = this.startTime + this.contractDuration
-  }
 }

@@ -40,7 +40,7 @@ const getUpcomingEventCountdown = (time: number): ReactElement => {
   const [days, hours] = Clock.getExpirationTime(time)
 
   return (
-    <Col xs={3} className={`d-flex p-2 bg-${days > 7 ? 'info' : 'warning'} align-items-center rounded-start justify-content-center fw-bold`}>
+    <Col xs={3} className={`d-flex p-2 bg-${days > 7 ? 'warning' : 'danger'} align-items-center rounded-start justify-content-center fw-bold`}>
       {days > 0 ? `${days} D` : `${hours} H`}
     </Col>
   )
@@ -64,8 +64,8 @@ const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactEleme
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
             <ExclamationTriangle size={24} className='text-dark me-2' />
             <span className='text-dark fw-bold fs-5'>Notifications</span>

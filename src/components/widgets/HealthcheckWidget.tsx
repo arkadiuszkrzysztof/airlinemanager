@@ -16,14 +16,14 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
 
   const RADIAN = Math.PI / 180
   const utilizationChartBg = [
-    { name: 'A', value: 50, color: '#AE2012' },
-    { name: 'B', value: 35, color: '#E9D8A6' },
-    { name: 'C', value: 15, color: '#94D2BD' }
+    { name: 'A', value: 50, color: '#FE8F66' },
+    { name: 'B', value: 35, color: '#FFCC40' },
+    { name: 'C', value: 15, color: '#71c78b' }
   ]
   const useTimeChartBg = [
-    { name: 'A', value: 4, color: '#AE2012' },
-    { name: 'B', value: 8, color: '#E9D8A6' },
-    { name: 'C', value: 12, color: '#94D2BD' }
+    { name: 'A', value: 4, color: '#FE8F66' },
+    { name: 'B', value: 8, color: '#FFCC40' },
+    { name: 'C', value: 12, color: '#71c78b' }
   ]
   const cx = 100
   const cy = 100
@@ -62,22 +62,22 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <HeartPulse size={24} className='text-dark me-2' />
+            <HeartPulse size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>Healthcheck</span>
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '320px' }}>
-          <Row className='bg-grey-light rounded my-2 justify-content-center'>
+          <Row className='my-2 justify-content-center'>
             <Col className='d-flex flex-column justify-content-center align-items-end' xs={'auto'}>
-              <h4 className='text-center pt-2 mb-0'>Weekly Revenue: <span className='text-primary fw-bold'>{formatCashValue(weeklyRevenue)}</span></h4>
+              <h4 className='text-center pt-2 mb-0'>Weekly Revenue: <span className='text-success fw-bold'>{formatCashValue(weeklyRevenue)}</span></h4>
               <h4 className='text-center pt-2'>Weekly Cost: <span className='text-danger fw-bold'>{formatCashValue(weeklyCost)}</span></h4>
             </Col>
             <Col className='d-flex flex-row justify-content-start align-items-center' xs={'auto'}>
-              {weeklyRevenue > weeklyCost && <CaretUpFill size={40} className='text-success' />}
-              {weeklyRevenue < weeklyCost && <CaretDownFill size={40} className='text-danger' />}
+              {weeklyRevenue > weeklyCost && <CaretUpFill size={40} className='text-success mb-1' />}
+              {weeklyRevenue < weeklyCost && <CaretDownFill size={40} className='text-danger mb-1' />}
               <h2>{`${weeklyRevenue - weeklyCost < 0 ? '-' : ''}${formatScale(Math.abs(weeklyRevenue - weeklyCost), true)}`}</h2>
             </Col>
           </Row>
@@ -94,7 +94,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                     cy={cy}
                     innerRadius={iR}
                     outerRadius={oR}
-                    fill="#8884d8"
+                    fill="#023838"
                     stroke="none"
                   >
                     {useTimeChartBg.map((entry, index) => (
@@ -103,7 +103,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                   </Pie>
                   {needle(useTimeIndex, useTimeChartBg, cx, cy, iR, oR, '#005F73')}
                 </PieChart>
-              <h4 className='text-center pt-2'>Average Daily Plane Use: <span className='text-primary fw-bold'>{`${useTimeIndex}h`}</span></h4>
+              <h4 className='text-center pt-2'>Average Daily Plane Use: <span className={`text-${useTimeIndex >= 12 ? 'success' : useTimeIndex >= 8 ? 'warning' : 'danger'} fw-bold`}>{`${useTimeIndex}h`}</span></h4>
             </Col>
             <Col className='d-flex flex-column justify-content-center align-items-center' xs={6} style={{ height: '200px' }}>
                 <PieChart width={210} height={120}>
@@ -117,7 +117,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                     cy={cy}
                     innerRadius={iR}
                     outerRadius={oR}
-                    fill="#8884d8"
+                    fill="#023838"
                     stroke="none"
                   >
                     {utilizationChartBg.map((entry, index) => (
@@ -126,7 +126,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                   </Pie>
                   {needle(utilizationIndex, utilizationChartBg, cx, cy, iR, oR, '#005F73')}
                 </PieChart>
-              <h4 className='text-center pt-2'>Average Seat Utilization: <span className='text-primary fw-bold'>{`${utilizationIndex}%`}</span></h4>
+              <h4 className='text-center pt-2'>Average Seat Utilization: <span className={`text-${utilizationIndex >= 85 ? 'success' : utilizationIndex >= 50 ? 'warning' : 'danger'} fw-bold`}>{`${utilizationIndex}%`}</span></h4>
             </Col>
           </Row>
         </Card.Body>

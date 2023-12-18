@@ -40,11 +40,11 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
 
   const getRoundedClass = (schedule: Schedule): string => {
     if (spansFullDay(schedule)) {
-      return 'border-bottom border-top border-warning border-2'
+      return 'border-bottom border-top border-secondary border-2'
     } else if (spillsToNextDay(schedule)) {
-      return 'rounded-top border-bottom border-warning border-2'
+      return 'rounded-top border-bottom border-secondary border-2'
     } else if (spillsFromPreviousDay(schedule)) {
-      return 'rounded-bottom border-top border-warning border-2'
+      return 'rounded-bottom border-top border-secondary border-2'
     } else {
       return 'rounded'
     }
@@ -67,7 +67,7 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
       key={schedule.contract.id}
     >
       <div
-        className={`d-flex align-items-center justify-content-center bg-info bg-opacity-${schedule.contract.startTime <= Controllers.Clock.playtime ? '75' : '25'} hover-bg-info ${getRoundedClass(schedule)} cursor-help`}
+        className={`d-flex align-items-center justify-content-center bg-light bg-opacity-${schedule.contract.startTime <= Controllers.Clock.playtime ? '100 item-shadow' : '25'} hover-bg-secondary ${getRoundedClass(schedule)} cursor-help`}
         style={{
           position: 'absolute',
           top: `${spansFullDay(schedule) || spillsFromPreviousDay(schedule) ? 10 : schedule.start % Timeframes.DAY / 6 + 20}px`,
@@ -78,8 +78,8 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
         {schedule.contract.hub.IATACode}
         {ScheduleController.flightStatus(schedule).inTheAir
           ? ScheduleController.flightStatus(schedule).flightLeg === 'there'
-            ? <AirplaneFill size={12} className='text-warning mx-2 rotate-90 pulse-animation'/>
-            : <AirplaneFill size={12} className='text-warning mx-2 rotate-270 pulse-animation'/>
+            ? <AirplaneFill size={12} className='text-danger mx-2 rotate-90 pulse-animation'/>
+            : <AirplaneFill size={12} className='text-danger mx-2 rotate-270 pulse-animation'/>
           : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
         {schedule.contract.destination.IATACode}
       </div>

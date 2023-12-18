@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Badge, Col, Container, Row, Button, Form } from 'react-bootstrap'
-import { AirplaneEnginesFill, type Icon, Icon1CircleFill, Icon2CircleFill, Icon3CircleFill, RCircleFill, TrophyFill, ChevronRight } from 'react-bootstrap-icons'
+import { Badge, Col, Container, Row, Button } from 'react-bootstrap'
+import { AirplaneEnginesFill, type Icon, Icon1CircleFill, Icon2CircleFill, Icon3CircleFill, RCircleFill, TrophyFill } from 'react-bootstrap-icons'
 import { GameController } from '../controllers/GameController'
 import { useNavigate } from 'react-router-dom'
 import { Regions } from '../models/Airport'
+import AirlineNameForm from './fragments/AirlineNameForm'
 
 const ColPath: React.FC<{ Icon: Icon }> = ({ Icon }) => {
   return (
@@ -49,20 +50,7 @@ const CreateAirline: React.FC = () => {
             {region !== '' && <p className='text-center'>Starting region: <strong>{Regions[region as keyof typeof Regions]}</strong></p>}
             {region === '' && <p className='text-center'>Select starting region</p>}
           </div>
-          <Form onSubmit={onSubmitHandler}>
-            <div className='d-flex'>
-              <Form.Control
-                type="text"
-                placeholder='Airline Name'
-                id="name"
-                value={name}
-                onChange={(e) => { setName(e.target.value) }}
-                className='fs-4 text-center rounded-left border-primary'
-                maxLength={24}
-                autoComplete='off' />
-              <Button type="submit" className='rounded-right' disabled={name.trim().length < 3 || region === ''}><ChevronRight size={24} className='text-white' /></Button>
-            </div>
-          </Form>
+          <AirlineNameForm name={name} setName={setName} onSubmitHandler={onSubmitHandler} />
           <div className='w-100 d-flex align-items-center justify-content-center py-5'>
             <div className='border-secondary' style={{ width: '25%', height: '2px', borderTop: '1px solid' }}></div>
             <span className='fw-bold text-secondary mx-2'>OR</span>

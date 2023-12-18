@@ -11,7 +11,7 @@ interface Props {
 const AchievementListItem: React.FC<Props> = ({ item }) => {
   return (
     <Col xs={4} className='d-flex'>
-      <Card className='bg-grey-light rounded p-2 m-2 align-items-center text-center justify-content-center w-100'>
+      <Card className='bg-light obg-opacity-75 item-shadow rounded p-2 m-2 align-items-center text-center justify-content-center w-100'>
         {item.achievement.type === AchievementType.REPUTATION && <Star size={60} className='mb-2 text-badge-gold' />}
         {item.achievement.type === AchievementType.PROFIT && <CashStack size={60} className='mb-2 text-badge-gold' />}
         {item.achievement.type === AchievementType.FLEET_SIZE && <AirplaneEngines size={60} className='mb-2 text-badge-gold' />}

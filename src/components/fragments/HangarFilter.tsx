@@ -1,26 +1,26 @@
-import React, { useState, type ReactElement } from 'react'
+import React, { useEffect, type ReactElement } from 'react'
 import { Regions } from '../../models/Airport'
 import { AirlineController } from '../../controllers/AirlineController'
 import { Col, Row } from 'react-bootstrap'
 import { type HangarAsset } from '../../controllers/HangarController'
 
 interface Props {
+  filter: string
+  setFilter: (filter: string) => void
   items: HangarAsset[]
-  filter: (items: HangarAsset[]) => void
+  setFilteredItems: (items: HangarAsset[]) => void
 }
 
 const ALL = 'ALL'
 
-const HangarFilter: React.FC<Props> = ({ items, filter }): ReactElement => {
-  const [region, setRegion] = useState(ALL)
-
+const HangarFilter: React.FC<Props> = ({ filter: region, setFilter: setRegion, items, setFilteredItems }): ReactElement => {
   const handleFilter = (key: string): void => {
     if (key === ALL) {
       setRegion(key)
-      filter(items.filter((item) => item))
+      setFilteredItems(items.filter((item) => item))
     } else if (AirlineController.getInstance().unlockedRegions.includes(key)) {
       setRegion(key)
-      filter(items.filter((item) => item.plane.hub?.region === key))
+      setFilteredItems(items.filter((item) => item.plane.hub?.region === key))
     }
   }
 
@@ -32,14 +32,22 @@ const HangarFilter: React.FC<Props> = ({ items, filter }): ReactElement => {
     }
   }
 
+  useEffect(() => {
+    if (region !== '') {
+      handleFilter(region)
+    } else {
+      handleFilter(ALL)
+    }
+  }, [items])
+
   return (
     <Row className='my-2 text-center justify-content-center'>
       <Col xs={'auto'}>
         <div
-          className={`position-relative d-flex justify-content-center align-items-center bg-info rounded fw-bold cursor-pointer  ${region === ALL ? 'border border-2 border-primary' : 'border border-2 border-info'}`}
+          className={`position-relative d-flex justify-content-center align-items-center bg-secondary rounded fw-bold cursor-pointer  ${region === ALL ? 'border border-2 border-primary' : 'border border-2 border-secondary'}`}
           style={{ width: '50px', height: '50px', boxSizing: 'border-box' }}
           onClick={() => { handleFilter(ALL) }}>
-          {getCountForRegion(ALL) > 0 && <span className={`position-absolute bg-primary rounded-circle text-white fw-bold ${getCountForRegion(ALL) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
+          {getCountForRegion(ALL) > 0 && <span className={`position-absolute bg-info rounded-circle text-white fw-bold ${getCountForRegion(ALL) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
             {getCountForRegion(ALL)}
           </span>}
           ALL
@@ -54,7 +62,7 @@ const HangarFilter: React.FC<Props> = ({ items, filter }): ReactElement => {
               className={`rounded ${AirlineController.getInstance().unlockedRegions.includes(key) ? 'cursor-pointer' : 'grayscale opacity-50'} ${region === key ? 'border border-2 border-primary' : ''}`}
               style={{ maxWidth: '50px' }}
               onClick={() => { handleFilter(key) }} />
-              {getCountForRegion(key) > 0 && <span className={`position-absolute bg-primary rounded-circle text-white fw-bold ${getCountForRegion(key) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
+              {getCountForRegion(key) > 0 && <span className={`position-absolute bg-info rounded-circle text-white fw-bold ${getCountForRegion(key) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
                 {getCountForRegion(key)}
               </span>}
             </div>

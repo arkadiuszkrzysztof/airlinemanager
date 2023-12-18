@@ -18,6 +18,8 @@ export const DaysOfWeek = [
   'Sunday'
 ]
 
+const CLOCK_TICKER_INTERVAL = 100
+
 export class Clock {
   private static instance: Clock
   private readonly listeners: Record<string, (playtime: number) => void> = {}
@@ -32,7 +34,7 @@ export class Clock {
 
     this._playtime = playtime + Math.min(offlineTime, Math.max(lastSave - currentTime, 0))
 
-    this.clockTicker = setInterval(() => { this.updateClock() }, 100)
+    this.clockTicker = setInterval(() => { this.updateClock() }, CLOCK_TICKER_INTERVAL)
   }
 
   private callListeners (playtime: number): void {
@@ -128,7 +130,7 @@ export class Clock {
     return Math.floor(this._playtime / Timeframes.MONTH) * Timeframes.MONTH
   }
 
-  get timeToNextDay (): string {
+  get timeToNextDayFormatted (): string {
     const { HOUR, DAY } = Timeframes
     const hours = Math.floor((DAY - this._playtime % DAY) / HOUR)
     const minutes = (DAY - this._playtime % DAY) % HOUR
@@ -136,12 +138,26 @@ export class Clock {
     return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`
   }
 
-  get timeToNextWeek (): string {
+  get timeToNextDayInRealTime (): string {
+    const timeinSec = Math.floor((Timeframes.DAY - this._playtime % Timeframes.DAY) * CLOCK_TICKER_INTERVAL / 1000)
+    const minutes = Math.floor(timeinSec / 60)
+
+    return minutes > 0 ? `${minutes.toString()} ${minutes === 1 ? 'minute' : 'minutes'} ${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}` : `${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}`
+  }
+
+  get timeToNextWeekFormatted (): string {
     const days = Math.floor((10080 - (this._playtime % 10080)) / 1440)
     const hours = Math.floor((10080 - (this._playtime % 10080)) / 60) % 24
     const minutes = (10080 - (this._playtime % 10080)) % 60
 
     return `${days}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`
+  }
+
+  get timeToNextWeekInRealTime (): string {
+    const timeinSec = Math.floor((Timeframes.WEEK - this._playtime % Timeframes.WEEK) * CLOCK_TICKER_INTERVAL / 1000)
+    const minutes = Math.floor(timeinSec / 60)
+
+    return minutes > 0 ? `${minutes.toString()} ${minutes === 1 ? 'minute' : 'minutes'} ${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}` : `${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}`
   }
 
   get totalPlaytime (): string {

@@ -81,15 +81,15 @@ const PNLWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement =
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <GraphUpArrow size={24} className='text-dark me-2' />
+            <GraphUpArrow size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>Profit & Loss</span>
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
-            <h4 className='text-center pt-2'>Total Revenue: <span className='text-primary fw-bold'>{`${formatScale(getTotalRevenue(data), true)}`}</span></h4>
+            <h4 className='text-center pt-2'>Total Revenue: <span className='text-success fw-bold'>{`${formatScale(getTotalRevenue(data), true)}`}</span></h4>
             <ResponsiveContainer width={'100%'} height={'100%'}>
               <BarChart
                 width={500}
@@ -106,12 +106,12 @@ const PNLWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement =
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value: any, _: number) => formatScale(value)}/>
                 <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
-                <Bar isAnimationActive={false} dataKey="operationsCosts" stackId="a" fill="#D3832C" />
-                <Bar isAnimationActive={false} dataKey="marketCosts" stackId="a" fill="#D89648" />
-                <Bar isAnimationActive={false} dataKey="missionsCosts" stackId="a" fill="#DDA864"><LabelList dataKey="totalCosts" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
-                <Bar isAnimationActive={false} dataKey="ticketsRevenue" stackId="b" fill="#37A7A5" />
-                <Bar isAnimationActive={false} dataKey="marketRevenue" stackId="b" fill="#54B4AE" />
-                <Bar isAnimationActive={false} dataKey="missionsRevenue" stackId="b" fill="#71C1B8"><LabelList dataKey="totalRevenue" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+                <Bar isAnimationActive={false} dataKey="operationsCosts" stackId="a" fill="#FE8F66" />
+                <Bar isAnimationActive={false} dataKey="marketCosts" stackId="a" fill="#f79f7e" />
+                <Bar isAnimationActive={false} dataKey="missionsCosts" stackId="a" fill="#fab197"><LabelList dataKey="totalCosts" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
+                <Bar isAnimationActive={false} dataKey="ticketsRevenue" stackId="b" fill="#71c78b" />
+                <Bar isAnimationActive={false} dataKey="marketRevenue" stackId="b" fill="#81ca97" />
+                <Bar isAnimationActive={false} dataKey="missionsRevenue" stackId="b" fill="#9ee0b2"><LabelList dataKey="totalRevenue" position="top" formatter={(value: any) => formatScale(value, true)} /></Bar>
               </BarChart>
             </ResponsiveContainer>
         </Card.Body>

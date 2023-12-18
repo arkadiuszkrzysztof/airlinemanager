@@ -10,6 +10,7 @@ import { GameController } from '../../controllers/GameController'
 import { type ContractOption } from '../../controllers/ContractsController'
 import ContractsFilter from '../fragments/ContractsFilter'
 import { type HangarAsset } from '../../controllers/HangarController'
+import RefreshHint from '../fragments/RefreshHint'
 
 const Market: React.FC = () => {
   const Controllers = GameController.getInstance()
@@ -33,7 +34,7 @@ const Market: React.FC = () => {
       <ListPreviewWidget<Plane>
           Icon={AirplaneEngines}
           header={`Planes (${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
-          subheader={`Refresh in ${Controllers.Clock.timeToNextWeek}`}
+          subheader={<RefreshHint timeTo={Controllers.Clock.timeToNextWeekFormatted} realTimeTo={Controllers.Clock.timeToNextWeekInRealTime} />}
           Component={MarketListItem}
           items={market.sort((a, b) => b.reputation - a.reputation)}
           fullHeight
@@ -41,7 +42,7 @@ const Market: React.FC = () => {
         <ListPreviewWidget<{ contract: Contract, options: ContractOption[] }>
           Icon={FileEarmarkText}
           header='Contracts'
-          subheader={`Refresh in ${Controllers.Clock.timeToNextDay}`}
+          subheader={<RefreshHint timeTo={Controllers.Clock.timeToNextDayFormatted} realTimeTo={Controllers.Clock.timeToNextDayInRealTime} />}
           Component={ContractListItem}
           items={contracts}
           FilterSection={ContractsFilter}

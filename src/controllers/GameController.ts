@@ -72,6 +72,11 @@ export class GameController {
     LocalStorage.setGameId(GameController.getInstance().Game._generateGameId())
   }
 
+  public static updateAirlineName (airlineName: string): void {
+    AirlineController.getInstance().setAirlineName(airlineName)
+    LocalStorage.setAirlineName(airlineName)
+  }
+
   public static downloadSaveJSON (): void {
     const saveJSON = LocalStorage.getAllAsJSON()
     const blob = new Blob([saveJSON], { type: 'application/json' })

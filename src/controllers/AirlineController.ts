@@ -48,8 +48,9 @@ export enum ReputationType { FLEET = 'Fleet', CONNECTION = 'Connection', REGION 
 export class AirlineController {
   private static instance: AirlineController
   private readonly pnlListeners: Record<string, (pnl: Record<number, PNLRecord>) => void> = {}
+  private readonly nameListeners: Record<string, (name: string) => void> = {}
 
-  private readonly _name: string
+  private _name: string
   private readonly _startingRegion: string
   private readonly _unlockedRegions: string[]
   private _reputation: Array<{ originId: string, type: ReputationType, reputation: number }>
@@ -71,8 +72,16 @@ export class AirlineController {
     this.pnlListeners[key] = listener
   }
 
+  public registerNameListener (key: string, listener: (name: string) => void): void {
+    this.nameListeners[key] = listener
+  }
+
   private callPNLListeners (pnl: Record<number, PNLRecord>): void {
     Object.values(this.pnlListeners).forEach(listener => { listener(pnl) })
+  }
+
+  private callNameListeners (name: string): void {
+    Object.values(this.nameListeners).forEach(listener => { listener(name) })
   }
 
   public static getInstance (): AirlineController {
@@ -81,6 +90,11 @@ export class AirlineController {
     }
 
     return AirlineController.instance
+  }
+
+  public setAirlineName (name: string): void {
+    this._name = name
+    this.callNameListeners(this._name)
   }
 
   public getTier (): { name: Tier, record: TierRecord } {

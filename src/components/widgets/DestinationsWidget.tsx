@@ -13,7 +13,7 @@ interface Props {
 
 type DestinationsChartData = Array<{ region: keyof typeof Regions, visits: number }>
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+const COLORS = ['#81D8D0', '#a583f5', '#e08e78', '#FFE5A1', '#008080', '#83C7FE']
 
 const prepareDestinationsData = (data: Record<number, PNLRecord>, duration: number = 3): DestinationsChartData => {
   const temp = {
@@ -62,10 +62,10 @@ const DestinationsWidget: React.FC<Props> = ({ data, fullWidth = false }): React
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <GraphUpArrow size={24} className='text-dark me-2' />
+            <GraphUpArrow size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>Destinations (last 3 months)</span>
           </div>
         </Card.Header>

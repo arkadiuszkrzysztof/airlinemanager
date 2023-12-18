@@ -72,7 +72,7 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
 
   const getPlaneIcon = (angle: number, registration: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
-      html: `<img src="/images/plane.png" style="transform: rotate(${Math.floor(angle)}deg);">` + (showLabels ? `<p class='bg-warning rounded text-center opacity-75 text-white' style='margin-left: -18px'>${registration}</p>` : ''),
+      html: `<img src="/images/plane.png" style="transform: rotate(${Math.floor(angle)}deg);">` + (showLabels ? `<p class='bg-info rounded text-center opacity-75 text-white' style='margin-left: -18px'>${registration}</p>` : ''),
       className: 'plane-icon',
       iconSize: [48, 24],
       iconAnchor: [12, 12],
@@ -83,10 +83,10 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const getAirportIcon = (isHub: boolean, region: string, IATACode: string, showLabels: boolean): DivIcon => {
     return new DivIcon({
       html: (isHub
-        ? '<img src="/images/tower-hub.png">' + (showLabels ? `<p class='bg-primary rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
+        ? '<img src="/images/tower-hub.png">' + (showLabels ? `<p class='bg-secondary rounded text-center opacity-75 text-white item-shadow' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
         : AirlineController.getInstance().unlockedRegions.includes(region)
-          ? '<img src="/images/tower-dest.png">' + (showLabels ? `<p class='bg-dark rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
-          : '<img src="/images/tower-inactive.png">' + (showLabels ? `<p class='bg-grey-dark rounded text-center opacity-75 text-white' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
+          ? '<img src="/images/tower-dest.png">' + (showLabels ? `<p class='bg-primary rounded text-center opacity-75 text-white item-shadow' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
+          : '<img src="/images/tower-inactive.png">' + (showLabels ? `<p class='bg-light rounded text-center opacity-75 text-white item-shadow' style='margin-left: -6px; margin-top: 4px;'>${IATACode}</p>` : '')
       ),
       className: 'plane-icon',
       iconSize: [30, 24],
@@ -127,39 +127,48 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
 
   return (
     <Col xs={12} md={11} xxl={10} xxxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <MapIcon size={24} className='text-dark me-2' />
+            <MapIcon size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>Destinations Map</span>
           </div>
         </Card.Header>
         <Card.Body className='d-flex flex-column widget-full-height overflow-auto p-0'>
           <Row className='m-0 p-0'>
-            <Col xs={2} className='bg-dark text-white p-4'>
-              <Form.Switch className='mt-2' id='show-in-air' label='Show In-Air' checked={showInAir} onChange={() => { setShowInAir(!showInAir) }} />
-              <Form.Switch className='mt-2' id='show-labels' label='Show Labels' checked={showLabels} onChange={() => { setShowLabels(!showLabels) }} />
-              <Form.Switch className='mt-2' id='show-airport-codes' label='Show Airports' checked={showAirports} onChange={() => { setShowAirports(!showAirports) }} />
-              <Form.Switch className='mt-2' id='show-connections' label='Show Connections' checked={showConnections} onChange={() => { setShowConnections(!showConnections) }} />
+            <Col xs={3} xl={2} className='p-4'>
+              <div className='text-info small fw-bold'>SHOW ON MAP</div>
+              <Form.Switch className='mt-2' id='show-in-air' label='In-Air Planes' checked={showInAir} onChange={() => { setShowInAir(!showInAir) }} />
+              <Form.Switch className='mt-2' id='show-labels' label='Labels' checked={showLabels} onChange={() => { setShowLabels(!showLabels) }} />
+              <Form.Switch className='mt-2' id='show-airport-codes' label='All Airports' checked={showAirports} onChange={() => { setShowAirports(!showAirports) }} />
+              <Form.Switch className='mt-2' id='show-connections' label='All Connections' checked={showConnections} onChange={() => { setShowConnections(!showConnections) }} />
 
-              <p className='pt-4'>Zoom to Region</p>
+              <div className='text-info small fw-bold pt-4'>ZOOM TO REGION</div>
               <img
                 src={'/images/region-world.png'}
                 alt={'World'}
-                className={'rounded m-1 cursor-pointer'}
-                style={{ maxWidth: '100px' }}
+                className={'rounded m-1 cursor-pointer item-shadow'}
+                style={{ maxWidth: '167px' }}
                 onClick={() => { setZoomedRegion(WORLD); MapReference?.flyTo(WorldMapConfig.center, WorldMapConfig.zoom) }} />
-              {Object.keys(Regions).map((key) => (
-                <img
-                  key={key}
-                  src={`/images/region-${key.toLocaleLowerCase()}.png`}
-                  alt={Regions[key as keyof typeof Regions]}
-                  className={'rounded m-1 cursor-pointer'}
-                  style={{ maxWidth: '50px' }}
-                  onClick={() => { setZoomedRegion(key); MapReference?.flyTo(MapConfig[key as keyof typeof Regions].center, MapConfig[key as keyof typeof Regions].zoom) }} />
-              ))}
+              <div style={{ maxWidth: '175px' }}>
+                {Object.keys(Regions).map((key) => (
+                  <img
+                    key={key}
+                    src={`/images/region-${key.toLocaleLowerCase()}.png`}
+                    alt={Regions[key as keyof typeof Regions]}
+                    className={'rounded m-1 cursor-pointer item-shadow'}
+                    style={{ maxWidth: '50px' }}
+                    onClick={() => { setZoomedRegion(key); MapReference?.flyTo(MapConfig[key as keyof typeof Regions].center, MapConfig[key as keyof typeof Regions].zoom) }} />
+                ))}
+              </div>
+
+              <div className='text-info small fw-bold pt-4'>LEGEND</div>
+              <img src={'/images/tower-hub.png'} alt={'Hub'} className='rounded m-1' style={{ maxWidth: '30px' }} /> Hub Airport<br />
+              <img src={'/images/tower-dest.png'} alt={'Destination'} className='rounded m-1' style={{ maxWidth: '30px' }} /> Destination Airport<br />
+              <img src={'/images/tower-inactive.png'} alt={'Inactive'} className='rounded m-1' style={{ maxWidth: '30px' }} /> Inactive Airport
+
             </Col>
-            <Col xs={10}>
+            <Col xs={9} xl={10}>
               <Row className='widget-full-height' style={{ height: 'calc(100vh - 150px)' }}>
                 <MapContainer center={config.center} zoom={config.zoom} scrollWheelZoom={true}>
                   <MapController />
@@ -197,7 +206,7 @@ const MapWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
                         <Polyline
                           key={schedule.contract.id}
                           positions={pathPoints as Array<[number, number]>}
-                          color="#D58C3A"
+                          color="#a583f5"
                           weight={2}/>
                         <Marker
                           key={`contract-${schedule.contract.id}`}

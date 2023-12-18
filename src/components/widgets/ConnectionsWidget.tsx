@@ -52,10 +52,10 @@ const ConnectionsWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactE
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
-      <Card className='p-0 m-2 border-secondary' >
-        <Card.Header className='position-sticky bg-secondary border-0 d-flex align-items-center justify-content-between'>
+      <Card className='p-0 m-2 widget-shadow' >
+        <Card.Header className='position-sticky d-flex align-items-center justify-content-between'>
           <div className='d-flex align-items-center'>
-            <GraphUpArrow size={24} className='text-dark me-2' />
+            <GraphUpArrow size={24} className='text-dark mx-2' />
             <span className='text-dark fw-bold fs-5'>Flights & Distance</span>
           </div>
         </Card.Header>
@@ -78,8 +78,8 @@ const ConnectionsWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactE
             <YAxis yAxisId="right" orientation="right" tickFormatter={(value: any) => formatScale(value, true)} label={{ value: 'Distance (km)', style: { textAnchor: 'middle' }, angle: -90, position: 'right', offset: 0 }} />
             <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
             <Legend formatter={(value: any, name: any) => formatTooltipLabels(undefined, value)} />
-            <Line isAnimationActive={false} yAxisId="left" type="monotone" dataKey="flights" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line isAnimationActive={false} yAxisId="right" type="monotone" dataKey="distance" stroke="#82ca9d" activeDot={{ r: 8 }} />
+            <Line isAnimationActive={false} yAxisId="left" type="monotone" dataKey="flights" stroke="#a583f5" activeDot={{ r: 8 }} />
+            <Line isAnimationActive={false} yAxisId="right" type="monotone" dataKey="distance" stroke="#81D8D0" activeDot={{ r: 8 }} />
           </LineChart>
         </ResponsiveContainer>
         </Card.Body>
