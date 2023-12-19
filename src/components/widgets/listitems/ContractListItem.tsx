@@ -48,7 +48,7 @@ const ContractListItem: React.FC<Props> = ({ item }) => {
         <Row className='px-2 my-2'>
           <Col className='d-flex align-items-center justify-content-center' style={{ minWidth: '470px' }}>
             <PinMapFill size={20} className='text-grey-dark me-2' />
-            <strong>{`${contract.distance} km`}</strong>
+            <strong>{GameController.formatDistance(contract.distance)}</strong>
             <PersonFill size={20} className='text-grey-dark ms-3 me-2' />
             <strong>{contract.demand.economy + contract.demand.business + contract.demand.first}</strong>
             <span className='text-grey-dark small ms-2'>{`Economy: ${contract.demand.economy} ● Business: ${contract.demand.business} ● First: ${contract.demand.first}`}</span>

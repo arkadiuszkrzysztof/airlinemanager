@@ -18,6 +18,7 @@ type ConnectionsChartData = Array<{ month: string, flights: number, distance: nu
 const prepareConnectionsData = (data: Record<number, PNLRecord>, duration: number = 6): ConnectionsChartData => {
   const Controllers = GameController.getInstance()
   const result: ConnectionsChartData = []
+  const units = GameController.getUnits()
 
   Object.entries(data)
     .sort(([a]: [string, PNLRecord], [b]: [string, PNLRecord]) => parseInt(a) - parseInt(b))
@@ -26,7 +27,7 @@ const prepareConnectionsData = (data: Record<number, PNLRecord>, duration: numbe
       result.push({
         month: (Controllers.Clock.playtime - parseInt(monthPlaytime) < Timeframes.MONTH ? 'Current Month' : `Previous -${Math.floor((Controllers.Clock.playtime - parseInt(monthPlaytime)) / Timeframes.MONTH)}`),
         flights: record.statistics.numberOfFlights * 2,
-        distance: record.statistics.totalDistance
+        distance: record.statistics.totalDistance * units.distance.conversion
       })
     })
 
@@ -34,7 +35,8 @@ const prepareConnectionsData = (data: Record<number, PNLRecord>, duration: numbe
 }
 
 const formatTooltipLabels = (value: any, name: any): [string, string] => {
-  const Labels = { flights: 'Flights', distance: 'Distance (km)' }
+  const units = GameController.getUnits()
+  const Labels = { flights: 'Flights', distance: `Distance (${units.distance.units})` }
 
   if (value === undefined) {
     return ['', Labels[name as keyof typeof Labels]]
@@ -45,6 +47,7 @@ const formatTooltipLabels = (value: any, name: any): [string, string] => {
 
 const ConnectionsWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactElement => {
   const [chartData, setChartData] = React.useState<ConnectionsChartData>([])
+  const units = GameController.getUnits()
 
   useEffect(() => {
     setChartData(prepareConnectionsData(data))
@@ -75,7 +78,7 @@ const ConnectionsWidget: React.FC<Props> = ({ data, fullWidth = false }): ReactE
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis yAxisId="left" tickFormatter={(value: any) => formatScale(value, true)} label={{ value: 'Flights', style: { textAnchor: 'middle' }, angle: -90, position: 'left', offset: 0 }} />
-            <YAxis yAxisId="right" orientation="right" tickFormatter={(value: any) => formatScale(value, true)} label={{ value: 'Distance (km)', style: { textAnchor: 'middle' }, angle: -90, position: 'right', offset: 0 }} />
+            <YAxis yAxisId="right" orientation="right" tickFormatter={(value: any) => formatScale(value, true)} label={{ value: `Distance (${units.distance.units})`, style: { textAnchor: 'middle' }, angle: -90, position: 'right', offset: 0 }} />
             <Tooltip formatter={(value: any, name: any) => formatTooltipLabels(value, name)} />
             <Legend formatter={(value: any, name: any) => formatTooltipLabels(undefined, value)} />
             <Line isAnimationActive={false} yAxisId="left" type="monotone" dataKey="flights" stroke="#a583f5" activeDot={{ r: 8 }} />

@@ -1,6 +1,7 @@
 import { Contract, convertToContractTuple } from '../../models/Contract'
 import { Plane, convertToPlaneTuple } from '../../models/Plane'
 import { type ReputationType, type EventOrigin, type PNLRecord } from '../AirlineController'
+import { type DistanceUnits, type SpeedUnits } from '../GameController'
 import { type HangarAsset } from '../HangarController'
 import { type Achievement, type Mission } from '../MissionController'
 import { type ScheduleEvent, type Schedule } from '../ScheduleController'
@@ -28,7 +29,9 @@ enum Keys {
   MISSIONS_PROGRESS = 'missionsProgress',
   GAME_ID = 'gameId',
   STARTING_REGION = 'startingRegion',
-  UNLOCKED_REGIONS = 'unlockedRegions'
+  UNLOCKED_REGIONS = 'unlockedRegions',
+  DISTANCE_UNITS = 'distanceUnits',
+  SPEED_UNITS = 'speedUnits'
 }
 
 export const LocalStorage = {
@@ -214,6 +217,20 @@ export const LocalStorage = {
   },
   setUnlockedRegions (unlockedRegions: string[]): void {
     localStorage.setItem(Keys.UNLOCKED_REGIONS, JSON.stringify(unlockedRegions))
+  },
+  getDistanceUnits (): DistanceUnits {
+    const distanceUnits = localStorage.getItem(Keys.DISTANCE_UNITS) as DistanceUnits | null
+    return distanceUnits ?? 'km'
+  },
+  setDistanceUnits (distanceUnits: DistanceUnits): void {
+    localStorage.setItem(Keys.DISTANCE_UNITS, distanceUnits)
+  },
+  getSpeedUnits (): SpeedUnits {
+    const speedUnits = localStorage.getItem(Keys.SPEED_UNITS) as SpeedUnits | null
+    return speedUnits ?? 'kph'
+  },
+  setSpeedUnits (speedUnits: SpeedUnits): void {
+    localStorage.setItem(Keys.SPEED_UNITS, speedUnits)
   },
   getAllAsJSON (): string {
     const keys = Object.values(Keys)

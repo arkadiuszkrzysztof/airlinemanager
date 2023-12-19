@@ -1,6 +1,7 @@
 import React from 'react'
 import { type HangarAsset } from '../../controllers/HangarController'
 import { Col, Row } from 'react-bootstrap'
+import { GameController } from '../../controllers/GameController'
 
 const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
   const { plane, ownership } = asset
@@ -26,7 +27,11 @@ const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
       </Row>
       <Row>
         <Col xs={7} className='text-start'>Max range</Col>
-        <Col xs={5} className='text-end'>{plane.maxRange} km</Col>
+        <Col xs={5} className='text-end'>{GameController.formatDistance(plane.maxRange)}</Col>
+      </Row>
+      <Row>
+        <Col xs={7} className='text-start'>Cruise speed</Col>
+        <Col xs={5} className='text-end'>{GameController.formatSpeed(plane.cruiseSpeed)}</Col>
       </Row>
       <Row>
         <Col xs={7} className='text-start'>Plane capacity:</Col>

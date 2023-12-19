@@ -24,7 +24,7 @@ export class Clock {
   private static instance: Clock
   private readonly listeners: Record<string, (playtime: number) => void> = {}
   private _playtime: number
-  private clockTicker: NodeJS.Timeout
+  private _clockTicker: NodeJS.Timeout
 
   private constructor () {
     const playtime = LocalStorage.getPlaytime()
@@ -34,7 +34,7 @@ export class Clock {
 
     this._playtime = playtime + Math.min(offlineTime, Math.max(lastSave - currentTime, 0))
 
-    this.clockTicker = setInterval(() => { this.updateClock() }, CLOCK_TICKER_INTERVAL)
+    this._clockTicker = setInterval(() => { this.updateClock() }, CLOCK_TICKER_INTERVAL)
   }
 
   private callListeners (playtime: number): void {
@@ -49,11 +49,11 @@ export class Clock {
   }
 
   public pauseGame (): void {
-    clearInterval(this.clockTicker)
+    clearInterval(this._clockTicker)
   }
 
   public resumeGame (): void {
-    this.clockTicker = setInterval(() => { this.updateClock() }, 100)
+    this._clockTicker = setInterval(() => { this.updateClock() }, 100)
   }
 
   public static getInstance (): Clock {
@@ -111,6 +111,24 @@ export class Clock {
     return (years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ${months} ${months === 1 ? 'month' : 'months'}` : `${months} ${months === 1 ? 'month' : 'months'}`)
   }
 
+  private formatRealTime (timeinSec: number): string {
+    const seconds = timeinSec % 60
+    const minutes = Math.floor(timeinSec / 60) % 60
+    const hours = Math.floor(timeinSec / 3600)
+
+    const hoursFormatted = hours > 0 ? `${hours.toString()} ${hours === 1 ? 'hour' : 'hours'}` : ''
+    const minutesFormatted = minutes > 0 ? `${minutes.toString()} ${minutes === 1 ? 'minute' : 'minutes'}` : ''
+    const secondsFormatted = `${seconds.toString()} ${seconds === 1 ? 'second' : 'seconds'}`
+
+    if (hours > 0) {
+      return `${hoursFormatted} ${minutesFormatted} ${secondsFormatted}`
+    } else if (minutes > 0) {
+      return `${minutesFormatted} ${secondsFormatted}`
+    } else {
+      return secondsFormatted
+    }
+  }
+
   get playtime (): number {
     return this._playtime
   }
@@ -140,9 +158,8 @@ export class Clock {
 
   get timeToNextDayInRealTime (): string {
     const timeinSec = Math.floor((Timeframes.DAY - this._playtime % Timeframes.DAY) * CLOCK_TICKER_INTERVAL / 1000)
-    const minutes = Math.floor(timeinSec / 60)
 
-    return minutes > 0 ? `${minutes.toString()} ${minutes === 1 ? 'minute' : 'minutes'} ${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}` : `${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}`
+    return this.formatRealTime(timeinSec)
   }
 
   get timeToNextWeekFormatted (): string {
@@ -155,9 +172,8 @@ export class Clock {
 
   get timeToNextWeekInRealTime (): string {
     const timeinSec = Math.floor((Timeframes.WEEK - this._playtime % Timeframes.WEEK) * CLOCK_TICKER_INTERVAL / 1000)
-    const minutes = Math.floor(timeinSec / 60)
 
-    return minutes > 0 ? `${minutes.toString()} ${minutes === 1 ? 'minute' : 'minutes'} ${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}` : `${timeinSec % 60} ${timeinSec % 60 === 1 ? 'second' : 'seconds'}`
+    return this.formatRealTime(timeinSec)
   }
 
   get totalPlaytime (): string {
@@ -172,7 +188,12 @@ export class Clock {
     return `${years}y ${months}m ${weeks}w ${days}d ${hours}h ${minutes}m`
   }
 
-  // NEW METHODS
+  get totalPlaytimeInRealTime (): string {
+    const timeinSec = Math.floor(this._playtime * CLOCK_TICKER_INTERVAL / 1000)
+
+    return this.formatRealTime(timeinSec)
+  }
+
   get todayStartPlaytime (): number {
     return Math.floor(this.playtime / Timeframes.DAY) * Timeframes.DAY
   }

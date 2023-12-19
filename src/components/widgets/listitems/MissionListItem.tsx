@@ -23,9 +23,9 @@ const MissionListItem: React.FC<Props> = ({ item }) => {
           <div className='fs-5'>Progress: <strong>{item.mission.conditions.currentValue.toLocaleString('en-US')}</strong> out of <strong>{item.mission.conditions.expectedValue.toLocaleString('en-US')}</strong></div>
           <div className='fs-5'>Reward at completion: <CashStack size={24} className='text-success mx-2 mb-1' /><strong className='text-success'>{formatCashValue(item.mission.reward)}</strong></div>
           {(item.mission.type === MissionType.DESTINATION || item.mission.type === MissionType.VISITS) && item.mission.conditions.destination !== undefined &&
-            <div><InfoCircle size={16} className='me-2 mt-2' /><i>Active contracts to {item.mission.conditions.destination}: <strong>{ScheduleController.getInstance().getActiveSchedulesForDestination(item.mission.conditions.destination).length}</strong></i></div>}
+            <div><InfoCircle size={16} className='me-2' /><i>Active contracts to {item.mission.conditions.destination}: <strong>{ScheduleController.getInstance().getActiveSchedulesForDestination(item.mission.conditions.destination).length}</strong></i></div>}
           {item.mission.type === MissionType.AIRCRAFT && item.mission.conditions.aircraft !== undefined &&
-            <div><InfoCircle size={16} className='me-2 mt-2' /><i>Active contracts on board of the {item.mission.conditions.aircraft}: <strong>{ScheduleController.getInstance().getActiveSchedulesForPlaneType(item.mission.conditions.aircraft).length}</strong></i></div>}
+            <div><InfoCircle size={16} className='me-2' /><i>Active contracts on board of the {item.mission.conditions.aircraft}: <strong>{ScheduleController.getInstance().getActiveSchedulesForPlaneType(item.mission.conditions.aircraft).length}</strong></i></div>}
         </Col>
       </Row>
     )

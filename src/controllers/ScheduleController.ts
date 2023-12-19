@@ -203,13 +203,12 @@ export class ScheduleController {
       MissionController.getInstance().notifyMissions(event.schedule)
 
       LocalStorage.setScheduleEvents(this.scheduleEvents)
+    })
 
-      // Expire contract after the last occurence if it's over
-      if (event.schedule.contract.expirationTime <= playtime) {
-        this.expireContract(event.schedule)
-
-        AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${event.schedule.contract.hub.IATACode}-${event.schedule.contract.destination.IATACode} for plane ${event.schedule.option.asset.plane.registration} on ${Clock.getDayOfWeek(event.schedule.contract.departureTime)}s expired`)
-      }
+    // Expire contract after the last occurence if it's over
+    this.activeSchedules.filter(schedule => schedule.contract.expirationTime <= playtime).forEach(schedule => {
+      this.expireContract(schedule)
+      AirlineController.getInstance().logEvent(EventOrigin.CONTRACT, `Contract ${schedule.contract.hub.IATACode}-${schedule.contract.destination.IATACode} for plane ${schedule.option.asset.plane.registration} on ${Clock.getDayOfWeek(schedule.contract.departureTime)}s expired`)
     })
 
     // Expire plane leases if they're over

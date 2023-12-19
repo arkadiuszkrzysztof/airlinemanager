@@ -19,6 +19,19 @@ export interface Controllers {
   Mission: MissionController
   Clock: Clock
 }
+
+export type DistanceUnits = 'km' | 'mi' | 'nmi'
+export type SpeedUnits = 'kph' | 'mph' | 'kts'
+
+const Conversions = {
+  KM: 1,
+  KPH: 1,
+  MI: 0.621371,
+  MPH: 0.621371,
+  NMI: 0.539957,
+  KTS: 0.539957
+}
+
 export class GameController {
   private readonly airlineController: AirlineController
   private readonly marketController: MarketController
@@ -30,6 +43,9 @@ export class GameController {
 
   private static instance: GameController
 
+  private distanceUnits: DistanceUnits
+  private speedUnits: SpeedUnits
+
   private constructor () {
     this.airlineController = AirlineController.getInstance()
     this.marketController = MarketController.getInstance()
@@ -38,6 +54,9 @@ export class GameController {
     this.scheduleController = ScheduleController.getInstance()
     this.missionController = MissionController.getInstance()
     this.clock = Clock.getInstance()
+
+    this.distanceUnits = LocalStorage.getDistanceUnits()
+    this.speedUnits = LocalStorage.getSpeedUnits()
   }
 
   public static getInstance (): Controllers {
@@ -75,6 +94,51 @@ export class GameController {
   public static updateAirlineName (airlineName: string): void {
     AirlineController.getInstance().setAirlineName(airlineName)
     LocalStorage.setAirlineName(airlineName)
+  }
+
+  public static updateDistanceUnits (distanceUnits: DistanceUnits): void {
+    this.instance.distanceUnits = distanceUnits
+    LocalStorage.setDistanceUnits(distanceUnits)
+  }
+
+  public static updateSpeedUnits (speedUnits: SpeedUnits): void {
+    this.instance.speedUnits = speedUnits
+    LocalStorage.setSpeedUnits(speedUnits)
+  }
+
+  public static formatSpeed (speed: number): string {
+    switch (this.instance.speedUnits) {
+      case 'kph':
+        return `${speed} km/h`
+      case 'mph':
+        return `${Math.floor(speed * Conversions.MPH)} mph`
+      case 'kts':
+        return `${Math.floor(speed * Conversions.KTS)} kts`
+    }
+  }
+
+  public static formatDistance (distance: number): string {
+    switch (this.instance.distanceUnits) {
+      case 'km':
+        return `${distance} km`
+      case 'mi':
+        return `${Math.floor(distance * Conversions.MI)} mi`
+      case 'nmi':
+        return `${Math.floor(distance * Conversions.NMI)} NM`
+    }
+  }
+
+  public static getUnits (): { distance: { units: string, conversion: number }, speed: { units: string, conversion: number } } {
+    return {
+      distance: {
+        units: this.instance.distanceUnits,
+        conversion: Conversions[this.instance.distanceUnits.toUpperCase() as keyof typeof Conversions]
+      },
+      speed: {
+        units: this.instance.speedUnits,
+        conversion: Conversions[this.instance.speedUnits.toUpperCase() as keyof typeof Conversions]
+      }
+    }
   }
 
   public static downloadSaveJSON (): void {

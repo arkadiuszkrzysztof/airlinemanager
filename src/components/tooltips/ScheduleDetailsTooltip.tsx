@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap'
 import { formatCashValue, formatUtilization } from '../../controllers/helpers/Helpers'
 import { Clock, Timeframes } from '../../controllers/helpers/Clock'
 import { type Schedule } from '../../controllers/ScheduleController'
+import { GameController } from '../../controllers/GameController'
 
 const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) => {
   const durationInDays = Math.floor(((schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end) - schedule.start) / Timeframes.DAY)
@@ -32,7 +33,7 @@ const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) 
       </Row>
       <Row>
         <Col xs={6} className='text-start'>Distance</Col>
-        <Col xs={6} className='text-end'>{`${schedule.contract.distance} km`}</Col>
+        <Col xs={6} className='text-end'>{GameController.formatDistance(schedule.contract.distance)}</Col>
       </Row>
       <Row>
         <Col xs={6} className='text-start'>Flight time</Col>

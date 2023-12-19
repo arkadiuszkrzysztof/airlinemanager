@@ -19,14 +19,16 @@ const Missions: React.FC = () => {
       <RegionsWidget fullWidth />
       <ListPreviewWidget<{ completedAt: number, mission: Mission }>
           Icon={Trophy}
-          header={`Missions (${missionsCount.completed}/${missionsCount.total})`}
+          header={'Missions'}
+          counter={`(${missionsCount.completed}/${missionsCount.total})`}
           Component={MissionListItem}
           items={Controllers.Mission.getCurrentAndCompletedMissions()}
           maxHeight={'calc(100vh - 450px)'}
         />
         <ListPreviewWidget<{ completedAt: number, achievement: Achievement }>
           Icon={Award}
-          header={`Achievements (${achievementsCount.completed}/${achievementsCount.total})`}
+          header={'Achievements'}
+          counter={`(${achievementsCount.completed}/${achievementsCount.total})`}
           Component={AchievementListItem}
           items={Controllers.Mission.getUnlockedAchievements()}
           maxHeight={'calc(100vh - 450px)'}

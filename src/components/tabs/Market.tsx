@@ -33,7 +33,8 @@ const Market: React.FC = () => {
     <>
       <ListPreviewWidget<Plane>
           Icon={AirplaneEngines}
-          header={`Planes (${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
+          header={'Planes'}
+          counter={`(${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
           subheader={<RefreshHint timeTo={Controllers.Clock.timeToNextWeekFormatted} realTimeTo={Controllers.Clock.timeToNextWeekInRealTime} />}
           Component={MarketListItem}
           items={market.sort((a, b) => b.reputation - a.reputation)}

@@ -22,7 +22,8 @@ const Operations: React.FC = () => {
     <>
         <ListPreviewWidget<HangarAsset>
           Icon={HouseDoor}
-          header={`Hangar (${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
+          header={'Hangar'}
+          counter={`(${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
           Component={HangarListItem}
           items={assets.sort((a, b) => (b.plane.acquisitionTime ?? 0) - (a.plane.acquisitionTime ?? 0))}
           FilterSection={HangarFilter}

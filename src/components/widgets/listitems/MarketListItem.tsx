@@ -44,7 +44,7 @@ const MarketListItem: React.FC<Props> = ({ item: plane }) => {
         </div>
         <div className='d-flex align-items-center'>
           <PinMapFill size={20} className='text-grey-dark me-2' />
-          {`${plane.maxRange} km`}
+          {GameController.formatDistance(plane.maxRange)}
         </div>
         <div className='d-flex align-items-center'>
           <CalendarWeekFill size={20} className='text-grey-dark me-2' />

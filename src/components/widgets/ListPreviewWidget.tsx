@@ -6,6 +6,7 @@ interface ListPreviewProps<U> {
   Component: React.FC<{ item: U }>
   items: U[]
   header: string
+  counter?: string
   subheader?: ReactElement | string
   Icon?: React.FC<IconProps>
   fullWidth?: boolean
@@ -15,7 +16,7 @@ interface ListPreviewProps<U> {
   FilterSection?: React.FC<{ filter: string, setFilter: (filter: string) => void, items: U[], setFilteredItems: (items: U[]) => void }>
 }
 
-const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, fullWidth = false, fullHeight = false, maxHeight, wrapItems = false, FilterSection }: ListPreviewProps<U>): ReactElement => {
+const ListPreviewWidget = <U,>({ Component, items, header, counter, Icon, subheader, fullWidth = false, fullHeight = false, maxHeight, wrapItems = false, FilterSection }: ListPreviewProps<U>): ReactElement => {
   const [filter, setFilter] = useState<string>('')
   const [filteredItems, setFilteredItems] = useState<U[]>([])
 
@@ -32,7 +33,7 @@ const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, full
           <Col xs={12} className='d-flex align-items-center justify-content-between'>
             <div className='d-flex align-items-center'>
               {Icon != null && <Icon size={24} className='text-dark mx-2' />}
-              <span className='text-dark fw-bold fs-5'>{header}</span>
+              <span className='text-dark fw-bold fs-5'>{`${header} ${counter ?? ''}`}</span>
             </div>
             <span className='text-primary fs-6'>{subheader}</span>
           </Col>
@@ -44,7 +45,7 @@ const ListPreviewWidget = <U,>({ Component, items, header, Icon, subheader, full
           {filteredItems.map((item, index) => (
             <Component key={`list-preview-${index}`} item={item} />
           ))}
-          {filteredItems.length === 0 && <h4 className='text-center text-grey-dark mt-2'>{`No items in the ${header}`}</h4>}
+          {filteredItems.length === 0 && <h4 className='text-center text-grey-dark mt-2 w-100'>{`No items in ${header}`}</h4>}
         </Card.Body>
       </Card>
     </Col>

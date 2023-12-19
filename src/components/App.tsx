@@ -79,7 +79,7 @@ const App: React.FC<Props> = ({ Tab }) => {
                   <span className='fw-bold text-dark me-2'>{Controllers.Airline.cashFormatted}</span>
                 </Col>
                 <Col xs={'auto'} className='d-flex align-items-center'>
-                <OverlayTrigger placement="bottom" overlay={<Tooltip style={{ position: 'fixed' }}><strong>Total playtime:</strong><br />{Controllers.Clock.totalPlaytime}</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><strong>Total playtime:</strong><br />{Controllers.Clock.totalPlaytime}<br /><br /><strong>In real time:</strong><br />{Controllers.Clock.totalPlaytimeInRealTime}</Tooltip>}>
                   <div className='d-flex align-items-center cursor-help'>
                     <Badge bg='dark' className='mx-2'>
                       {Controllers.Clock.currentDayOfWeek}
