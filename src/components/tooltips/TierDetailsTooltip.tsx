@@ -2,6 +2,7 @@ import React from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { formatPercentageValue } from '../../controllers/helpers/Helpers'
 import { AirlineController } from '../../controllers/AirlineController'
+import { GameController } from '../../controllers/GameController'
 
 const TierDetailsTooltip: React.FC = () => {
   const tier = AirlineController.getInstance().getTier()
@@ -17,9 +18,9 @@ const TierDetailsTooltip: React.FC = () => {
       </Row>
       <Row>
         <Col xs={6} className='text-start'>Maximum Take-Off Weight</Col>
-        <Col xs={3} className='text-end'>{`${tier.record.constraints.MTOW} t`}</Col>
+        <Col xs={3} className='text-end'>{GameController.formatWeight(tier.record.constraints.MTOW)}</Col>
         {nextTier !== undefined
-          ? <Col xs={3} className='text-end text-primary fw-bold'>{`${nextTier.record.constraints.MTOW} t`}</Col>
+          ? <Col xs={3} className='text-end text-primary fw-bold'>{GameController.formatWeight(nextTier.record.constraints.MTOW)}</Col>
           : <Col xs={3} className='text-end text-grey-dark'>MAX</Col>}
       </Row>
       <Row>

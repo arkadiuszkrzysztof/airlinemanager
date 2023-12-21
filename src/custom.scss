@@ -153,6 +153,7 @@ $body-bg: map-get($theme-colors, "page");
 html {
   font-family: sans-serif;
   min-width: 1300px;
+  min-height: 800px;
 }
 body {
   margin: 0;
@@ -375,4 +376,15 @@ body,
 
 .leaflet-container {
   border-radius: 20px 0 20px 0;
+}
+
+.table-header-cell {
+  background-color: map-get($theme-colors, "info");
+  color: map-get($theme-colors, "white");
+  border: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }

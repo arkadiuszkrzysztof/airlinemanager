@@ -22,14 +22,17 @@ export interface Controllers {
 
 export type DistanceUnits = 'km' | 'mi' | 'nmi'
 export type SpeedUnits = 'kph' | 'mph' | 'kts'
+export type WeightUnits = 'kg' | 'lb'
 
 const Conversions = {
   KM: 1,
   KPH: 1,
+  KG: 1,
   MI: 0.621371,
   MPH: 0.621371,
   NMI: 0.539957,
-  KTS: 0.539957
+  KTS: 0.539957,
+  LB: 2.20462
 }
 
 export class GameController {
@@ -45,6 +48,7 @@ export class GameController {
 
   private distanceUnits: DistanceUnits
   private speedUnits: SpeedUnits
+  private weightUnits: WeightUnits
 
   private constructor () {
     this.airlineController = AirlineController.getInstance()
@@ -57,6 +61,7 @@ export class GameController {
 
     this.distanceUnits = LocalStorage.getDistanceUnits()
     this.speedUnits = LocalStorage.getSpeedUnits()
+    this.weightUnits = LocalStorage.getWeightUnits()
   }
 
   public static getInstance (): Controllers {
@@ -106,29 +111,43 @@ export class GameController {
     LocalStorage.setSpeedUnits(speedUnits)
   }
 
+  public static updateWeightUnits (weightUnits: WeightUnits): void {
+    this.instance.weightUnits = weightUnits
+    LocalStorage.setWeightUnits(weightUnits)
+  }
+
   public static formatSpeed (speed: number): string {
     switch (this.instance.speedUnits) {
       case 'kph':
-        return `${speed} km/h`
+        return `${speed.toLocaleString('en-US', { maximumFractionDigits: 0 })} km/h`
       case 'mph':
-        return `${Math.floor(speed * Conversions.MPH)} mph`
+        return `${Math.floor(speed * Conversions.MPH).toLocaleString('en-US', { maximumFractionDigits: 0 })} mph`
       case 'kts':
-        return `${Math.floor(speed * Conversions.KTS)} kts`
+        return `${Math.floor(speed * Conversions.KTS).toLocaleString('en-US', { maximumFractionDigits: 0 })} kts`
     }
   }
 
   public static formatDistance (distance: number): string {
     switch (this.instance.distanceUnits) {
       case 'km':
-        return `${distance} km`
+        return `${distance.toLocaleString('en-US', { maximumFractionDigits: 0 })} km`
       case 'mi':
-        return `${Math.floor(distance * Conversions.MI)} mi`
+        return `${Math.floor(distance * Conversions.MI).toLocaleString('en-US', { maximumFractionDigits: 0 })} mi`
       case 'nmi':
-        return `${Math.floor(distance * Conversions.NMI)} NM`
+        return `${Math.floor(distance * Conversions.NMI).toLocaleString('en-US', { maximumFractionDigits: 0 })} NM`
     }
   }
 
-  public static getUnits (): { distance: { units: string, conversion: number }, speed: { units: string, conversion: number } } {
+  public static formatWeight (weight: number): string {
+    switch (this.instance.weightUnits) {
+      case 'kg':
+        return `${(weight * 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })} kg`
+      case 'lb':
+        return `${Math.floor(weight * 1000 * Conversions.LB).toLocaleString('en-US', { maximumFractionDigits: 0 })} lb`
+    }
+  }
+
+  public static getUnits (): { distance: { units: string, conversion: number }, speed: { units: string, conversion: number }, weight: { units: string, conversion: number } } {
     return {
       distance: {
         units: this.instance.distanceUnits,
@@ -137,6 +156,10 @@ export class GameController {
       speed: {
         units: this.instance.speedUnits,
         conversion: Conversions[this.instance.speedUnits.toUpperCase() as keyof typeof Conversions]
+      },
+      weight: {
+        units: this.instance.weightUnits,
+        conversion: Conversions[this.instance.weightUnits.toUpperCase() as keyof typeof Conversions]
       }
     }
   }

@@ -10,6 +10,7 @@ import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import CostBreakdownTooltip from '../../tooltips/CostBreakdownTooltip'
 import RevenueBreakdownTooltip from '../../tooltips/RevenueBreakdownTooltip'
 import TurnaroundBreakdownTooltip from '../../tooltips/TurnaroundBreakdownTooltip'
+import AirportDetailsTooltip from '../../tooltips/AirportDetailsTooltip'
 
 interface Props {
   item: { contract: Contract, options: ContractOption[] }
@@ -32,13 +33,23 @@ const ContractListItem: React.FC<Props> = ({ item }) => {
         }
         <Row className='px-2'>
           <Col className='flex-grow-0 pe-0'>
-            <Badge bg='danger-light fs-6'>{`${contract.hub.IATACode} (${contract.hub.location})`}</Badge>
+            <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><AirportDetailsTooltip airport={contract.hub} /></Tooltip>}
+            >
+              <Badge bg='danger-light fs-6 cursor-help'>{`${contract.hub.IATACode} (${contract.hub.location})`}</Badge>
+            </OverlayTrigger>
           </Col>
           <Col className='flex-grow-0'>
             <ArrowLeftRight size={20} className='text-primary mx-0' />
           </Col>
           <Col className='flex-grow-0 ps-0'>
-            <Badge bg='warning-light fs-6'>{`${contract.destination.IATACode} (${contract.destination.location})`}</Badge>
+            <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><AirportDetailsTooltip airport={contract.destination} /></Tooltip>}
+            >
+              <Badge bg='warning-light fs-6 cursor-help'>{`${contract.destination.IATACode} (${contract.destination.location})`}</Badge>
+            </OverlayTrigger>
           </Col>
           <Col className='d-flex align-items-center'>
             <AirplaneFill size={20} className='text-grey-dark me-2 rotate-60' />

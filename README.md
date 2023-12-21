@@ -1,17 +1,10 @@
 # Airline Manager
 
-Yo! This is goin to be freakin cool game, bro! Hang tight.
+An idle airline simulator game. Get planes, sign contracts, complete missions, and grow your airline!
 
-## webapp
+## Demo
+### Visit the [Airline Manager](https://airlinemanager.app) demo page to tun the app online.
+You can **Launch New Airline** in a selected starting region and build your company with nothing but $1,000,000 in cash, or **Load Demo Airline** with global presence and strong income flow to play around!
 
-To run the webapp use the following command
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-
-## services
-
-Some info here...
+![Dashboard](./public/images/screenshot-dashboard.png)
+![Map](./public/images/screenshot-map.png)

@@ -1,9 +1,10 @@
 import React from 'react'
+import ManualWidget from '../widgets/ManualWidget'
 
 const Manual: React.FC = () => {
   return (
     <>
-      Manual
+      <ManualWidget fullWidth fullHeight />
     </>
   )
 }

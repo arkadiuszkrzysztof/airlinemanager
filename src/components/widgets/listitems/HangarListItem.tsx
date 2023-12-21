@@ -9,6 +9,7 @@ import PlaneDetailsTooltip from '../../tooltips/PlaneDetailsTooltip'
 import TimetableHoursCol from '../../fragments/TimetableHours'
 import TimetableGrid from '../../fragments/TimetableGrid'
 import ScheduleCalendarItem from '../../fragments/ScheduleCalendarItem'
+import AirportDetailsTooltip from '../../tooltips/AirportDetailsTooltip'
 
 interface Props {
   item: HangarAsset
@@ -63,10 +64,15 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
         <Row className='justify-content-between pt-2 pb-3'>
           <Col xs={'auto'} className='d-flex align-items-center'>
             {asset.plane.hub !== undefined &&
-              <Badge bg='secondary' className='me-2 fs-5'>{asset.plane.hub.IATACode}</Badge>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><AirportDetailsTooltip airport={asset.plane.hub} /></Tooltip>}
+              >
+                <Badge bg='secondary' className='me-2 fs-5 cursor-help'>{asset.plane.hub.IATACode}</Badge>
+              </OverlayTrigger>
             }
             <OverlayTrigger
-                placement="top"
+                placement="bottom"
                 overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><PlaneDetailsTooltip asset={asset} /></Tooltip>}
             >
               <span className='fs-5 fw-bold text-primary cursor-help'>{`${asset.plane.familyName} ${asset.plane.typeName}`}</span>

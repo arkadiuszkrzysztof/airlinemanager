@@ -1,7 +1,7 @@
 import { Contract, convertToContractTuple } from '../../models/Contract'
 import { Plane, convertToPlaneTuple } from '../../models/Plane'
 import { type ReputationType, type EventOrigin, type PNLRecord } from '../AirlineController'
-import { type DistanceUnits, type SpeedUnits } from '../GameController'
+import { type WeightUnits, type DistanceUnits, type SpeedUnits } from '../GameController'
 import { type HangarAsset } from '../HangarController'
 import { type Achievement, type Mission } from '../MissionController'
 import { type ScheduleEvent, type Schedule } from '../ScheduleController'
@@ -31,7 +31,8 @@ enum Keys {
   STARTING_REGION = 'startingRegion',
   UNLOCKED_REGIONS = 'unlockedRegions',
   DISTANCE_UNITS = 'distanceUnits',
-  SPEED_UNITS = 'speedUnits'
+  SPEED_UNITS = 'speedUnits',
+  WEIGHT_UNITS = 'weightUnits'
 }
 
 export const LocalStorage = {
@@ -231,6 +232,13 @@ export const LocalStorage = {
   },
   setSpeedUnits (speedUnits: SpeedUnits): void {
     localStorage.setItem(Keys.SPEED_UNITS, speedUnits)
+  },
+  getWeightUnits (): WeightUnits {
+    const weightUnits = localStorage.getItem(Keys.WEIGHT_UNITS) as WeightUnits | null
+    return weightUnits ?? 'kg'
+  },
+  setWeightUnits (weightUnits: WeightUnits): void {
+    localStorage.setItem(Keys.WEIGHT_UNITS, weightUnits)
   },
   getAllAsJSON (): string {
     const keys = Object.values(Keys)

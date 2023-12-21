@@ -35,9 +35,9 @@ const CreateAirline: React.FC = () => {
     <Container fluid className='p-0' id='create-airline'>
       <Row className='mh-100 vh-100 m-0'>
         <Col className='d-flex flex-column align-items-center justify-content-center p-4 mh-100 vh-100 position-relative overflow-hidden bg-page'>
-          <AirplaneEnginesFill size={360} className='position-absolute opacity-100 text-secondary' style={{ bottom: '-40px', left: '-120px' }} />
-          <h1 className='text-primary fw-bold'>Launch New Airline</h1>
-          <div className='widget-shadow d-flex flex-column align-items-center p-4 '>
+          <AirplaneEnginesFill size={360} className='position-absolute opacity-50 text-secondary z-0' style={{ bottom: '-40px', left: '-120px' }} />
+          <h1 className='text-primary fw-bold z-1'>Launch New Airline</h1>
+          <div className='widget-shadow d-flex flex-column align-items-center p-4 z-1'>
             <div className='py-2'>
               {Object.keys(Regions).map((key) => (
                 <img
@@ -45,7 +45,7 @@ const CreateAirline: React.FC = () => {
                   src={`/images/region-${key.toLocaleLowerCase()}.png`}
                   alt={Regions[key as keyof typeof Regions]}
                   className={`rounded m-1 cursor-pointer ${region === key ? 'border border-2 border-primary' : ''}`}
-                  style={{ maxWidth: '90px' }}
+                  style={{ maxWidth: '80px' }}
                   onClick={() => { setRegion(key) }} />
               ))}
               {region !== '' && <p className='text-center'>Starting region: <strong>{Regions[region as keyof typeof Regions]}</strong></p>}
@@ -55,12 +55,12 @@ const CreateAirline: React.FC = () => {
               <AirlineNameForm name={name} setName={setName} onSubmitHandler={onSubmitHandler} />
             </div>
           </div>
-          <div className='w-100 d-flex align-items-center justify-content-center py-5'>
+          <div className='w-100 d-flex align-items-center justify-content-center py-5 z-1'>
             <div className='border-secondary' style={{ width: '25%', height: '2px', borderTop: '1px solid' }}></div>
             <span className='fw-bold text-secondary mx-2'>OR</span>
             <div className='border-secondary' style={{ width: '25%', height: '2px', borderTop: '1px solid' }}></div>
           </div>
-          <Button className='text-white pt-2 px-4' onClick={() => { void GameController.loadDemo() }}><h4 className='fw-bold pt-1'>Load Demo Airline</h4></Button>
+          <Button className='text-white pt-2 px-4 z-1' onClick={() => { void GameController.loadDemo() }}><h4 className='fw-bold pt-1'>Load Demo Airline</h4></Button>
         </Col>
         <Col className='bg-primary text-white p-4 pt-0 position-relative overflow-x-hidden mh-100'>
           <AirplaneEnginesFill size={360} className='position-absolute opacity-25 rotate-300 z-0' style={{ top: '-40px', right: '-120px' }} />
