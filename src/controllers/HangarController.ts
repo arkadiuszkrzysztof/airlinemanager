@@ -1,6 +1,7 @@
 import { type Airport } from '../models/Airport'
 import { type Plane } from '../models/Plane'
 import { ContractsController } from './ContractsController'
+import { Clock, Timeframes } from './helpers/Clock'
 import { LocalStorage } from './helpers/LocalStorage'
 import { MarketController } from './MarketController'
 
@@ -69,6 +70,14 @@ export class HangarController {
     })
 
     return hubs
+  }
+
+  public getPlanesAges (): { average: number, ages: Record<string, number> } {
+    const allAges = this.assets.map(asset => Math.round((Clock.getInstance().playtime - asset.plane.manufactureTime) / Timeframes.YEAR))
+    const average = allAges.reduce((a, b) => a + b, 0) / allAges.length
+    const ages = allAges.reduce((ages: Record<string, number>, age) => { ages[(age <= 20 ? age : 20)] = (ages[(age <= 20 ? age : 20)] !== undefined ? ages[(age <= 20 ? age : 20)] + 1 : 1); return ages }, {})
+
+    return { average, ages }
   }
 
   public static getInstance (): HangarController {

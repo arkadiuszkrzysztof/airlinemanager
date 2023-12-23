@@ -90,7 +90,8 @@ $body-bg: map-get($theme-colors, "page");
   transition: all 0.2s ease-in-out;
 }
 
-.hover-bg-secondary:hover {
+.hover-bg-secondary:hover,
+.forced-hover-bg-secondary {
   background-color: rgba(129, 216, 208, 1) !important;
   transition: all 0.2s ease-in-out;
 }
@@ -192,6 +193,11 @@ body,
 
 .mh-400 {
   max-height: 400px;
+  height: 100%;
+}
+
+.mh-450 {
+  max-height: 450px;
   height: 100%;
 }
 

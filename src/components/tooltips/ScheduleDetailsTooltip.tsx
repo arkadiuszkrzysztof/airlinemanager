@@ -1,16 +1,30 @@
-import React from 'react'
+import React, { type ReactElement } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { formatCashValue, formatUtilization } from '../../controllers/helpers/Helpers'
 import { Clock, Timeframes } from '../../controllers/helpers/Clock'
 import { type Schedule } from '../../controllers/ScheduleController'
 import { GameController } from '../../controllers/GameController'
+import { ExclamationTriangle } from 'react-bootstrap-icons'
 
 const ScheduleDetailsTooltip: React.FC<{ schedule: Schedule }> = ({ schedule }) => {
   const durationInDays = Math.floor(((schedule.end < schedule.start ? schedule.end + Timeframes.WEEK : schedule.end) - schedule.start) / Timeframes.DAY)
 
+  const getCountdown = (message: string, time: number): ReactElement => {
+    const [days, hours] = Clock.getExpirationTime(time)
+
+    return (
+      <span className='text-danger'>
+        <ExclamationTriangle size={12} className='text-danger mx-2 mb-1'/>
+         {message}{' '}{days > 0 ? `${days} ${days === 1 ? 'day' : 'days'}` : `${hours} ${hours === 1 ? 'hour' : 'hours'}`}
+      </span>
+    )
+  }
+
   return (
     <>
       <strong>Schedule details:</strong><br />
+      {schedule.contract.startTime > Clock.getInstance().playtime && getCountdown('The contract starts in', schedule.contract.startTime)}
+      {schedule.contract.expirationTime < Clock.getInstance().playtime + Timeframes.MONTH && getCountdown('The contract expires in', schedule.contract.expirationTime)}
       <Row>
         <Col xs={6} className='text-start'>Departure time</Col>
         <Col xs={6} className='text-end'>{Clock.formatPlaytime(schedule.contract.departureTime)}</Col>

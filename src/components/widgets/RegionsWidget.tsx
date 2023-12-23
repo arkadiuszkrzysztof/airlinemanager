@@ -5,12 +5,21 @@ import { GameController } from '../../controllers/GameController'
 import { Regions } from '../../models/Airport'
 import { Map, StarFill } from 'react-bootstrap-icons'
 import { formatCashValue } from '../../controllers/helpers/Helpers'
+import { AirlineController } from '../../controllers/AirlineController'
 
 interface Props {
   fullWidth?: boolean
 }
 
-const UnlockPrice = { NA: 10000000, EU: 10000000, ASIA: 10000000, LATAM: 10000000, AFRICA: 10000000, OCEANIA: 10000000 }
+const numberOfUnlockedRegions = AirlineController.getInstance().unlockedRegions.length
+const UnlockPrice = {
+  NA: 10000000 * numberOfUnlockedRegions,
+  EU: 10000000 * numberOfUnlockedRegions,
+  ASIA: 10000000 * numberOfUnlockedRegions,
+  LATAM: 10000000 * numberOfUnlockedRegions,
+  AFRICA: 10000000 * numberOfUnlockedRegions,
+  OCEANIA: 10000000 * numberOfUnlockedRegions
+}
 const RegionReputationGain = 5
 
 const unlockRegion = (region: string): void => {

@@ -1,3 +1,4 @@
+import { type Contract } from '../../models/Contract'
 import { LocalStorage } from './LocalStorage'
 
 export enum Timeframes {
@@ -144,6 +145,10 @@ export class Clock {
     return Math.floor(this._playtime / Timeframes.DAY) * Timeframes.DAY
   }
 
+  get timeThisWeekStart (): number {
+    return Math.floor(this._playtime / Timeframes.WEEK) * Timeframes.WEEK
+  }
+
   get timeThisMonthStart (): number {
     return Math.floor(this._playtime / Timeframes.MONTH) * Timeframes.MONTH
   }
@@ -234,6 +239,16 @@ export class Clock {
     const dayIndex = DaysOfWeek.indexOf(day)
 
     return (absolute ? this.thisWeekStartPlaytime : 0) + (dayIndex * Timeframes.DAY)
+  }
+
+  public getContractStartTime (contract: Contract): number {
+    const dayStartTime = Math.floor(contract.departureTime / Timeframes.DAY) * Timeframes.DAY
+
+    if (dayStartTime < this.playtime % Timeframes.WEEK) {
+      return dayStartTime + Timeframes.WEEK + this.timeThisWeekStart
+    } else {
+      return dayStartTime + this.timeThisWeekStart
+    }
   }
 
   public static formatPlaytime (playtime: number, options?: { minutes?: boolean, hours?: boolean, days?: boolean, weeks?: boolean, months?: boolean, years?: boolean }): string {

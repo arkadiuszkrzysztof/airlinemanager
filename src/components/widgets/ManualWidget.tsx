@@ -51,7 +51,7 @@ const ManualWidget: React.FC<Props> = ({ fullWidth = false, fullHeight = false }
                 <Col className='table-header-cell'>Max Reputation</Col>
               </Row>
               {tiers.map((tier, indexTiers) => (
-                <>
+                <React.Fragment key={tier}>
                   {planes
                     .filter((plane) => plane.typeName !== 'Concorde' && plane.MTOW <= Tiers[tier].constraints.MTOW && (indexTiers === 0 ? plane.MTOW > 0 : plane.MTOW > Tiers[tiers[indexTiers - 1]].constraints.MTOW))
                     .sort((a, b) => a.MTOW - b.MTOW)
@@ -71,7 +71,7 @@ const ManualWidget: React.FC<Props> = ({ fullWidth = false, fullHeight = false }
                         <Col className='text-center'>{`+${plane.reputation}.00%`}</Col>
                       </Row>
                     ))}
-                </>
+                </React.Fragment>
               ))}
             </Col>
           </Row>

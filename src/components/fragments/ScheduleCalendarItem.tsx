@@ -2,7 +2,7 @@ import React, { type ReactElement } from 'react'
 import { ScheduleController, type Schedule } from '../../controllers/ScheduleController'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import ScheduleDetailsTooltip from '../tooltips/ScheduleDetailsTooltip'
-import { AirplaneFill, ArrowLeftRight } from 'react-bootstrap-icons'
+import { AirplaneFill, ArrowLeftRight, ExclamationTriangle } from 'react-bootstrap-icons'
 import { Timeframes } from '../../controllers/helpers/Clock'
 import { GameController } from '../../controllers/GameController'
 
@@ -10,9 +10,12 @@ interface Props {
   currentDayOfWeek?: string
   schedule: Schedule
   tooltipPosition: 'top' | 'bottom'
+  onItemSelect?: () => void
+  onItemDeselect?: () => void
+  isHighlighted?: boolean
 }
 
-const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, tooltipPosition }): ReactElement => {
+const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, tooltipPosition, onItemSelect, onItemDeselect, isHighlighted = false }): ReactElement => {
   const Controllers = GameController.getInstance()
 
   currentDayOfWeek = currentDayOfWeek ?? Controllers.Clock.currentDayOfWeek
@@ -67,13 +70,15 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
       key={schedule.contract.id}
     >
       <div
-        className={`d-flex align-items-center justify-content-center bg-light bg-opacity-${schedule.contract.startTime <= Controllers.Clock.playtime ? '100 item-shadow' : '25'} hover-bg-secondary ${getRoundedClass(schedule)} cursor-help`}
+        className={`d-flex align-items-center justify-content-center ${isHighlighted ? 'forced-hover-bg-secondary' : 'bg-light'} bg-opacity-${schedule.contract.startTime <= Controllers.Clock.playtime ? '100 item-shadow' : '25'} hover-bg-secondary ${getRoundedClass(schedule)} cursor-help`}
         style={{
           position: 'absolute',
           top: `${spansFullDay(schedule) || spillsFromPreviousDay(schedule) ? 10 : schedule.start % Timeframes.DAY / 6 + 20}px`,
           width: 'calc(100% - 24px)',
           height: `${getHeight(schedule) / 6}px`
         }}
+        onMouseEnter={() => { (onItemSelect != null) && onItemSelect() }}
+        onMouseLeave={() => { (onItemDeselect != null) && onItemDeselect() }}
       >
         {schedule.contract.hub.IATACode}
         {ScheduleController.flightStatus(schedule).inTheAir
@@ -82,6 +87,7 @@ const ScheduleCalendarItem: React.FC<Props> = ({ currentDayOfWeek, schedule, too
             : <AirplaneFill size={12} className='text-danger mx-2 rotate-270 pulse-animation'/>
           : <ArrowLeftRight size={12} className='text-dark mx-2'/>}
         {schedule.contract.destination.IATACode}
+        {(schedule.contract.startTime > Controllers.Clock.playtime || schedule.contract.expirationTime < Controllers.Clock.playtime + Timeframes.MONTH) && <ExclamationTriangle size={12} className='text-danger mx-2'/>}
       </div>
     </OverlayTrigger>
   )

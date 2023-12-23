@@ -1,9 +1,9 @@
 import React, { type ReactElement } from 'react'
-import { Card, Col, Row } from 'react-bootstrap'
+import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 
-import { CaretDownFill, CaretUpFill, HeartPulse } from 'react-bootstrap-icons'
+import { CaretDownFill, CaretUpFill, HeartPulse, QuestionCircle } from 'react-bootstrap-icons'
 import { GameController } from '../../controllers/GameController'
-import { Cell, Pie, PieChart } from 'recharts'
+import { Cell, Label, Pie, PieChart, ResponsiveContainer, Scatter, ScatterChart, XAxis, YAxis, ZAxis } from 'recharts'
 import { Timeframes } from '../../controllers/helpers/Clock'
 import { formatCashValue, formatScale } from '../../controllers/helpers/Helpers'
 
@@ -60,6 +60,17 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
   const weeklyRevenue = Controllers.Schedule.getWeeklyRevenue()
   const weeklyCost = Controllers.Schedule.getWeeklyCost()
 
+  const planesAges = Controllers.Hangar.getPlanesAges()
+  const getPlanesAgesData = (): Array<{ age: string, value: number, index: 1 }> => {
+    const result = new Array<{ age: string, value: number, index: 1 }>(21)
+
+    for (let i = 0; i < result.length; i++) {
+      result[i] = { age: i.toString(), value: Math.min(planesAges.ages[i], 5), index: 1 }
+    }
+
+    return result
+  }
+
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
       <Card className='p-0 m-2 widget-shadow' >
@@ -69,10 +80,10 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
             <span className='text-dark fw-bold fs-5'>Healthcheck</span>
           </div>
         </Card.Header>
-        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '320px' }}>
+        <Card.Body className='d-flex flex-column overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
           <Row className='my-2 justify-content-center'>
             <Col className='d-flex flex-column justify-content-center align-items-end' xs={'auto'}>
-              <h4 className='text-center pt-2 mb-0'>Weekly Revenue: <span className='text-success fw-bold'>{formatCashValue(weeklyRevenue)}</span></h4>
+              <h4 className='text-center pt-0 mb-0'>Weekly Revenue: <span className='text-success fw-bold'>{formatCashValue(weeklyRevenue)}</span></h4>
               <h4 className='text-center pt-2'>Weekly Cost: <span className='text-danger fw-bold'>{formatCashValue(weeklyCost)}</span></h4>
             </Col>
             <Col className='d-flex flex-row justify-content-start align-items-center' xs={'auto'}>
@@ -82,7 +93,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
             </Col>
           </Row>
           <Row>
-            <Col className='d-flex flex-column justify-content-center align-items-center' xs={6} style={{ height: '200px' }}>
+            <Col className='d-flex flex-column justify-content-center align-items-center' xs={6} style={{ height: '170px' }}>
                 <PieChart width={210} height={120}>
                   <Pie
                     isAnimationActive={false}
@@ -100,12 +111,19 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                     {useTimeChartBg.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
+                    <Label value={'4 - 12 h'} position="insideStart" offset={38} fill="#005F73" />
+                    <Label value={'> 12 hours'} position="insideStart" offset={107} fill="#005F73" />
                   </Pie>
                   {needle(useTimeIndex, useTimeChartBg, cx, cy, iR, oR, '#005F73')}
                 </PieChart>
-              <h4 className='text-center pt-2'>Average Daily Plane Use: <span className={`text-${useTimeIndex >= 12 ? 'success' : useTimeIndex >= 8 ? 'warning' : 'danger'} fw-bold`}>{`${useTimeIndex}h`}</span></h4>
+              <h5 className='text-center pt-1'>
+                Average Daily Plane Use: <span className={`text-${useTimeIndex >= 12 ? 'success' : useTimeIndex >= 8 ? 'warning' : 'danger'} fw-bold`}>{`${useTimeIndex}h`}</span>
+                <OverlayTrigger placement="top" overlay={<Tooltip style={{ position: 'fixed' }}>On average, passenger jet airplanes are in use on long hauls for about 12 hours a day. The total number of 3000-3200 flight hours per year can be an industry benchmark for plane utilization.</Tooltip>}>
+                  <QuestionCircle size={16} className='ms-2 mb-1 text-primary cursor-help' />
+                </OverlayTrigger>
+              </h5>
             </Col>
-            <Col className='d-flex flex-column justify-content-center align-items-center' xs={6} style={{ height: '200px' }}>
+            <Col className='d-flex flex-column justify-content-center align-items-center' xs={6} style={{ height: '170px' }}>
                 <PieChart width={210} height={120}>
                   <Pie
                     isAnimationActive={false}
@@ -123,11 +141,62 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
                     {utilizationChartBg.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
+                    <Label value={'0% - 50%'} position="insideStart" offset={18} fill="#005F73" />
+                    <Label value={'50% - 85%'} position="insideStart" offset={93} fill="#005F73" />
                   </Pie>
                   {needle(utilizationIndex, utilizationChartBg, cx, cy, iR, oR, '#005F73')}
                 </PieChart>
-              <h4 className='text-center pt-2'>Average Seat Utilization: <span className={`text-${utilizationIndex >= 85 ? 'success' : utilizationIndex >= 50 ? 'warning' : 'danger'} fw-bold`}>{`${utilizationIndex}%`}</span></h4>
+              <h5 className='text-center pt-1'>
+                Average Seat Utilization: <span className={`text-${utilizationIndex >= 85 ? 'success' : utilizationIndex >= 50 ? 'warning' : 'danger'} fw-bold`}>{`${utilizationIndex}%`}</span>
+                <OverlayTrigger placement="top" overlay={<Tooltip style={{ position: 'fixed' }}>The top 10 international airlines have seat utilization of over 90%, and the top 50 - over 85%. Not many of the carriers operate with the seat utilization factor under 75%, and only a few - under 50%.</Tooltip>}>
+                  <QuestionCircle size={16} className='ms-2 mb-1 text-primary cursor-help' />
+                </OverlayTrigger>
+              </h5>
             </Col>
+          </Row>
+          <Row className='mt-4 justify-content-center'>
+            <ResponsiveContainer width="100%" height={60}>
+              <ScatterChart
+                width={600}
+                height={60}
+                margin={{
+                  top: 10,
+                  right: 40,
+                  bottom: 0,
+                  left: 40
+                }}
+              >
+                <XAxis
+                  type="category"
+                  dataKey="age"
+                  name="age"
+                  interval={4}
+                  tickLine={{ transform: 'translate(0, -6)' }}
+                  tickFormatter={(value) => (value === '0' ? 'New' : value === '20' ? '20+ years' : `${value} years`)}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="index"
+                  height={0}
+                  width={0}
+                  tick={false}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <ZAxis type="number" dataKey="value" domain={[0, 5]} range={[0, 500]} />
+                <Scatter isAnimationActive={false} data={getPlanesAgesData()}>
+                  {getPlanesAgesData().map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={(index < 10 ? '#71c78b' : index < 15 ? '#FFCC40' : '#FE8F66')} />
+                  ))}
+                </Scatter>
+              </ScatterChart>
+            </ResponsiveContainer>
+            <h5 className='text-center pt-1'>
+              Average Planes Age: <span className={`text-${planesAges.average < 10 ? 'success' : planesAges.average < 15 ? 'warning' : 'danger'} fw-bold`}>{`${planesAges.average.toFixed(1)} years`}</span>
+              <OverlayTrigger placement="top" overlay={<Tooltip style={{ position: 'fixed' }}>The average retirement age of passenger jet airplanes is about 20-25 years. Also, it is observed for the traditional full-cost carriers to have average fleet ages above ten years. For the low-cost carriers, however, the average plane age is usually under ten years.</Tooltip>}>
+                <QuestionCircle size={16} className='ms-2 mb-1 text-primary cursor-help' />
+              </OverlayTrigger>
+            </h5>
           </Row>
         </Card.Body>
       </Card>

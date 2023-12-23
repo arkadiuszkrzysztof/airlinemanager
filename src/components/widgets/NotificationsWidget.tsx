@@ -71,7 +71,7 @@ const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactEleme
             <span className='text-dark fw-bold fs-5'>Notifications</span>
           </div>
         </Card.Header>
-        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2' style={{ height: '320px' }}>
+        <Card.Body className='d-flex flex-column mh-400 overflow-auto pt-0 pb-2'>
           <Row className='mx-2 mb-2 position-relative'>
             <Col xs={6}>
               <div className="d-flex align-items-center justify-content-center fs-5 fw-bold text-primary py-1 mb-2 border-bottom">

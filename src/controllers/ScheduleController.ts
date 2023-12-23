@@ -138,7 +138,7 @@ export class ScheduleController {
     const wasAccepted = schedule.contract.accepted
 
     schedule.contract.accepted = true
-    schedule.contract.startTime = Clock.getInstance().tomorrowStartPlaytime
+    schedule.contract.startTime = Clock.getInstance().getContractStartTime(schedule.contract)
     schedule.contract.expirationTime = schedule.contract.startTime + schedule.contract.contractDuration
     schedule.option.asset.plane.setHub(schedule.contract.hub)
     this.activeSchedules.push(schedule)

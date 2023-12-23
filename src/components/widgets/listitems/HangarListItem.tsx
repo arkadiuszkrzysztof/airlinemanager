@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement } from 'react'
 import { Row, Col, Badge, Button, OverlayTrigger, Tooltip, Card } from 'react-bootstrap'
 import { type HangarAsset } from '../../../controllers/HangarController'
 import { GameController } from '../../../controllers/GameController'
@@ -10,6 +10,7 @@ import TimetableHoursCol from '../../fragments/TimetableHours'
 import TimetableGrid from '../../fragments/TimetableGrid'
 import ScheduleCalendarItem from '../../fragments/ScheduleCalendarItem'
 import AirportDetailsTooltip from '../../tooltips/AirportDetailsTooltip'
+import { type Schedule } from '../../../controllers/ScheduleController'
 
 interface Props {
   item: HangarAsset
@@ -17,6 +18,15 @@ interface Props {
 
 const HangarListItem: React.FC<Props> = ({ item: asset }) => {
   const Controllers = GameController.getInstance()
+  const [highlightedSchedule, setHighlightedSchedule] = useState('')
+
+  const handleItemSelect = (schedule: Schedule): void => {
+    setHighlightedSchedule(schedule.contract.id)
+  }
+
+  const handleItemDeselect = (): void => {
+    setHighlightedSchedule('')
+  }
 
   const weeklyProfit = (): number => {
     const totalProfit = Controllers.Schedule
@@ -145,7 +155,10 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
                       key={schedule.contract.id}
                       schedule={schedule}
                       tooltipPosition='top'
-                      currentDayOfWeek={day} />
+                      currentDayOfWeek={day}
+                      onItemSelect={() => { handleItemSelect(schedule) }}
+                      onItemDeselect={() => { handleItemDeselect() }}
+                      isHighlighted={highlightedSchedule === schedule.contract.id} />
                   )
                 }
               </Col>
