@@ -1,4 +1,4 @@
-import React, { type ReactElement } from 'react'
+import React, { useState, type ReactElement, useEffect } from 'react'
 import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 
 import { GameController, type Controllers } from '../../controllers/GameController'
@@ -59,8 +59,15 @@ const getPastEventCountdown = (time: number): ReactElement => {
 const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
 
-  const [expirations] = React.useState(getExpirations(Controllers))
-  const [events] = React.useState(getEvents(Controllers))
+  const [expirations, setExpirations] = useState<Expirations>()
+  const [events, setEvents] = useState<EventLogRecords>()
+
+  useEffect(() => {
+    setExpirations(getExpirations(Controllers))
+    setEvents(getEvents(Controllers))
+  }, [])
+
+  Controllers.Clock.registerListener('dailyNotificationsUpdate', (playtime: number) => { if (playtime % Timeframes.DAY === 0) { setExpirations(getExpirations(Controllers)); setEvents(getEvents(Controllers)) } })
 
   return (
     <Col xs={fullWidth ? 12 : 8} xl={fullWidth ? 12 : 6} xxl={fullWidth ? 10 : 5}>
@@ -78,8 +85,8 @@ const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactEleme
                 <CalendarX size={20} className='me-2' />
                 Upcoming expirations
               </div>
-              {expirations.schedules.length === 0 && <h4 className='text-center text-grey-dark mt-2'>No upcoming expirations</h4>}
-              {expirations.schedules.map((schedule) => (
+              {(expirations === undefined || expirations.schedules.length === 0) && <h4 className='text-center text-grey-dark mt-2'>No upcoming expirations</h4>}
+              {expirations?.schedules.map((schedule) => (
                 <Row key={schedule.contract.id} className='mb-2 me-2'>
                   {getUpcomingEventCountdown(schedule.contract.expirationTime)}
                   <OverlayTrigger
@@ -99,8 +106,8 @@ const NotificationsWidget: React.FC<Props> = ({ fullWidth = false }): ReactEleme
                 <ClockHistory size={20} className='me-2' />
                 Event log
               </div>
-              {events.length === 0 && <h4 className='text-center text-grey-dark mt-2'>No past events</h4>}
-              {events.map((event, index) => (
+              {(events === undefined || events.length === 0) && <h4 className='text-center text-grey-dark mt-2'>No past events</h4>}
+              {events?.map((event, index) => (
                 <Row key={`${event.playtime}-${index}`} className='mb-2'>
                   {getPastEventCountdown(event.playtime)}
                   <Col xs={9} className='bg-grey-light rounded-end'>

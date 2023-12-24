@@ -18,8 +18,8 @@ export const formatTurnaround = (turnaround: number): string => {
   return `${Math.floor(turnaround / 60)}h ${Math.floor(turnaround % 60)}m`
 }
 
-export const formatCashValue = (value: number): string => {
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+export const formatCashValue = (value: number, showDecimal = false): string => {
+  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: (showDecimal ? 2 : 0), maximumFractionDigits: (showDecimal ? 2 : 0) })
 }
 
 export const formatUtilization = (utilization: number): string => {

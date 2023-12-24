@@ -1,7 +1,7 @@
 import { Autobind } from './helpers/Autobind'
 import { type Contract } from '../models/Contract'
 import { Clock, Timeframes } from './helpers/Clock'
-import { ContractsController, type ContractOption } from './ContractsController'
+import { ContractsController, type ContractOption, type CostsBreakdown, type RevenuesBreakdown } from './ContractsController'
 import { HangarController, type HangarAsset } from './HangarController'
 import { LocalStorage } from './helpers/LocalStorage'
 import { AirlineController, EventOrigin, ReputationType } from './AirlineController'
@@ -109,12 +109,26 @@ export class ScheduleController {
     return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.utilization, 0) / this.getActiveSchedules().length
   }
 
-  public getWeeklyRevenue (): number {
-    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.revenue.total, 0)
+  public getWeeklyRevenue (): RevenuesBreakdown {
+    return this.getActiveSchedules().reduce((sum, schedule) => {
+      sum.economy += schedule.option.revenue.economy
+      sum.business += schedule.option.revenue.business
+      sum.first += schedule.option.revenue.first
+      sum.total += schedule.option.revenue.total
+      return sum
+    }, { economy: 0, business: 0, first: 0, total: 0 })
   }
 
-  public getWeeklyCost (): number {
-    return this.getActiveSchedules().reduce((sum, schedule) => sum + schedule.option.cost.total, 0)
+  public getWeeklyCost (): CostsBreakdown {
+    return this.getActiveSchedules().reduce((sum, schedule) => {
+      sum.fuel += schedule.option.cost.fuel
+      sum.leasing += schedule.option.cost.leasing
+      sum.maintenance += schedule.option.cost.maintenance
+      sum.landing += schedule.option.cost.landing
+      sum.passenger += schedule.option.cost.passenger
+      sum.total += schedule.option.cost.total
+      return sum
+    }, { fuel: 0, leasing: 0, maintenance: 0, landing: 0, passenger: 0, total: 0 })
   }
 
   public draftSchedule (contract: Contract, option: ContractOption): Schedule {

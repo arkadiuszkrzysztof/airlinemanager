@@ -1,4 +1,4 @@
-import React, { useEffect, type ReactElement } from 'react'
+import React, { useEffect, type ReactElement, useState } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 
 import TimetableHoursCol from '../fragments/TimetableHours'
@@ -49,11 +49,13 @@ const getSchedulesForToday = (): Schedule[][] => {
 
 const FlightsPreviewWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
   const Controllers = GameController.getInstance()
-  const [schedules, setSchedules] = React.useState<Schedule[][]>([])
+  const [schedules, setSchedules] = useState<Schedule[][]>([])
 
   useEffect(() => {
     setSchedules(getSchedulesForToday())
   }, [])
+
+  Controllers.Clock.registerListener('dailyScheduleUpdate', (playtime: number) => { if (playtime % Timeframes.DAY === 0) setSchedules(getSchedulesForToday()) })
 
   return (
     <Col xs={12} xxl={fullWidth ? 10 : 5} xxxl={fullWidth ? 10 : 5}>

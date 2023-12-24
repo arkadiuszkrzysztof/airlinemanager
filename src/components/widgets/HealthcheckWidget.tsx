@@ -6,6 +6,8 @@ import { GameController } from '../../controllers/GameController'
 import { Cell, Label, Pie, PieChart, ResponsiveContainer, Scatter, ScatterChart, XAxis, YAxis, ZAxis } from 'recharts'
 import { Timeframes } from '../../controllers/helpers/Clock'
 import { formatCashValue, formatScale } from '../../controllers/helpers/Helpers'
+import CostBreakdownTooltip from '../tooltips/CostBreakdownTooltip'
+import RevenueBreakdownTooltip from '../tooltips/RevenueBreakdownTooltip'
 
 interface Props {
   fullWidth?: boolean
@@ -83,13 +85,23 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
         <Card.Body className='d-flex flex-column overflow-auto pt-0 pb-2' style={{ height: '400px' }}>
           <Row className='my-2 justify-content-center'>
             <Col className='d-flex flex-column justify-content-center align-items-end' xs={'auto'}>
-              <h4 className='text-center pt-0 mb-0'>Weekly Revenue: <span className='text-success fw-bold'>{formatCashValue(weeklyRevenue)}</span></h4>
-              <h4 className='text-center pt-2'>Weekly Cost: <span className='text-danger fw-bold'>{formatCashValue(weeklyCost)}</span></h4>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><RevenueBreakdownTooltip revenues={weeklyRevenue} /></Tooltip>}
+              >
+                <h4 className='text-center pt-0 mb-0 cursor-help'>Weekly Revenue: <span className='text-success fw-bold'>{formatCashValue(weeklyRevenue.total)}</span></h4>
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={<Tooltip className='tooltip-medium' style={{ position: 'fixed' }}><CostBreakdownTooltip costs={weeklyCost} /></Tooltip>}
+              >
+                <h4 className='text-center pt-2 cursor-help'>Weekly Cost: <span className='text-danger fw-bold'>{formatCashValue(weeklyCost.total)}</span></h4>
+              </OverlayTrigger>
             </Col>
             <Col className='d-flex flex-row justify-content-start align-items-center' xs={'auto'}>
-              {weeklyRevenue > weeklyCost && <CaretUpFill size={40} className='text-success mb-1' />}
-              {weeklyRevenue < weeklyCost && <CaretDownFill size={40} className='text-danger mb-1' />}
-              <h2>{`${weeklyRevenue - weeklyCost < 0 ? '-' : ''}${formatScale(Math.abs(weeklyRevenue - weeklyCost), true)}`}</h2>
+              {weeklyRevenue.total > weeklyCost.total && <CaretUpFill size={40} className='text-success mb-1' />}
+              {weeklyRevenue.total < weeklyCost.total && <CaretDownFill size={40} className='text-danger mb-1' />}
+              <h2>{`${weeklyRevenue.total - weeklyCost.total < 0 ? '-' : ''}${formatScale(Math.abs(weeklyRevenue.total - weeklyCost.total), true)}`}</h2>
             </Col>
           </Row>
           <Row>
@@ -192,7 +204,7 @@ const HealthcheckWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement
               </ScatterChart>
             </ResponsiveContainer>
             <h5 className='text-center pt-1'>
-              Average Planes Age: <span className={`text-${planesAges.average < 10 ? 'success' : planesAges.average < 15 ? 'warning' : 'danger'} fw-bold`}>{`${planesAges.average.toFixed(1)} years`}</span>
+              Average Plane Age: <span className={`text-${planesAges.average < 10 ? 'success' : planesAges.average < 15 ? 'warning' : 'danger'} fw-bold`}>{`${planesAges.average.toFixed(1)} years`}</span>
               <OverlayTrigger placement="top" overlay={<Tooltip style={{ position: 'fixed' }}>The average retirement age of passenger jet airplanes is about 20-25 years. Also, it is observed for the traditional full-cost carriers to have average fleet ages above ten years. For the low-cost carriers, however, the average plane age is usually under ten years.</Tooltip>}>
                 <QuestionCircle size={16} className='ms-2 mb-1 text-primary cursor-help' />
               </OverlayTrigger>

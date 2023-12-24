@@ -120,7 +120,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
               <div className='timetable-hour mw-50'></div>
             </Col>
             {DaysOfWeek.map((day) =>
-              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'body'}`}>
+              <Col key={day} className={`d-flex flex-column justify-content-center rounded-top bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'white'}`}>
                 <div className='text-center fw-bold text-dark'>
                   {day}
                 </div>
@@ -144,7 +144,7 @@ const HangarListItem: React.FC<Props> = ({ item: asset }) => {
           <Row className='mx-2 mb-2' style={{ height: '300px' }}>
             <TimetableHoursCol />
             {DaysOfWeek.map((day) =>
-              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'body'}`}>
+              <Col key={day} style={{ position: 'relative' }} className={`rounded-bottom bg-${Controllers.Clock.currentDayOfWeek === day ? 'danger bg-opacity-10' : 'white'}`}>
                 <TimetableGrid />
                 <div className='position-absolute bg-danger opacity-25' style={{ top: `${Controllers.Clock.playtime % Timeframes.DAY / 6 + 15}px`, width: '100%', height: '10px', margin: '0 -12px' }}></div>
                 {Controllers.Schedule

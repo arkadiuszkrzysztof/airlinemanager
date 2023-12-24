@@ -4,6 +4,7 @@ import { Regions } from '../../models/Airport'
 import { type ContractOption } from '../../controllers/ContractsController'
 import { AirlineController } from '../../controllers/AirlineController'
 import { Col, Row } from 'react-bootstrap'
+import Counter from './Counter'
 
 interface Props {
   filter: string
@@ -54,9 +55,7 @@ const ContractsFilter: React.FC<Props> = ({ filter: region, setFilter: setRegion
           className={`position-relative d-flex justify-content-center align-items-center bg-secondary rounded fw-bold cursor-pointer  ${region === ALL ? 'border border-2 border-primary' : 'border border-2 border-secondary'}`}
           style={{ width: '50px', height: '50px', boxSizing: 'border-box' }}
           onClick={() => { handleFilter(ALL) }}>
-          {getCountForRegion(ALL) > 0 && <span className={`position-absolute bg-info rounded-circle text-white fw-bold ${getCountForRegion(ALL) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
-            {getCountForRegion(ALL)}
-          </span>}
+          {getCountForRegion(ALL) > 0 && <Counter count={getCountForRegion(ALL)} />}
           ALL
         </div>
       </Col>
@@ -68,9 +67,7 @@ const ContractsFilter: React.FC<Props> = ({ filter: region, setFilter: setRegion
             className={`rounded ${AirlineController.getInstance().getTier().record.constraints.canFlyCrossRegion ? 'cursor-pointer' : 'grayscale opacity-50'} ${region === WORLD ? 'border border-2 border-primary' : ''}`}
             style={{ maxWidth: '100px' }}
             onClick={() => { handleFilter(WORLD) }} />
-            {getCountForRegion(WORLD) > 0 && <span className={`position-absolute bg-info rounded-circle text-white fw-bold ${getCountForRegion(WORLD) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
-              {getCountForRegion(WORLD)}
-            </span>}
+            {getCountForRegion(WORLD) > 0 && <Counter count={getCountForRegion(WORLD)} />}
           </div>
       </Col>
       {Object.keys(Regions).map((key) => (
@@ -82,9 +79,7 @@ const ContractsFilter: React.FC<Props> = ({ filter: region, setFilter: setRegion
               className={`rounded ${AirlineController.getInstance().unlockedRegions.includes(key) ? 'cursor-pointer' : 'grayscale opacity-50'} ${region === key ? 'border border-2 border-primary' : ''}`}
               style={{ maxWidth: '50px' }}
               onClick={() => { handleFilter(key) }} />
-              {getCountForRegion(key) > 0 && <span className={`position-absolute bg-info rounded-circle text-white fw-bold ${getCountForRegion(key) > 9 ? 'px-1' : 'px-2'}`} style={{ bottom: '-5px', right: '-10px' }}>
-                {getCountForRegion(key)}
-              </span>}
+              {getCountForRegion(key) > 0 && <Counter count={getCountForRegion(key)} />}
             </div>
         </Col>
       ))}

@@ -35,7 +35,7 @@ export const Tiers: Record<Tier, TierRecord> = {
     },
     perks: {
       hubDiscount: 0.4,
-      destinationDiscount: 0.2,
+      destinationDiscount: 0.15,
       marketDiscount: 0.2
     }
   },
