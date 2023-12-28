@@ -9,6 +9,15 @@ export enum Regions {
   OCEANIA = 'Oceania'
 }
 
+export const RegionsKeys = [
+  'NA' as keyof typeof Regions,
+  'EU' as keyof typeof Regions,
+  'ASIA' as keyof typeof Regions,
+  'LATAM' as keyof typeof Regions,
+  'AFRICA' as keyof typeof Regions,
+  'OCEANIA' as keyof typeof Regions
+]
+
 export type AirportTuple = [
   IATACode: string,
   location: string,

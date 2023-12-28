@@ -189,7 +189,7 @@ export class ScheduleController {
     // Register flights starting today as events
     if (lastRegistration === -1 || playtime - lastRegistration >= Timeframes.DAY) {
       const startPlaytime = clock.todayStartPlaytime % Timeframes.WEEK
-      const endPlaytime = clock.tomorrowStartPlaytime % Timeframes.WEEK
+      const endPlaytime = clock.tomorrowStartPlaytime % Timeframes.WEEK !== 0 ? clock.tomorrowStartPlaytime % Timeframes.WEEK : Timeframes.WEEK
 
       ScheduleController.getInstance()
         .getTodaySchedules()

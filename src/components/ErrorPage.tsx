@@ -1,11 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { AirplaneFill } from 'react-bootstrap-icons'
 import { type ErrorResponse, useRouteError } from 'react-router-dom'
 import { GameController } from '../controllers/GameController'
 import { Link } from 'react-router-dom'
+import { Clock } from '../controllers/helpers/Clock'
 
 const ErrorPage: React.FC = () => {
   const error = useRouteError() as ErrorResponse
+
+  useEffect(() => {
+    Clock.getInstance().pauseGame()
+  }, [])
 
   return (
     <div id="error-page">

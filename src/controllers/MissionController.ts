@@ -1,4 +1,4 @@
-import { Regions } from '../models/Airport'
+import { type Regions, RegionsKeys } from '../models/Airport'
 import { AirlineController } from './AirlineController'
 import { HangarController } from './HangarController'
 import { type Schedule } from './ScheduleController'
@@ -20,7 +20,7 @@ export interface Achievement {
   }
 }
 
-const AchievementData: Achievement[] = [
+export const AchievementData: Achievement[] = [
   { id: 'REP010', type: AchievementType.REPUTATION, label: 'You just made your reputation double digit!', reward: 10000, conditions: { reputation: 10 } },
   { id: 'REP025', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 25%', reward: 50000, conditions: { reputation: 25 } },
   { id: 'REP050', type: AchievementType.REPUTATION, label: 'Your airline has reputation of 50%', reward: 1000000, conditions: { reputation: 50 } },
@@ -50,7 +50,7 @@ export enum MissionType { DESTINATION, VISITS, AIRCRAFT, PASSENGER_CLASS }
 
 export interface Mission {
   id: string
-  region?: Regions
+  region?: keyof typeof Regions
   type: MissionType
   label: string
   reward: number
@@ -106,24 +106,62 @@ const visitsResolver = (mission: Mission, schedule?: Schedule): boolean => {
   return mission.conditions.currentValue >= mission.conditions.expectedValue
 }
 
-const MissionData: Mission[] = [
+const [NA, EU, ASIA, LATAM, AFRICA, OCEANIA] = RegionsKeys
+
+export const MissionData: Mission[] = [
   { id: 'PLA-E170', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Embraer 170', reward: 100000, resolver: aircraftResolver, conditions: { aircraft: 'E170', expectedValue: 10000, currentValue: 0 } },
   { id: 'PAS-ECO', type: MissionType.PASSENGER_CLASS, label: 'Fly 50,000 passengers in economy class', reward: 100000, resolver: classResolver, conditions: { class: 'economy', expectedValue: 50000, currentValue: 0 } },
-  { id: 'VIS-EDI', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Edinburgh 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'EDI', expectedValue: 10, currentValue: 0 } },
-  { id: 'DEST-CDG', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Paris Charles de Gaulle', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CDG', expectedValue: 1000, currentValue: 0 } },
-  { id: 'VIS-KRK', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Krakow 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'KRK', expectedValue: 10, currentValue: 0 } },
-  { id: 'DEST-LHR', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to London Heathrow', reward: 100000, resolver: destinationResolver, conditions: { destination: 'LHR', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-KEF', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
+
+  // Regional Missions - PART 1
+  { id: 'VIS-ABQ', region: NA, type: MissionType.VISITS, label: 'Visit Albuquerque 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'ABQ', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-JFK', region: NA, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to New York', reward: 100000, resolver: destinationResolver, conditions: { destination: 'JFK', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-FCO', region: EU, type: MissionType.VISITS, label: 'Visit Rome 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'FCO', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-KEF', region: EU, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Reykjavik', reward: 100000, resolver: destinationResolver, conditions: { destination: 'KEF', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-HND', region: ASIA, type: MissionType.VISITS, label: 'Visit Tokyo 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'HND', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-ULN', region: ASIA, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Ulaanbaatar', reward: 100000, resolver: destinationResolver, conditions: { destination: 'ULN', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-AEP', region: LATAM, type: MissionType.VISITS, label: 'Visit Buenos Aires 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'AEP', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-HAV', region: LATAM, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Havana', reward: 100000, resolver: destinationResolver, conditions: { destination: 'HAV', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-TNR', region: AFRICA, type: MissionType.VISITS, label: 'Visit Antananarivo 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'TNR', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-CMN', region: AFRICA, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Casablanca', reward: 100000, resolver: destinationResolver, conditions: { destination: 'CMN', expectedValue: 1000, currentValue: 0 } },
+  { id: 'VIS-ASP', region: OCEANIA, type: MissionType.VISITS, label: 'Visit Alice Springs 10 times', reward: 100000, resolver: visitsResolver, conditions: { destination: 'ASP', expectedValue: 10, currentValue: 0 } },
+  { id: 'DEST-SIN', region: OCEANIA, type: MissionType.DESTINATION, label: 'Fly 1,000 passengers to Singapore', reward: 100000, resolver: destinationResolver, conditions: { destination: 'SIN', expectedValue: 1000, currentValue: 0 } },
+
   { id: 'PLA-A320', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Airbus A320', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: 'A320', expectedValue: 10000, currentValue: 0 } },
-  { id: 'VIS-LIS', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Lisbon 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 50, currentValue: 0 } },
   { id: 'PLA-B787', type: MissionType.AIRCRAFT, label: 'Fly 50,000 passengers with the Boeing 787', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '787', expectedValue: 50000, currentValue: 0 } },
   { id: 'PAS-BUS', type: MissionType.PASSENGER_CLASS, label: 'Fly 1,000 passengers in business class', reward: 250000, resolver: classResolver, conditions: { class: 'business', expectedValue: 1000, currentValue: 0 } },
-  { id: 'DEST-IST', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Istanbul', reward: 250000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 100000, currentValue: 0 } },
+
+  // Regional Missions - PART 2
+  { id: 'VIS-LAS', region: NA, type: MissionType.VISITS, label: 'Visit Las Vegas 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LAS', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-GDL', region: NA, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Guadalajara', reward: 250000, resolver: destinationResolver, conditions: { destination: 'GDL', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-LIS', region: EU, type: MissionType.VISITS, label: 'Visit Lisbon 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'LIS', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-IST', region: EU, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Istanbul', reward: 250000, resolver: destinationResolver, conditions: { destination: 'IST', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-DXB', region: ASIA, type: MissionType.VISITS, label: 'Visit Dubai 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'DXB', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-BOM', region: ASIA, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Mumbai', reward: 250000, resolver: destinationResolver, conditions: { destination: 'BOM', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-PUQ', region: LATAM, type: MissionType.VISITS, label: 'Visit Punta Arenas 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'PUQ', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-BOG', region: LATAM, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Bogota', reward: 250000, resolver: destinationResolver, conditions: { destination: 'BOG', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-CPT', region: AFRICA, type: MissionType.VISITS, label: 'Visit Cape Town 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'CPT', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-CAI', region: AFRICA, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Cairo', reward: 250000, resolver: destinationResolver, conditions: { destination: 'CAI', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-NAN', region: OCEANIA, type: MissionType.VISITS, label: 'Visit Nadi 50 times', reward: 250000, resolver: visitsResolver, conditions: { destination: 'NAN', expectedValue: 50, currentValue: 0 } },
+  { id: 'DEST-MEL', region: OCEANIA, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Melbourne', reward: 250000, resolver: destinationResolver, conditions: { destination: 'MEL', expectedValue: 100000, currentValue: 0 } },
+
   { id: 'PLA-B777', type: MissionType.AIRCRAFT, label: 'Fly 10,000 passengers with the Boeing 777', reward: 250000, resolver: aircraftResolver, conditions: { aircraft: '777', expectedValue: 10000, currentValue: 0 } },
-  { id: 'DEST-AMS', region: Regions.EU, type: MissionType.DESTINATION, label: 'Fly 100,000 passengers to Amsterdam', reward: 250000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 100000, currentValue: 0 } },
   { id: 'PAS-FIR', type: MissionType.PASSENGER_CLASS, label: 'Fly 1000 passengers in first class', reward: 500000, resolver: classResolver, conditions: { class: 'first', expectedValue: 1000, currentValue: 0 } },
+
+  // Regional Missions - PART 3
+  { id: 'VIS-YYZ', region: NA, type: MissionType.VISITS, label: 'Visit Toronto 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'YYZ', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-ATL', region: NA, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Atlanta', reward: 500000, resolver: destinationResolver, conditions: { destination: 'ATL', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-ARN', region: EU, type: MissionType.VISITS, label: 'Visit Stockholm 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'ARN', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-AMS', region: EU, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Amsterdam', reward: 500000, resolver: destinationResolver, conditions: { destination: 'AMS', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-HAN', region: ASIA, type: MissionType.VISITS, label: 'Visit Hanoi 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'HAN', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-PEK', region: ASIA, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Beijing', reward: 500000, resolver: destinationResolver, conditions: { destination: 'PEK', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-GRU', region: LATAM, type: MissionType.VISITS, label: 'Visit Sao Paulo 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'GRU', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-LIM', region: LATAM, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Lima', reward: 500000, resolver: destinationResolver, conditions: { destination: 'LIM', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-LPA', region: AFRICA, type: MissionType.VISITS, label: 'Visit Las Palmas 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'LPA', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-JNB', region: AFRICA, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Johannesburg', reward: 500000, resolver: destinationResolver, conditions: { destination: 'JNB', expectedValue: 100000, currentValue: 0 } },
+  { id: 'VIS-AKL', region: OCEANIA, type: MissionType.VISITS, label: 'Visit Auckland 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'AKL', expectedValue: 100, currentValue: 0 } },
+  { id: 'DEST-CGK', region: OCEANIA, type: MissionType.DESTINATION, label: 'Fly 250,000 passengers to Jakarta', reward: 500000, resolver: destinationResolver, conditions: { destination: 'CGK', expectedValue: 100000, currentValue: 0 } },
+
   { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 250,000 passengers with the Boeing 747', reward: 500000, resolver: aircraftResolver, conditions: { aircraft: '747', expectedValue: 250000, currentValue: 0 } },
-  { id: 'VIS-ARN', region: Regions.EU, type: MissionType.VISITS, label: 'Visit Stockholm 100 times', reward: 500000, resolver: visitsResolver, conditions: { destination: 'ARN', expectedValue: 100, currentValue: 0 } },
   { id: 'PLA-B747', type: MissionType.AIRCRAFT, label: 'Fly 1,000,000 passengers with the Airbus A380', reward: 1000000, resolver: aircraftResolver, conditions: { aircraft: 'A380', expectedValue: 1000000, currentValue: 0 } }
 ]
 
@@ -145,7 +183,7 @@ export class MissionController {
     const progress = LocalStorage.getMissionsProgress()
     this._missionsRemaining = MissionData
       .filter((m: Mission) => !this._missionsCompleted.map((mc) => mc.mission.id).includes(m.id))
-      .filter((m: Mission) => m.region === undefined || m.region === AirlineController.getInstance().startingRegion)
+      .filter((m: Mission) => m.region === undefined || AirlineController.getInstance().unlockedRegions.includes(m.region))
       .map((m: Mission) => ({ ...m, conditions: { ...m.conditions, currentValue: progress[m.id] ?? 0 } }))
   }
 

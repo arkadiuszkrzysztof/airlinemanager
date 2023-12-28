@@ -80,7 +80,7 @@ const CreateAirline: React.FC = () => {
             <ColPath Icon={Icon1CircleFill} />
             <Col className='me-5 z-2'>
               <h2 className='fw-bold'>Get Planes</h2>
-              <p className='fs-6'>Buy or lease planes from the Market. You&apos;ll get new offers each week. Older planes are cheaper, however, they have higher maintenance cost and bring less reputation to the Airline.</p>
+              <p className='fs-6'>Buy or lease planes from the Market. You&apos;ll get new offers each week. Older planes are cheaper, however, they have higher maintenance costs and bring less reputation to the Airline.</p>
               <img src='/images/create-market.png' alt='Market' className='rounded w-100 widget-shadow' style={{ maxWidth: '740px' }} />
             </Col>
           </Row>

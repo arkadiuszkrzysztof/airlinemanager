@@ -1,5 +1,5 @@
 import { Autobind } from './helpers/Autobind'
-import { Airport, AirportsData, type Regions, calculateAirportsDistance } from '../models/Airport'
+import { Airport, AirportsData, type Regions, calculateAirportsDistance, RegionsKeys } from '../models/Airport'
 import { Contract } from '../models/Contract'
 import { Timeframes } from './helpers/Clock'
 import { type HangarAsset, HangarController } from './HangarController'
@@ -57,13 +57,15 @@ export class ContractsController {
   private inactiveContracts: Contract[]
 
   private constructor () {
+    const [NA, EU, ASIA, LATAM, AFRICA, OCEANIA] = RegionsKeys
+
     this.airports = {
-      NA: AirportsData.NA.map(airportData => new Airport(...['NA' as keyof typeof Regions, ...airportData] as const)),
-      EU: AirportsData.EU.map(airportData => new Airport(...['EU' as keyof typeof Regions, ...airportData] as const)),
-      ASIA: AirportsData.ASIA.map(airportData => new Airport(...['ASIA' as keyof typeof Regions, ...airportData] as const)),
-      LATAM: AirportsData.LATAM.map(airportData => new Airport(...['LATAM' as keyof typeof Regions, ...airportData] as const)),
-      AFRICA: AirportsData.AFRICA.map(airportData => new Airport(...['AFRICA' as keyof typeof Regions, ...airportData] as const)),
-      OCEANIA: AirportsData.OCEANIA.map(airportData => new Airport(...['OCEANIA' as keyof typeof Regions, ...airportData] as const))
+      NA: AirportsData.NA.map(airportData => new Airport(...[NA, ...airportData] as const)),
+      EU: AirportsData.EU.map(airportData => new Airport(...[EU, ...airportData] as const)),
+      ASIA: AirportsData.ASIA.map(airportData => new Airport(...[ASIA, ...airportData] as const)),
+      LATAM: AirportsData.LATAM.map(airportData => new Airport(...[LATAM, ...airportData] as const)),
+      AFRICA: AirportsData.AFRICA.map(airportData => new Airport(...[AFRICA, ...airportData] as const)),
+      OCEANIA: AirportsData.OCEANIA.map(airportData => new Airport(...[OCEANIA, ...airportData] as const))
     }
     this.contracts = LocalStorage.getContractsOffers()
     this.inactiveContracts = LocalStorage.getInactiveContracts()
@@ -97,8 +99,16 @@ export class ContractsController {
     const id = `${airport1.IATACode}${airport2.IATACode}-${getRandomCharacters(4, true)}`
     const distance = calculateAirportsDistance(airport1, airport2)
     const departureTime = Math.floor(Math.random() * Timeframes.WEEK)
-    const demandRatio = (airport1.passengers + airport2.passengers) / 75000000
-    const demand = { economy: Math.floor(demandRatio * 300), business: Math.floor(demandRatio * 25), first: Math.floor(demandRatio * 5) }
+
+    const minPassengers = Math.min(airport1.passengers, airport2.passengers)
+    const maxPassengers = Math.max(airport1.passengers, airport2.passengers)
+    const demandRatio = 0.25 * Math.pow((minPassengers - 50000000) / 25000000, 2) + 0.05 * Math.pow((maxPassengers - 100000000) / 50000000, 2) + 1
+    const demand = {
+      economy: Math.floor(demandRatio * (minPassengers / 15000000) * 300),
+      business: Math.floor(demandRatio * (minPassengers / 15000000) * 25),
+      first: Math.floor(demandRatio * (minPassengers / 15000000) * 5)
+    }
+
     const contractDuration = Timeframes.MONTH * Math.floor(Math.random() * 8 + 4)
     const reputation = Math.floor((distance * 2 / 10000) * AirlineController.getInstance().getTier().record.constraints.reputationGain * 100) / 100
 
@@ -183,16 +193,16 @@ export class ContractsController {
   private calculateRevenue (contract: Contract, asset: HangarAsset, passengers: { economy: number, business: number, first: number }): RevenuesBreakdown {
     const duration = contract.distance / asset.plane.cruiseSpeed
 
-    const economyTicketsRevenue = Math.floor(passengers.economy * 75 * duration * 2) + passengers.economy * 15 * 2
-    const businessTicketsRevenue = Math.floor(passengers.business * 150 * duration * 2) + passengers.business * 20 * 2
-    const firsTicketRevenue = Math.floor(passengers.first * 300 * duration * 2) + passengers.first * 30 * 2
+    const economyTicketsRevenue = Math.floor(passengers.economy * 50 * duration * 2) + passengers.economy * 10 * 2
+    const businessTicketsRevenue = Math.floor(passengers.business * 250 * duration * 2) + passengers.business * 20 * 2
+    const firsTicketRevenue = Math.floor(passengers.first * 750 * duration * 2) + passengers.first * 50 * 2
 
     if (asset.plane.typeName === 'Concorde') {
       return {
         economy: economyTicketsRevenue,
-        business: businessTicketsRevenue * 4,
-        first: firsTicketRevenue * 4,
-        total: economyTicketsRevenue + businessTicketsRevenue * 4 + firsTicketRevenue * 4
+        business: businessTicketsRevenue * 3,
+        first: firsTicketRevenue * 3,
+        total: economyTicketsRevenue + businessTicketsRevenue * 3 + firsTicketRevenue * 3
       }
     } else {
       return {

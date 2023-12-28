@@ -22,6 +22,10 @@ const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
         <Col xs={5} className='text-end'>{ownership}</Col>
       </Row>
       <Row>
+        <Col xs={4} className='text-start'>Age</Col>
+        <Col xs={8} className='text-end'>{plane.age}</Col>
+      </Row>
+      <Row>
         <Col xs={7} className='text-start'>Reputation</Col>
         <Col xs={5} className='text-end'>{`+${plane.reputation.toFixed(2)}%`}</Col>
       </Row>
@@ -32,6 +36,10 @@ const PlaneDetailsTooltip: React.FC<{ asset: HangarAsset }> = ({ asset }) => {
       <Row>
         <Col xs={7} className='text-start'>Cruise speed</Col>
         <Col xs={5} className='text-end'>{GameController.formatSpeed(plane.cruiseSpeed)}</Col>
+      </Row>
+      <Row>
+        <Col xs={7} className='text-start'>Min runway</Col>
+        <Col xs={5} className='text-end'>{`${plane.minRunwayLength} meters`}</Col>
       </Row>
       <Row>
         <Col xs={7} className='text-start'>Plane capacity:</Col>

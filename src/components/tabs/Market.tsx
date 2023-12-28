@@ -33,7 +33,7 @@ const Market: React.FC = () => {
     <>
       <ListPreviewWidget<Plane>
           Icon={AirplaneEngines}
-          header={'Planes'}
+          header={'Get Planes'}
           counter={`(${Controllers.Hangar.getAssetsCount()}/${Controllers.Airline.getTier().record.constraints.maxPlanes})`}
           subheader={<RefreshHint timeTo={Controllers.Clock.timeToNextWeekFormatted} realTimeTo={Controllers.Clock.timeToNextWeekInRealTime} />}
           Component={MarketListItem}
@@ -42,7 +42,7 @@ const Market: React.FC = () => {
         />
         <ListPreviewWidget<{ contract: Contract, options: ContractOption[] }>
           Icon={FileEarmarkText}
-          header='Contracts'
+          header='Sign Contracts'
           subheader={<RefreshHint timeTo={Controllers.Clock.timeToNextDayFormatted} realTimeTo={Controllers.Clock.timeToNextDayInRealTime} />}
           Component={ContractListItem}
           items={contracts}

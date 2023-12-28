@@ -80,7 +80,7 @@ export class MarketController {
     const prototypes = this.planes.filter(plane => (constraints.MTOW != null ? plane.MTOW <= constraints.MTOW : true) && plane.typeName !== 'Concorde')
     const concordePrototype = this.planes.find(plane => plane.typeName === 'Concorde') as Plane
 
-    const numberOfOptions = prototypes.length * 3
+    const numberOfOptions = Math.max(Math.round(Math.random() * prototypes.length), 3)
     const options: Plane[] = []
 
     for (let i = 0; i < numberOfOptions; i++) {

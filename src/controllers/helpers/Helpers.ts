@@ -9,7 +9,8 @@ export const getRandomCharacters = (length: number, includeNumbers: boolean = fa
 
 export const getDepreciation = (price: number, age: number): number => {
   for (let i = 1; i <= age; i++) {
-    price *= (1 - (40 - i) / 500)
+    const depreciation = Math.max((Math.abs(25 - i) / 300), 0.02)
+    price *= (1 - depreciation)
   }
   return price
 }
@@ -26,8 +27,8 @@ export const formatUtilization = (utilization: number): string => {
   return `${utilization}%`
 }
 
-export const formatPercentageValue = (value: number): string => {
-  return `${Math.floor(value * 100)}%`
+export const formatPercentageValue = (value: number, showDecimal = false): string => {
+  return `${(value * 100).toLocaleString('en-US', { minimumFractionDigits: (showDecimal ? 2 : 0), maximumFractionDigits: (showDecimal ? 2 : 0) })}%`
 }
 
 export const formatScale = (value: number, showDecimal: boolean = false): string => {
