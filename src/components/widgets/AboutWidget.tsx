@@ -22,7 +22,7 @@ const AboutWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => {
           <h2 className='text-primary mt-2 mb-4'>
             <AirplaneEnginesFill size={40} className='text-primary me-2 mb-2 rotate-30'/>
             <strong>Airline Manager</strong>
-            <small className='text-info ms-2'>v1.0.0</small>
+            <small className='text-info ms-2'>v1.1</small>
           </h2>
           <p className='text-center'>Hi, I&apos;m Arek. I&apos;ll share a secret with you... I LOVE PLANES! xD<br />I hope you enjoy plaing the game.<br />Please share your feedback and suggestions via DMs on my socials:</p>
           <div className='text-center'>

@@ -11,21 +11,26 @@ interface Props {
   fullWidth?: boolean
 }
 
-const numberOfUnlockedRegions = AirlineController.getInstance().unlockedRegions.length
-const UnlockPrice = {
-  NA: 10000000 * numberOfUnlockedRegions,
-  EU: 10000000 * numberOfUnlockedRegions,
-  ASIA: 10000000 * numberOfUnlockedRegions,
-  LATAM: 10000000 * numberOfUnlockedRegions,
-  AFRICA: 10000000 * numberOfUnlockedRegions,
-  OCEANIA: 10000000 * numberOfUnlockedRegions
+const getUnlockPrice = (region: string): number => {
+  const numberOfUnlockedRegions = AirlineController.getInstance().unlockedRegions.length
+
+  const UnlockPrice = {
+    NA: 10000000 * numberOfUnlockedRegions,
+    EU: 10000000 * numberOfUnlockedRegions,
+    ASIA: 10000000 * numberOfUnlockedRegions,
+    LATAM: 10000000 * numberOfUnlockedRegions,
+    AFRICA: 10000000 * numberOfUnlockedRegions,
+    OCEANIA: 10000000 * numberOfUnlockedRegions
+  }
+
+  return UnlockPrice[region as keyof typeof UnlockPrice]
 }
 const RegionReputationGain = 5
 
 const unlockRegion = (region: string): void => {
   if (canUnlock(region)) {
     const Controllers = GameController.getInstance()
-    Controllers.Airline.unlockRegion(region, UnlockPrice[region as keyof typeof UnlockPrice], RegionReputationGain)
+    Controllers.Airline.unlockRegion(region, getUnlockPrice(region), RegionReputationGain)
   }
 }
 
@@ -39,7 +44,7 @@ const canUnlock = (region: string): boolean => {
   const Controllers = GameController.getInstance()
 
   return !isUnlocked(region) &&
-    Controllers.Airline.cash >= UnlockPrice[region as keyof typeof UnlockPrice] &&
+    Controllers.Airline.cash >= getUnlockPrice(region) &&
     Controllers.Airline.getTier().record.constraints.maxNumberOfRegions > Controllers.Airline.unlockedRegions.length
 }
 
@@ -65,7 +70,7 @@ const RegionsWidget: React.FC<Props> = ({ fullWidth = false }): ReactElement => 
                     style={{ maxWidth: '100px' }}
                     onClick={() => { unlockRegion(key) }} />
                   <p className='text-center mb-0 fw-bold text-dark'>{Regions[key as keyof typeof Regions]}</p>
-                  {!isUnlocked(key) && <p className='text-center mb-0'>Unlock for <strong className='text-danger'>{formatCashValue(UnlockPrice[key as keyof typeof UnlockPrice])}</strong></p>}
+                  {!isUnlocked(key) && <p className='text-center mb-0'>Unlock for <strong className='text-danger'>{formatCashValue(getUnlockPrice(key))}</strong></p>}
                   {!isUnlocked(key) && <p className='text-center mb-2 d-flex align-items-center justify-content-center'>
                     <StarFill size={16} className='text-badge-gold ms-4 me-2' />
                     <span className='fw-bold'>{` +${RegionReputationGain.toFixed(2)}%`}</span></p>}

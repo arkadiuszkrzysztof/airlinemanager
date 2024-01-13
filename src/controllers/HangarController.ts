@@ -74,7 +74,7 @@ export class HangarController {
 
   public getPlanesAges (): { average: number, ages: Record<string, number> } {
     const allAges = this.assets.map(asset => Math.round((Clock.getInstance().playtime - asset.plane.manufactureTime) / Timeframes.YEAR))
-    const average = allAges.reduce((a, b) => a + b, 0) / allAges.length
+    const average = allAges.length > 0 ? allAges.reduce((a, b) => a + b, 0) / allAges.length : 0
     const ages = allAges.reduce((ages: Record<string, number>, age) => { ages[(age <= 20 ? age : 20)] = (ages[(age <= 20 ? age : 20)] !== undefined ? ages[(age <= 20 ? age : 20)] + 1 : 1); return ages }, {})
 
     return { average, ages }
